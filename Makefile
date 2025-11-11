@@ -1,7 +1,7 @@
 # minarch-cores Makefile
 # Builds libretro cores using official recipes via Docker
 
-.PHONY: help build-arm7neonhf build-aarch64 build-arm7neonhf-patched build-aarch64-patched build-all build-all-patched apply-patches clean-patches package-arm7neonhf package-aarch64 package-arm7neonhf-patched package-aarch64-patched package-all clean shell
+.PHONY: help build-arm7neonhf build-aarch64 build-arm7neonhf-patched build-aarch64-patched build-all build-all-patched apply-patches-docker clean-patches-docker package-arm7neonhf package-aarch64 package-arm7neonhf-patched package-aarch64-patched package-all clean shell
 
 # Include configuration
 include config.env
@@ -57,27 +57,27 @@ docker-build:
 	docker build -t $(DOCKER_IMAGE) .
 	@echo "✓ Docker image ready"
 
-# Apply patches to cores in PATCHED_CORES
-apply-patches:
-	@echo "=== Applying minarch patches ==="
-	@for core in $(PATCHED_CORES); do \
-		echo "  → Cleaning and patching $$core"; \
-		cd libretro-super/libretro-$$core && git checkout . && git clean -fd && cd ../..; \
-		patch_file=$$(ls patches/$$core-*.patch 2>/dev/null | head -1); \
-		if [ -n "$$patch_file" ]; then \
-			echo "    Applying $$patch_file"; \
-			cd libretro-super/libretro-$$core && patch -p1 < ../../$$patch_file && cd ../..; \
+# Apply patches (runs inside Docker to avoid permission issues)
+apply-patches-docker:
+	@echo "=== Applying minarch patches (inside Docker) ==="
+	$(DOCKER_RUN) bash -c "for core in $(PATCHED_CORES); do \
+		echo \"  → Cleaning and patching \$$core\"; \
+		cd libretro-super/libretro-\$$core && git checkout . && git clean -fd && cd ../..; \
+		patch_file=\$$(ls patches/\$$core-*.patch 2>/dev/null | head -1); \
+		if [ -n \"\$$patch_file\" ]; then \
+			echo \"    Applying \$$patch_file\"; \
+			cd libretro-super/libretro-\$$core && patch -p1 < ../../\$$patch_file && cd ../..; \
 		fi; \
-	done
+	done"
 	@echo "✓ Patches applied"
 
-# Clean patches from cores in PATCHED_CORES
-clean-patches:
-	@echo "=== Reverting patches ==="
-	@for core in $(PATCHED_CORES); do \
-		echo "  → Reverting $$core"; \
-		cd libretro-super/libretro-$$core && git checkout . && git clean -fd && cd ../..; \
-	done
+# Clean patches (runs inside Docker to avoid permission issues)
+clean-patches-docker:
+	@echo "=== Reverting patches (inside Docker) ==="
+	$(DOCKER_RUN) bash -c "for core in $(PATCHED_CORES); do \
+		echo \"  → Reverting \$$core\"; \
+		cd libretro-super/libretro-\$$core && git checkout . && git clean -fd && cd ../..; \
+	done"
 	@echo "✓ Patches reverted"
 
 # Build 32-bit ARM cores using official recipe
@@ -111,7 +111,7 @@ build-aarch64: docker-build
 	@du -sh build/aarch64 2>/dev/null || true
 
 # Build 32-bit ARM patched cores
-build-arm7neonhf-patched: docker-build apply-patches
+build-arm7neonhf-patched: docker-build apply-patches-docker
 	@echo "=== Building arm7neonhf patched cores ==="
 	@echo "Recipe: $(RECIPE_ARMV7_PATCHED)"
 	@echo "Patched cores: $(PATCHED_CORES)"
@@ -124,10 +124,10 @@ build-arm7neonhf-patched: docker-build apply-patches
 	@echo "  → Copying patched cores to build/arm7neonhf-patched/"
 	@cp libretro-super/dist/unix/*_libretro.so build/arm7neonhf-patched/ 2>/dev/null || true
 	@echo "✓ arm7neonhf patched cores built: $$(ls build/arm7neonhf-patched/*.so 2>/dev/null | wc -l | xargs) cores"
-	$(MAKE) clean-patches
+	$(MAKE) clean-patches-docker
 
 # Build 64-bit ARM patched cores
-build-aarch64-patched: docker-build apply-patches
+build-aarch64-patched: docker-build apply-patches-docker
 	@echo "=== Building aarch64 patched cores ==="
 	@echo "Recipe: $(RECIPE_AARCH64_PATCHED)"
 	@echo "Patched cores: $(PATCHED_CORES)"
@@ -140,7 +140,7 @@ build-aarch64-patched: docker-build apply-patches
 	@echo "  → Copying patched cores to build/aarch64-patched/"
 	@cp libretro-super/dist/unix/*_libretro.so build/aarch64-patched/ 2>/dev/null || true
 	@echo "✓ aarch64 patched cores built: $$(ls build/aarch64-patched/*.so 2>/dev/null | wc -l | xargs) cores"
-	$(MAKE) clean-patches
+	$(MAKE) clean-patches-docker
 
 # Build both architectures (clean only)
 build-all: build-arm7neonhf build-aarch64
