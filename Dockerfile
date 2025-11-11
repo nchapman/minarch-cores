@@ -48,11 +48,15 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	libx11-dev \
 	mesa-common-dev \
 	libglu1-mesa-dev \
+	libgl1-mesa-dev \
+	libgles2-mesa-dev \
 	libasound2-dev \
 	gcc-arm-linux-gnueabihf \
 	g++-arm-linux-gnueabihf \
 	gcc-aarch64-linux-gnu \
 	g++-aarch64-linux-gnu \
+	libgl1-mesa-dev:armhf \
+	libgl1-mesa-dev:arm64 \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Verify build environment
