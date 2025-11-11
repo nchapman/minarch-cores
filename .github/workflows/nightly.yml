@@ -5,15 +5,6 @@ on:
     # Run at 2 AM UTC every day
     - cron: '0 2 * * *'
   workflow_dispatch:  # Allow manual triggers
-  push:
-    branches:
-      - main
-    paths:
-      - 'Dockerfile'
-      - 'Makefile'
-      - 'config.env'
-      - 'patches/**'
-      - 'recipes/**'
 
 jobs:
   build:
