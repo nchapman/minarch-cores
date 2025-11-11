@@ -10,8 +10,9 @@ RUN echo "deb http://archive.debian.org/debian buster main contrib non-free" > /
     echo "deb http://archive.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list && \
     echo "Acquire::Check-Valid-Until false;" > /etc/apt/apt.conf.d/99no-check-valid-until
 
-# Enable multiarch for armhf (32-bit ARM) libraries
-RUN dpkg --add-architecture armhf
+# Enable multiarch for ARM libraries
+RUN dpkg --add-architecture armhf && \
+    dpkg --add-architecture arm64
 
 # Install build tools and libretro core dependencies
 # Better to include extras than miss something a core needs
@@ -26,6 +27,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	cmake \
 	ninja-build \
 	nasm \
+	yasm \
 	patch \
 	perl \
 	pkg-config \
@@ -33,8 +35,12 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	python3 \
 	python3-pip \
 	ccache \
+	autoconf \
+	automake \
+	libtool \
 	zlib1g-dev \
 	zlib1g-dev:armhf \
+	zlib1g-dev:arm64 \
 	libpng-dev \
 	liblzma-dev \
 	libssl-dev \
@@ -45,6 +51,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	libasound2-dev \
 	gcc-arm-linux-gnueabihf \
 	g++-arm-linux-gnueabihf \
+	gcc-aarch64-linux-gnu \
+	g++-aarch64-linux-gnu \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Verify build environment
@@ -52,8 +60,9 @@ RUN echo "=== Build Environment ===" && \
     uname -m && \
     gcc --version | head -1 && \
     echo "" && \
-    echo "=== ARM Cross-Compiler ===" && \
-    arm-linux-gnueabihf-gcc --version | head -1
+    echo "=== ARM Cross-Compilers ===" && \
+    arm-linux-gnueabihf-gcc --version | head -1 && \
+    aarch64-linux-gnu-gcc --version | head -1
 
 WORKDIR /workspace
 
