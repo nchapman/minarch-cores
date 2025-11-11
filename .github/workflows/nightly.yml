@@ -1,0 +1,113 @@
+name: Nightly Builds
+
+on:
+  schedule:
+    # Run at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual triggers
+  push:
+    branches:
+      - main
+    paths:
+      - 'Dockerfile'
+      - 'Makefile'
+      - 'config.env'
+      - 'patches/**'
+      - 'recipes/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240  # 4 hours total
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: minarch-cores-builder:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Cache libretro core repositories
+        uses: actions/cache@v4
+        with:
+          path: |
+            libretro-super/libretro-*/
+          key: libretro-cores-${{ github.run_id }}
+          restore-keys: |
+            libretro-cores-
+
+      - name: Build all packages (incremental)
+        run: make package-all
+        env:
+          JOBS: 4  # GitHub runners have 4 cores
+
+      - name: Generate build info
+        id: build_info
+        run: |
+          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+          echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+          # Get core counts
+          ARM7_COUNT=$(unzip -l linux-arm7neonhf.zip | grep -c '_libretro.so' || echo 0)
+          AARCH64_COUNT=$(unzip -l linux-aarch64.zip | grep -c '_libretro.so' || echo 0)
+          ARM7_PATCHED_COUNT=$(unzip -l linux-arm7neonhf-patched.zip | grep -c '_libretro.so' || echo 0)
+          AARCH64_PATCHED_COUNT=$(unzip -l linux-aarch64-patched.zip | grep -c '_libretro.so' || echo 0)
+
+          echo "arm7_count=$ARM7_COUNT" >> $GITHUB_OUTPUT
+          echo "aarch64_count=$AARCH64_COUNT" >> $GITHUB_OUTPUT
+          echo "arm7_patched_count=$ARM7_PATCHED_COUNT" >> $GITHUB_OUTPUT
+          echo "aarch64_patched_count=$AARCH64_PATCHED_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Delete old nightly release
+        run: |
+          gh release delete nightly --yes || true
+          git push origin :refs/tags/nightly || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create nightly release
+        run: |
+          gh release create nightly \
+            --title "Nightly Build - ${{ steps.build_info.outputs.date }}" \
+            --notes "**Automated nightly build**
+
+          - **Commit:** ${{ steps.build_info.outputs.sha }}
+          - **Date:** ${{ steps.build_info.outputs.date }}
+          - **Workflow:** [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          **Core Counts:**
+          - arm7neonhf: ${{ steps.build_info.outputs.arm7_count }} cores
+          - aarch64: ${{ steps.build_info.outputs.aarch64_count }} cores
+          - arm7neonhf-patched: ${{ steps.build_info.outputs.arm7_patched_count }} cores
+          - aarch64-patched: ${{ steps.build_info.outputs.aarch64_patched_count }} cores
+
+          These builds are automatically generated and may be unstable." \
+            --prerelease \
+            linux-arm7neonhf.zip \
+            linux-aarch64.zip \
+            linux-arm7neonhf-patched.zip \
+            linux-aarch64-patched.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: build-logs-${{ steps.build_info.outputs.date }}
+          path: |
+            build/
+            *.log
+          retention-days: 7

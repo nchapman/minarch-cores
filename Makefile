@@ -16,6 +16,10 @@ RECIPE_AARCH64 := recipes/linux/cores-linux-aarch64
 RECIPE_ARMV7_PATCHED := recipes/linux/cores-linux-arm7neonhf-patched
 RECIPE_AARCH64_PATCHED := recipes/linux/cores-linux-aarch64-patched
 
+# Build options
+FORCE ?= NO   # Set to YES to force rebuild all cores, NO for incremental builds
+JOBS ?= 8     # Parallel build jobs (override in config.env or via JOBS=N make ...)
+
 help:
 	@echo "minarch-cores - Local Build System"
 	@echo ""
@@ -36,11 +40,16 @@ help:
 	@echo "  make package-aarch64-patched    Create linux-aarch64-patched.zip"
 	@echo "  make package-all                Create all 4 zip files"
 	@echo ""
+	@echo "Build Options:"
+	@echo "  FORCE=YES make build-*     Force rebuild all cores (default: NO)"
+	@echo "  JOBS=N make build-*        Parallel jobs (default: 8)"
+	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean                 Remove build artifacts"
 	@echo "  make shell                 Open shell in build container"
 	@echo ""
-	@echo "Note: First build takes 1-3 hours (fetches + compiles 130+ cores)"
+	@echo "Note: Incremental builds only rebuild changed cores (much faster!)"
+	@echo "      First build takes 1-3 hours, subsequent builds typically minutes"
 
 # Build Docker image (only needed once)
 docker-build:
@@ -79,7 +88,7 @@ build-arm7neonhf: docker-build
 	@mkdir -p build/arm7neonhf
 	$(DOCKER_RUN) bash -c "cd libretro-super && \
 		JOBS=$(JOBS) \
-		FORCE=YES \
+		FORCE=$(FORCE) \
 		./libretro-buildbot-recipe.sh $(RECIPE_ARMV7) arm7neonhf-build"
 	@echo "  → Copying cores to build/arm7neonhf/"
 	@cp libretro-super/dist/unix/*_libretro.so build/arm7neonhf/ 2>/dev/null || true
@@ -94,7 +103,7 @@ build-aarch64: docker-build
 	@mkdir -p build/aarch64
 	$(DOCKER_RUN) bash -c "cd libretro-super && \
 		JOBS=$(JOBS) \
-		FORCE=YES \
+		FORCE=$(FORCE) \
 		./libretro-buildbot-recipe.sh $(RECIPE_AARCH64) aarch64-build"
 	@echo "  → Copying cores to build/aarch64/"
 	@cp libretro-super/dist/unix/*_libretro.so build/aarch64/ 2>/dev/null || true
@@ -110,7 +119,7 @@ build-arm7neonhf-patched: docker-build apply-patches
 	@rm -rf build/arm7neonhf-patched/*
 	$(DOCKER_RUN) bash -c "cd libretro-super && \
 		JOBS=$(JOBS) \
-		FORCE=YES \
+		FORCE=$(FORCE) \
 		./libretro-buildbot-recipe.sh ../$(RECIPE_ARMV7_PATCHED) arm7neonhf-patched"
 	@echo "  → Copying patched cores to build/arm7neonhf-patched/"
 	@cp libretro-super/dist/unix/*_libretro.so build/arm7neonhf-patched/ 2>/dev/null || true
@@ -126,7 +135,7 @@ build-aarch64-patched: docker-build apply-patches
 	@rm -rf build/aarch64-patched/*
 	$(DOCKER_RUN) bash -c "cd libretro-super && \
 		JOBS=$(JOBS) \
-		FORCE=YES \
+		FORCE=$(FORCE) \
 		./libretro-buildbot-recipe.sh ../$(RECIPE_AARCH64_PATCHED) aarch64-patched"
 	@echo "  → Copying patched cores to build/aarch64-patched/"
 	@cp libretro-super/dist/unix/*_libretro.so build/aarch64-patched/ 2>/dev/null || true
