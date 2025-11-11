@@ -1,0 +1,19 @@
+# Build output
+build/
+
+# Distribution packages
+*.zip
+
+# libretro-super working directories
+libretro-super/libretro-*/
+libretro-super/dist/
+libretro-super/log/
+
+# Syncthing
+.stignore
+
+# Claude Code
+.claude
+
+# macOS
+.DS_Store

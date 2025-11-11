@@ -1,0 +1,57 @@
+# Docker image for building libretro cores
+# Uses Ubuntu 24.04 LTS (GCC 13, glibc 2.39) - modern toolchain
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Enable multiarch for armhf (32-bit ARM) libraries
+RUN dpkg --add-architecture armhf
+
+# Install build tools and libretro core dependencies
+# Better to include extras than miss something a core needs
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+	build-essential \
+	git \
+	wget \
+	curl \
+	unzip \
+	zip \
+	make \
+	cmake \
+	ninja-build \
+	nasm \
+	patch \
+	perl \
+	pkg-config \
+	python3 \
+	python3-pip \
+	ccache \
+	zlib1g-dev \
+	zlib1g-dev:armhf \
+	libpng-dev \
+	liblzma-dev \
+	libssl-dev \
+	libglib2.0-dev \
+	libx11-dev \
+	mesa-common-dev \
+	libglu1-mesa-dev \
+	libasound2-dev \
+	gcc-arm-linux-gnueabihf \
+	g++-arm-linux-gnueabihf \
+	gcc-aarch64-linux-gnu \
+	g++-aarch64-linux-gnu \
+	&& rm -rf /var/lib/apt/lists/*
+
+# Verify build environment
+RUN echo "=== Build Environment ===" && \
+    uname -m && \
+    gcc --version | head -1 && \
+    ldd --version | head -1 && \
+    echo "" && \
+    echo "=== ARM Cross-Compilers ===" && \
+    arm-linux-gnueabihf-gcc --version | head -1 && \
+    aarch64-linux-gnu-gcc --version | head -1
+
+WORKDIR /workspace
+
+CMD ["/bin/bash"]
