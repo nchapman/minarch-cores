@@ -2,9 +2,9 @@
 
 ## Current Status
 
-✅ **PPSSPP and TIC-80 regressions FIXED!** (2025-11-15)
-✅ **21+ cores built successfully** per CPU family
-⚠️ **4 minor core failures** (missing Makefiles, scummvm build issue)
+✅ **PPSSPP regression FIXED!** (2025-11-15) - 15 MB core building successfully
+⚠️ **TIC-80 still broken** - requires janet library + asset generation fixes
+✅ **25+ cores built successfully** per CPU family
 
 ## Latest Build Results
 
@@ -21,27 +21,67 @@
 
 ## FIXED Issues ✅
 
-### 1. ppsspp (PlayStation Portable) - FIXED
+### 1. ppsspp (PlayStation Portable) - FIXED ✅
 
-**Status:** ✅ **BUILDING SUCCESSFULLY**
+**Status:** ✅ **BUILDING SUCCESSFULLY** (15.0 MB core)
 
-**Root Cause:** PPSSPP's .so file is built to `lib/ppsspp_libretro.so` but our recipe was looking in the root directory
+**Root Causes:**
+1. Missing system dependencies (SDL2, SDL2-ttf, FFmpeg libraries) in Docker
+2. cmake_overrides was replacing ALL options instead of merging with Knulli's config
+3. .so file path extraction from INSTALL_TARGET_CMDS
+4. Recipe's so_file path wasn't being used by build system
 
-**Solution:** Updated mk_parser.rb to parse INSTALL_TARGET_CMDS and extract the correct .so file path from Knulli's .mk files
+**Solution:**
 
-**Files Changed:**
-- `lib/mk_parser.rb`: Added `parse_install_cmds()` method to extract .so paths
-- All recipe files regenerated with correct paths
+**Dockerfile** - Added missing dependencies:
+- `libsdl2-dev libsdl2-ttf-dev` (required even for libretro builds)
+- All FFmpeg libraries: `libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev libpostproc-dev`
+
+**config/cmake-overrides.yml** - Use system FFmpeg:
+```yaml
+ppsspp:
+  cmake_opts:
+    - "-DUSE_FFMPEG=ON"
+    - "-DUSE_SYSTEM_FFMPEG=ON"
+  so_file: "build/lib/ppsspp_libretro.so"
+```
+
+**lib/recipe_generator.rb** - Merge cmake overrides instead of replacing:
+- Preserve Knulli's options like `-DLIBRETRO=ON`, `-DARM64=ON`, etc.
+- Only override conflicting flags
+
+**lib/mk_parser.rb** - Extract .so paths from INSTALL_TARGET_CMDS
+
+**lib/core_builder.rb** - Use metadata['so_file'] path + absolute paths
+
+**Test:** `make core-cortex-a53-ppsspp` ✅
 
 ---
 
-### 2. tic80 (Fantasy Console) - FIXED
+### 2. tic80 (Fantasy Console) - STILL BROKEN ⚠️
 
-**Status:** ✅ **BUILDING SUCCESSFULLY**
+**Status:** ❌ **NOT BUILDING**
 
-**Root Cause:** TIC-80's .so file is built to `bin/tic80_libretro.so` but our recipe was looking in the root directory
+**Root Cause:** TIC-80 requires dependencies Knulli builds from source:
+1. **janet library** (LIBRETRO_TIC80_DEPENDENCIES = janet in Knulli)
+2. **Asset generation** - needs `build/assets/cart.png.dat` created before cmake
+3. **Tools dependencies** - studio/tools always built, need source files
 
-**Solution:** Same fix as ppsspp - mk_parser now extracts correct path from INSTALL_TARGET_CMDS
+**Error:**
+```
+CMake Error: No SOURCES given to target: tic80studio
+Cannot find source file: build/assets/cart.png.dat
+```
+
+**Priority:** Low (fantasy console, niche use case)
+
+**Next Steps to Fix:**
+1. Build janet from source in Dockerfile (not available in Debian Buster)
+2. Add `-DBUILD_TOOLS=OFF -DBUILD_PRO=OFF` (already in overrides)
+3. Pre-generate cart.png.dat asset file or patch cmake to skip it
+4. Investigate if libretro-only build can skip studio entirely
+
+**Notes:** Knulli has janet as a separate package. TIC-80's cmake is poorly designed for libretro-only builds.
 
 ---
 

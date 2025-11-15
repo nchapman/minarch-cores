@@ -153,12 +153,8 @@ class CoreBuilder
 
     # Run CMake
     Dir.chdir(build_dir) do
-      @logger.detail("  Running cmake with #{cmake_opts.size} options")
-      @logger.detail("  Options: #{cmake_opts.join(' ')}")
       run_command(env, "cmake", "..", *cmake_opts)
-      @logger.detail("  Running make -j#{@parallel}")
       run_command(env, "make", "-j#{@parallel}")
-      @logger.detail("  Build commands completed")
     end
 
     # Find and copy .so file
@@ -275,25 +271,15 @@ class CoreBuilder
     # If recipe specifies exact .so file path, use it
     if metadata && metadata['so_file']
       specific_path = File.join(core_dir, metadata['so_file'])
-      @logger.detail("  Checking specific path: #{specific_path}")
-      if File.exist?(specific_path)
-        @logger.detail("  Found at specific path!")
-        return specific_path
-      else
-        @logger.detail("  NOT found at specific path")
-      end
+      return specific_path if File.exist?(specific_path)
     end
 
     # Fallback: Search for .so files
     pattern = File.join(core_dir, '**', '*_libretro.so')
-    @logger.detail("  Searching with pattern: #{pattern}")
     so_files = Dir.glob(pattern)
-    @logger.detail("  Found #{so_files.size} .so files total")
 
     # Prefer files with matching name
-    result = so_files.find { |f| File.basename(f).start_with?(name) } || so_files.first
-    @logger.detail("  Selected: #{result}") if result
-    result
+    so_files.find { |f| File.basename(f).start_with?(name) } || so_files.first
   end
 
   def copy_so_file(so_file, name)
@@ -310,11 +296,6 @@ class CoreBuilder
       # Show last 20 lines of error
       error_lines = stderr.lines.last(20).join
       raise "Command failed: #{args.join(' ')}\n#{error_lines}"
-    end
-
-    # For debugging: log if output is suspiciously short
-    if stdout.lines.size < 5
-      @logger.detail("  Warning: command produced only #{stdout.lines.size} lines of output")
     end
 
     stdout

@@ -72,7 +72,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	libswresample-dev \
 	libswscale-dev \
 	libpostproc-dev \
-	libjanet-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build liblcf from source (needed for easyrpg, uses system cmake 3.13)

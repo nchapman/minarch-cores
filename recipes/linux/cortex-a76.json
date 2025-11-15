@@ -119,13 +119,13 @@
     "platform": "unix",
     "submodules": true,
     "build_type": "make",
+    "so_file": "platform/libretro/fake08_libretro.so",
     "makefile": "Makefile",
     "build_dir": "platform/libretro",
     "name": "fake08",
     "repo": "libretro-fake08",
     "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "platform/libretro/fake08_libretro.so"
+    "cmake_opts": []
   },
   "fbneo": {
     "version": "d72f49f4a45dbfc5a855956d1a75ce2d0601c1c5",
@@ -135,13 +135,13 @@
     "platform": "unix",
     "submodules": false,
     "build_type": "make",
+    "so_file": "src/burner/libretro/fbneo_libretro.so",
     "makefile": "Makefile",
     "build_dir": "src/burner/libretro",
     "name": "fbneo",
     "repo": "libretro-fbneo",
     "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "src/burner/libretro/fbneo_libretro.so"
+    "cmake_opts": []
   },
   "fceumm": {
     "version": "63643ba02c8eaea15dbe167ef907f3da7a3e6fd7",
@@ -316,8 +316,6 @@
       "-DANDROID=OFF",
       "-DWIN32=OFF",
       "-DAPPLE=OFF",
-      "-DUSE_FFMPEG=ON",
-      "-DUSE_SYSTEM_FFMPEG=OFF",
       "-DUSE_DISCORD=OFF",
       "-DUSING_FBDEV=OFF",
       "-DUNITTEST=OFF",
@@ -331,14 +329,16 @@
       "-DMESA_EGL_NO_X11_HEADERS=1\"",
       "-DCMAKE_CXX_FLAGS=\"-O2",
       "-DEGL_NO_X11=1",
-      "-DMESA_EGL_NO_X11_HEADERS=1\""
+      "-DMESA_EGL_NO_X11_HEADERS=1\"",
+      "-DUSE_FFMPEG=ON",
+      "-DUSE_SYSTEM_FFMPEG=ON"
     ],
+    "so_file": "build/lib/ppsspp_libretro.so",
     "name": "ppsspp",
     "repo": "libretro-ppsspp",
     "build_dir": ".",
     "makefile": "Makefile.libretro",
-    "extra_args": [],
-    "so_file": "ppsspp_libretro.so"
+    "extra_args": []
   },
   "prosystem": {
     "version": "4202ac5bdb2ce1a21f84efc0e26d75bb5aa7e248",
@@ -380,13 +380,13 @@
     "platform": "unix",
     "submodules": false,
     "build_type": "make",
+    "so_file": "backends/platform/libretro/scummvm_libretro.so",
     "build_dir": "backends/platform/libretro",
     "name": "scummvm",
     "repo": "libretro-scummvm",
     "makefile": "Makefile",
     "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "backends/platform/libretro/scummvm_libretro.so"
+    "cmake_opts": []
   },
   "stella": {
     "version": "4557099e5d7a0c0b02424ea85d2a4b093911e048",
@@ -396,13 +396,13 @@
     "platform": "unix",
     "submodules": false,
     "build_type": "make",
+    "so_file": "src/os/libretro/stella_libretro.so",
     "makefile": "Makefile",
     "build_dir": "src/os/libretro",
     "name": "stella",
     "repo": "libretro-stella",
     "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "src/os/libretro/stella_libretro.so"
+    "cmake_opts": []
   },
   "swanstation": {
     "version": "77aeeea58a45cccae7a8be37645f8f5a27ff101b",
@@ -419,12 +419,12 @@
       "-DUSE_X11=OFF",
       "-DUSE_EGL=OFF"
     ],
+    "so_file": "buildroot-build/swanstation_libretro.so",
     "name": "swanstation",
     "repo": "libretro-swanstation",
     "build_dir": ".",
     "makefile": "Makefile.libretro",
-    "extra_args": [],
-    "so_file": "swanstation_libretro.so"
+    "extra_args": []
   },
   "tic80": {
     "version": "765b092744162358246cb5cade712ba7bf32d679",
@@ -441,24 +441,14 @@
       "-DBUILD_SDL=OFF",
       "-DBUILD_DEMO_CARTS=OFF",
       "-DBUILD_TOOLS=OFF",
-      "-DBUILD_WITH_LUA=OFF",
-      "-DBUILD_WITH_MOON=OFF",
-      "-DBUILD_WITH_FENNEL=OFF",
-      "-DBUILD_WITH_JANET=OFF",
-      "-DBUILD_WITH_WREN=OFF",
-      "-DBUILD_WITH_MRUBY=OFF",
-      "-DBUILD_WITH_SQUIRREL=OFF",
-      "-DBUILD_WITH_WASM=OFF",
-      "-DBUILD_WITH_SCHEME=OFF",
-      "-DBUILD_WITH_JS=OFF",
-      "-DBUILD_WITH_PYTHON=OFF"
+      "-DBUILD_PRO=OFF"
     ],
+    "so_file": "build/bin/tic80_libretro.so",
     "name": "tic80",
     "repo": "libretro-tic80",
     "build_dir": ".",
     "makefile": "Makefile.libretro",
-    "extra_args": [],
-    "so_file": "tic80_libretro.so"
+    "extra_args": []
   },
   "vecx": {
     "version": "56a99fa08a7601b304d752188ca573febf26faeb",

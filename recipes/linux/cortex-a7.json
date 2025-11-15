@@ -71,13 +71,13 @@
     "platform": "unix",
     "submodules": true,
     "build_type": "make",
+    "so_file": "platform/libretro/fake08_libretro.so",
     "makefile": "Makefile",
     "build_dir": "platform/libretro",
     "name": "fake08",
     "repo": "libretro-fake08",
     "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "platform/libretro/fake08_libretro.so"
+    "cmake_opts": []
   },
   "fbalpha": {
     "version": "b7ac554c53561d41640372f23dab15cd6fc4f0c4",
@@ -103,13 +103,13 @@
     "platform": "unix",
     "submodules": false,
     "build_type": "make",
+    "so_file": "src/burner/libretro/fbneo_libretro.so",
     "makefile": "Makefile",
     "build_dir": "src/burner/libretro",
     "name": "fbneo",
     "repo": "libretro-fbneo",
     "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "src/burner/libretro/fbneo_libretro.so"
+    "cmake_opts": []
   },
   "fceumm": {
     "version": "63643ba02c8eaea15dbe167ef907f3da7a3e6fd7",
@@ -340,13 +340,13 @@
     "platform": "unix",
     "submodules": false,
     "build_type": "make",
+    "so_file": "backends/platform/libretro/scummvm_libretro.so",
     "build_dir": "backends/platform/libretro",
     "name": "scummvm",
     "repo": "libretro-scummvm",
     "makefile": "Makefile",
     "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "backends/platform/libretro/scummvm_libretro.so"
+    "cmake_opts": []
   },
   "stella2014": {
     "version": "8ab051edd4816f33a5631d230d54059eeed52c5f",
@@ -379,24 +379,14 @@
       "-DBUILD_SDL=OFF",
       "-DBUILD_DEMO_CARTS=OFF",
       "-DBUILD_TOOLS=OFF",
-      "-DBUILD_WITH_LUA=OFF",
-      "-DBUILD_WITH_MOON=OFF",
-      "-DBUILD_WITH_FENNEL=OFF",
-      "-DBUILD_WITH_JANET=OFF",
-      "-DBUILD_WITH_WREN=OFF",
-      "-DBUILD_WITH_MRUBY=OFF",
-      "-DBUILD_WITH_SQUIRREL=OFF",
-      "-DBUILD_WITH_WASM=OFF",
-      "-DBUILD_WITH_SCHEME=OFF",
-      "-DBUILD_WITH_JS=OFF",
-      "-DBUILD_WITH_PYTHON=OFF"
+      "-DBUILD_PRO=OFF"
     ],
+    "so_file": "build/bin/tic80_libretro.so",
     "name": "tic80",
     "repo": "libretro-tic80",
     "build_dir": ".",
     "makefile": "Makefile.libretro",
-    "extra_args": [],
-    "so_file": "tic80_libretro.so"
+    "extra_args": []
   },
   "vecx": {
     "version": "56a99fa08a7601b304d752188ca573febf26faeb",
