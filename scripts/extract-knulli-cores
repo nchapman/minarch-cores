@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Extract cores enabled for a specific Knulli target by parsing Config.in
+# Usage: extract-knulli-cores <target> [knulli-path]
+
+target = ARGV[0] || "H700"
+knulli_path = ARGV[1] || "/Users/nchapman/knulli"
+
+unless Dir.exist?(knulli_path)
+  puts "ERROR: Knulli path not found: #{knulli_path}"
+  exit 1
+end
+
+config_file = File.join(knulli_path, "package/batocera/core/batocera-system/Config.in")
+unless File.exist?(config_file)
+  puts "ERROR: Config.in not found: #{config_file}"
+  exit 1
+end
+
+puts "Extracting cores for #{target} target from Knulli Config.in..."
+
+# Read the file
+content = File.read(config_file)
+
+# Find all select statements for libretro cores
+cores = []
+
+# Pattern: select BR2_PACKAGE_LIBRETRO_XXX if <conditions>
+# or:      select BR2_PACKAGE_LIBRETRO_XXX (unconditional)
+content.scan(/^\s*select\s+(BR2_PACKAGE_LIBRETRO_\w+)(.*)$/i) do |package, conditions|
+  core_name = package.sub(/^BR2_PACKAGE_LIBRETRO_/, '').downcase
+
+  # Check if this applies to our target
+  if conditions.strip.empty? || conditions =~ /BR2_PACKAGE_BATOCERA_TARGET_#{target}/i
+    # Check if it's NOT excluded for our target
+    unless conditions =~ /!\s*BR2_PACKAGE_BATOCERA_TARGET_#{target}/i
+      cores << core_name
+    end
+  end
+end
+
+# Also check standalone emulators
+content.scan(/^\s*select\s+(BR2_PACKAGE_FLYCAST)(.*)$/i) do |package, conditions|
+  core_name = package.downcase
+
+  if conditions.strip.empty? || conditions =~ /BR2_PACKAGE_BATOCERA_TARGET_#{target}/i
+    unless conditions =~ /!\s*BR2_PACKAGE_BATOCERA_TARGET_#{target}/i
+      cores << core_name
+    end
+  end
+end
+
+cores.uniq!.sort!
+
+puts "\nFound #{cores.size} cores for #{target}:"
+cores.each { |c| puts "  #{c}" }
+
+# Optionally save to file
+output_file = "config/cores-from-knulli-#{target.downcase}.list"
+File.open(output_file, 'w') do |f|
+  f.puts "# Cores extracted from Knulli Config.in for #{target} target"
+  f.puts "# Generated: #{Time.now}"
+  cores.each { |c| f.puts c }
+end
+
+puts "\nSaved to: #{output_file}"

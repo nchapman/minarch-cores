@@ -19,46 +19,6 @@
     ],
     "so_file": "a5200_libretro.so"
   },
-  "arduous": {
-    "version": "2273b485628790a2ce954941341b5b071c3fb30e",
-    "commit": "2273b485628790a2ce954941341b5b071c3fb30e",
-    "url": "https://github.com/libretro/arduous.git",
-    "license": "GPLv2",
-    "platform": null,
-    "submodules": true,
-    "build_type": "cmake",
-    "cmake_opts": [
-
-    ],
-    "name": "arduous",
-    "repo": "libretro-arduous",
-    "build_dir": ".",
-    "makefile": "Makefile.libretro",
-    "extra_args": [
-
-    ],
-    "so_file": "arduous_libretro.so"
-  },
-  "atari800": {
-    "version": "6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b",
-    "commit": "6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b",
-    "url": "https://github.com/libretro/libretro-atari800/archive/6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b.tar.gz",
-    "license": "GPL",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "atari800",
-    "repo": "libretro-atari800",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "atari800_libretro.so"
-  },
   "beetle-lynx": {
     "version": "7fead71b49e0f08be5c4d4224fea73c6174763bf",
     "commit": "7fead71b49e0f08be5c4d4224fea73c6174763bf",
@@ -78,26 +38,6 @@
 
     ],
     "so_file": "beetle-lynx_libretro.so"
-  },
-  "beetle-ngp": {
-    "version": "139fe34c8dfc5585d6ee1793a7902bca79d544de",
-    "commit": "139fe34c8dfc5585d6ee1793a7902bca79d544de",
-    "url": "https://github.com/libretro/beetle-ngp-libretro/archive/139fe34c8dfc5585d6ee1793a7902bca79d544de.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "beetle-ngp",
-    "repo": "libretro-beetle-ngp",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "beetle-ngp_libretro.so"
   },
   "beetle-pce-fast": {
     "version": "cfbb0946f79de33bc615d0a079e1a92f1454c3e3",
@@ -139,26 +79,6 @@
     ],
     "so_file": "beetle-psx_libretro.so"
   },
-  "beetle-supergrafx": {
-    "version": "a776133c34ae8da5daf7d9ccb43e3e292e2b07b0",
-    "commit": "a776133c34ae8da5daf7d9ccb43e3e292e2b07b0",
-    "url": "https://github.com/libretro/beetle-supergrafx-libretro/archive/a776133c34ae8da5daf7d9ccb43e3e292e2b07b0.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "beetle-supergrafx",
-    "repo": "libretro-beetle-supergrafx",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "beetle-supergrafx_libretro.so"
-  },
   "beetle-vb": {
     "version": "8f837ebc077afdd6652efb2827fd8308a07113ca",
     "commit": "8f837ebc077afdd6652efb2827fd8308a07113ca",
@@ -179,26 +99,6 @@
     ],
     "so_file": "beetle-vb_libretro.so"
   },
-  "beetle-wswan": {
-    "version": "2aeb47d3a58bf0360c686f842d9bb5bd201306fe",
-    "commit": "2aeb47d3a58bf0360c686f842d9bb5bd201306fe",
-    "url": "https://github.com/libretro/beetle-wswan-libretro/archive/2aeb47d3a58bf0360c686f842d9bb5bd201306fe.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "beetle-wswan",
-    "repo": "libretro-beetle-wswan",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "beetle-wswan_libretro.so"
-  },
   "bluemsx": {
     "version": "824690b5ac997ec9694e8db1595186459bb3b652",
     "commit": "824690b5ac997ec9694e8db1595186459bb3b652",
@@ -218,88 +118,6 @@
 
     ],
     "so_file": "bluemsx_libretro.so"
-  },
-  "cap32": {
-    "version": "bae879df46f7f22951efda256c19b1692b77ef3e",
-    "commit": "bae879df46f7f22951efda256c19b1692b77ef3e",
-    "url": "https://github.com/libretro/libretro-cap32/archive/bae879df46f7f22951efda256c19b1692b77ef3e.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "cap32",
-    "repo": "libretro-cap32",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "cap32_libretro.so"
-  },
-  "dosbox-pure": {
-    "version": "1.0-preview1",
-    "commit": "1.0-preview1",
-    "url": "https://github.com/schellingb/dosbox-pure/archive/1.0-preview1.tar.gz",
-    "license": "GPLv2",
-    "platform": null,
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": ".",
-    "name": "dosbox-pure",
-    "repo": "libretro-dosbox-pure",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "dosbox-pure_libretro.so"
-  },
-  "easyrpg": {
-    "version": "a4672d2e30db4e4918c8f3580236faed3c9d04c1",
-    "commit": "a4672d2e30db4e4918c8f3580236faed3c9d04c1",
-    "url": "https://github.com/EasyRPG/Player",
-    "license": "GPLv3",
-    "platform": null,
-    "submodules": true,
-    "build_type": "cmake",
-    "cmake_opts": [
-      "-DCMAKE_BUILD_TYPE=Release",
-      "-DPLAYER_TARGET_PLATFORM=libretro",
-      "-DBUILD_SHARED_LIBS=ON"
-    ],
-    "name": "easyrpg",
-    "repo": "libretro-easyrpg",
-    "build_dir": ".",
-    "makefile": "Makefile.libretro",
-    "extra_args": [
-
-    ],
-    "so_file": "easyrpg_libretro.so"
-  },
-  "emuscv": {
-    "version": "112c83930a1959e3d6f81693be1bacae98360539",
-    "commit": "112c83930a1959e3d6f81693be1bacae98360539",
-    "url": "https://gitlab.com/MaaaX-EmuSCV/libretro-emuscv/-/archive/112c83930a1959e3d6f81693be1bacae98360539/libretro-emuscv-112c83930a1959e3d6f81693be1bacae98360539.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "emuscv",
-    "repo": "libretro-emuscv",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "emuscv_libretro.so"
   },
   "fake08": {
     "version": "0d26fd59103941e5f95e0ee665c6e0fb8c6b6f03",
@@ -361,46 +179,17 @@
     ],
     "so_file": "fceumm_libretro.so"
   },
-  "flycast": {
-    "version": "v2.4",
-    "commit": "v2.4",
-    "url": "https://github.com/flyinghead/flycast.git",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "cmake",
-    "cmake_opts": [
-      "-DCMAKE_BUILD_TYPE=Release",
-      "-DBUILD_SHARED_LIBS=OFF",
-      "-DLIBRETRO=ON",
-      "-DUSE_OPENMP=ON",
-      "-DBUILD_EXTERNAL=OFF",
-      "-DUSE_DX9=OFF",
-      "-DUSE_DX11=OFF",
-      "-DGIT_VERSION=",
-      "-DGIT_HASH=",
-      "-DUSE_VULKAN=OFF"
-    ],
-    "name": "flycast",
-    "repo": "libretro-flycast",
-    "build_dir": ".",
-    "makefile": "Makefile.libretro",
-    "extra_args": [
-
-    ],
-    "so_file": "flycast_libretro.so"
-  },
-  "fmsx": {
-    "version": "9b5cf868825a629cc4c7086768338165d3bbf706",
-    "commit": "9b5cf868825a629cc4c7086768338165d3bbf706",
-    "url": "https://github.com/libretro/fmsx-libretro/archive/9b5cf868825a629cc4c7086768338165d3bbf706.tar.gz",
+  "flycast-xtreme": {
+    "version": "603814c9f73b773c455d9a497f389d2f93a257fd",
+    "commit": "603814c9f73b773c455d9a497f389d2f93a257fd",
+    "url": "https://github.com/metallic77/flycast/archive/603814c9f73b773c455d9a497f389d2f93a257fd.tar.gz",
     "license": "GPLv2",
     "platform": "unix",
     "submodules": false,
     "build_type": "make",
     "makefile": "Makefile",
-    "name": "fmsx",
-    "repo": "libretro-fmsx",
+    "name": "flycast-xtreme",
+    "repo": "libretro-flycast-xtreme",
     "build_dir": ".",
     "extra_args": [
 
@@ -408,47 +197,7 @@
     "cmake_opts": [
 
     ],
-    "so_file": "fmsx_libretro.so"
-  },
-  "freechaf": {
-    "version": "cdb8ad6fcecb276761b193650f5ce9ae8b878067",
-    "commit": "cdb8ad6fcecb276761b193650f5ce9ae8b878067",
-    "url": "https://github.com/libretro/FreeChaF.git",
-    "license": "GPLv3.0",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "freechaf",
-    "repo": "libretro-freechaf",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "freechaf_libretro.so"
-  },
-  "freeintv": {
-    "version": "85bf25a39a34bbc39fe36677175d87c2b597dbe7",
-    "commit": "85bf25a39a34bbc39fe36677175d87c2b597dbe7",
-    "url": "https://github.com/libretro/freeintv/archive/85bf25a39a34bbc39fe36677175d87c2b597dbe7.tar.gz",
-    "license": "GPLv3",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": ".",
-    "name": "freeintv",
-    "repo": "libretro-freeintv",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "freeintv_libretro.so"
+    "so_file": "flycast-xtreme_libretro.so"
   },
   "fuse": {
     "version": "847dbbd6f787823ac9a5dfacdd68ab181063374e",
@@ -490,26 +239,6 @@
     ],
     "so_file": "gambatte_libretro.so"
   },
-  "gearsystem": {
-    "version": "8f817df87a46938c9da9aa9a15441b897a9d5726",
-    "commit": "8f817df87a46938c9da9aa9a15441b897a9d5726",
-    "url": "https://github.com/drhelius/Gearsystem/archive/8f817df87a46938c9da9aa9a15441b897a9d5726.tar.gz",
-    "license": "GPLv3",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": "platforms/libretro",
-    "name": "gearsystem",
-    "repo": "libretro-gearsystem",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "platforms/libretro/gearsystem_libretro.so"
-  },
   "genesisplusgx": {
     "version": "302fe82fccbe2e036c3e13891db6513982a497ac",
     "commit": "302fe82fccbe2e036c3e13891db6513982a497ac",
@@ -529,166 +258,6 @@
 
     ],
     "so_file": "genesisplusgx_libretro.so"
-  },
-  "gw": {
-    "version": "0ecff52b11c327af52b22ea94b268c90472b6732",
-    "commit": "0ecff52b11c327af52b22ea94b268c90472b6732",
-    "url": "https://github.com/libretro/gw-libretro/archive/0ecff52b11c327af52b22ea94b268c90472b6732.tar.gz",
-    "license": "GPLv3",
-    "platform": null,
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "name": "gw",
-    "repo": "libretro-gw",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "gw_libretro.so"
-  },
-  "handy": {
-    "version": "65d6b865544cd441ef2bd18cde7bd834c23d0e48",
-    "commit": "65d6b865544cd441ef2bd18cde7bd834c23d0e48",
-    "url": "https://github.com/libretro/libretro-handy/archive/65d6b865544cd441ef2bd18cde7bd834c23d0e48.tar.gz",
-    "license": "Zlib",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "handy",
-    "repo": "libretro-handy",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "handy_libretro.so"
-  },
-  "hatari": {
-    "version": "a4c9eb0bb79e47a2870c12b04566c1f8d25e4bf3",
-    "commit": "a4c9eb0bb79e47a2870c12b04566c1f8d25e4bf3",
-    "url": "https://github.com/libretro/hatari/archive/a4c9eb0bb79e47a2870c12b04566c1f8d25e4bf3.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "name": "hatari",
-    "repo": "libretro-hatari",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "hatari_libretro.so"
-  },
-  "lowresnx": {
-    "version": "10a48e309ac5284724010eea56372fbc72b9f975",
-    "commit": "10a48e309ac5284724010eea56372fbc72b9f975",
-    "url": "https://github.com/timoinutilis/lowres-nx/archive/10a48e309ac5284724010eea56372fbc72b9f975.tar.gz",
-    "license": "zlib",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": "platform/LibRetro",
-    "name": "lowresnx",
-    "repo": "libretro-lowresnx",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "platform/LibRetro/lowresnx_libretro.so"
-  },
-  "lutro": {
-    "version": "09a134eccad87127ec757503f736d6e4f9d06d4c",
-    "commit": "09a134eccad87127ec757503f736d6e4f9d06d4c",
-    "url": "https://github.com/libretro/libretro-lutro/archive/09a134eccad87127ec757503f736d6e4f9d06d4c.tar.gz",
-    "license": "MIT",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "lutro",
-    "repo": "libretro-lutro",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "lutro_libretro.so"
-  },
-  "mame": {
-    "version": "lrmame0268",
-    "commit": "lrmame0268",
-    "url": "https://github.com/libretro/mame/archive/lrmame0268.tar.gz",
-    "license": "MAME",
-    "platform": null,
-    "submodules": false,
-    "build_type": "make",
-    "name": "mame",
-    "repo": "libretro-mame",
-    "build_dir": ".",
-    "makefile": "Makefile",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "mame_libretro.so"
-  },
-  "mame2003-plus": {
-    "version": "3bfa9f89ab1ff4ac73a94e8ed1a9a7dbeb18d564",
-    "commit": "3bfa9f89ab1ff4ac73a94e8ed1a9a7dbeb18d564",
-    "url": "https://github.com/libretro/mame2003-plus-libretro/archive/3bfa9f89ab1ff4ac73a94e8ed1a9a7dbeb18d564.tar.gz",
-    "license": "MAME",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "mame2003-plus",
-    "repo": "libretro-mame2003-plus",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "mame2003-plus_libretro.so"
-  },
-  "mame2010": {
-    "version": "5f524dd5fca63ec1dcf5cca63885286109937587",
-    "commit": "5f524dd5fca63ec1dcf5cca63885286109937587",
-    "url": "https://github.com/libretro/mame2010-libretro/archive/5f524dd5fca63ec1dcf5cca63885286109937587.tar.gz",
-    "license": "MAME",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "mame2010",
-    "repo": "libretro-mame2010",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "mame2010_libretro.so"
   },
   "melonds": {
     "version": "c6488c88cb4c7583dbcd61609e0eef441572fae8",
@@ -741,46 +310,6 @@
     ],
     "so_file": "mgba_libretro.so"
   },
-  "minivmac": {
-    "version": "7de54a87e2527eb15b9ec2ac589e041c3d051d49",
-    "commit": "7de54a87e2527eb15b9ec2ac589e041c3d051d49",
-    "url": "https://github.com/libretro/libretro-minivmac",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "minivmac",
-    "repo": "libretro-minivmac",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "minivmac_libretro.so"
-  },
-  "mrboom": {
-    "version": "5.5",
-    "commit": "5.5",
-    "url": "https://github.com/Javanaise/mrboom-libretro.git",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "mrboom",
-    "repo": "libretro-mrboom",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "mrboom_libretro.so"
-  },
   "mupen64plus-next": {
     "version": "c7cd8edcd015ddcbd4a2e984573c9c1d1ddd0b6e",
     "commit": "c7cd8edcd015ddcbd4a2e984573c9c1d1ddd0b6e",
@@ -800,166 +329,6 @@
 
     ],
     "so_file": "mupen64plus-next_libretro.so"
-  },
-  "neocd": {
-    "version": "5eca2c8fd567b5261251c65ecafa8cf5b179d1d2",
-    "commit": "5eca2c8fd567b5261251c65ecafa8cf5b179d1d2",
-    "url": "https://github.com/libretro/neocd_libretro.git",
-    "license": "GPLv3",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": ".",
-    "name": "neocd",
-    "repo": "libretro-neocd",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "neocd_libretro.so"
-  },
-  "nestopia": {
-    "version": "2cef539e0df9ae5c8e6adf830a37f5d122bf5f05",
-    "commit": "2cef539e0df9ae5c8e6adf830a37f5d122bf5f05",
-    "url": "https://github.com/libretro/nestopia/archive/2cef539e0df9ae5c8e6adf830a37f5d122bf5f05.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "build_dir": "libretro/",
-    "name": "nestopia",
-    "repo": "libretro-nestopia",
-    "makefile": "Makefile",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "libretro//nestopia_libretro.so"
-  },
-  "nxengine": {
-    "version": "1f371e51c7a19049e00f4364cbe9c68ca08b303a",
-    "commit": "1f371e51c7a19049e00f4364cbe9c68ca08b303a",
-    "url": "https://github.com/libretro/nxengine-libretro/archive/1f371e51c7a19049e00f4364cbe9c68ca08b303a.tar.gz",
-    "license": "GPLv3",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "nxengine",
-    "repo": "libretro-nxengine",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "nxengine_libretro.so"
-  },
-  "o2em": {
-    "version": "c039e83f2589cb9d21b9aa5dc211954234ab8c97",
-    "commit": "c039e83f2589cb9d21b9aa5dc211954234ab8c97",
-    "url": "https://github.com/libretro/libretro-o2em/archive/c039e83f2589cb9d21b9aa5dc211954234ab8c97.tar.gz",
-    "license": "Artistic License",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "o2em",
-    "repo": "libretro-o2em",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "o2em_libretro.so"
-  },
-  "pc88": {
-    "version": "e3d06c4f34c3643d3ea9248a47cdc6cf60c1e0b1",
-    "commit": "e3d06c4f34c3643d3ea9248a47cdc6cf60c1e0b1",
-    "url": "https://github.com/libretro/quasi88-libretro/archive/e3d06c4f34c3643d3ea9248a47cdc6cf60c1e0b1.tar.gz",
-    "license": "BSD 3-Clause",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "pc88",
-    "repo": "libretro-pc88",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "pc88_libretro.so"
-  },
-  "pc98": {
-    "version": "rev.22",
-    "commit": "rev.22",
-    "url": "https://github.com/AZO234/NP2kai/archive/rev.22.tar.gz",
-    "license": "GPLv3",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "build_dir": "sdl2/",
-    "name": "pc98",
-    "repo": "libretro-pc98",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "sdl2//pc98_libretro.so"
-  },
-  "pcsx": {
-    "version": "9aefd427e47e1cdf94578e1913054bc14a44bab6",
-    "commit": "9aefd427e47e1cdf94578e1913054bc14a44bab6",
-    "url": "https://github.com/libretro/pcsx_rearmed/archive/9aefd427e47e1cdf94578e1913054bc14a44bab6.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "build_dir": ".",
-    "name": "pcsx",
-    "repo": "libretro-pcsx",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "pcsx_libretro.so"
-  },
-  "picodrive": {
-    "version": "ad93670449a28825d4b2cebf2eeff72cf03377a9",
-    "commit": "ad93670449a28825d4b2cebf2eeff72cf03377a9",
-    "url": "https://github.com/libretro/picodrive.git",
-    "license": "MAME",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "build_dir": ".",
-    "name": "picodrive",
-    "repo": "libretro-picodrive",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "picodrive_libretro.so"
   },
   "pokemini": {
     "version": "9bf450887026d9b92d4f9432b5d2a5ed749a35e2",
@@ -1023,26 +392,6 @@
     ],
     "so_file": "ppsspp_libretro.so"
   },
-  "prboom": {
-    "version": "6ec854969fd9dec33bb2cab350f05675d1158969",
-    "commit": "6ec854969fd9dec33bb2cab350f05675d1158969",
-    "url": "https://github.com/libretro/libretro-prboom/archive/6ec854969fd9dec33bb2cab350f05675d1158969.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "prboom",
-    "repo": "libretro-prboom",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "prboom_libretro.so"
-  },
   "prosystem": {
     "version": "4202ac5bdb2ce1a21f84efc0e26d75bb5aa7e248",
     "commit": "4202ac5bdb2ce1a21f84efc0e26d75bb5aa7e248",
@@ -1063,105 +412,25 @@
     ],
     "so_file": "prosystem_libretro.so"
   },
-  "puae": {
-    "version": "5f683ae67b998fcadd69fa8f65f2440fa8ef135f",
-    "commit": "5f683ae67b998fcadd69fa8f65f2440fa8ef135f",
-    "url": "https://github.com/libretro/libretro-uae/archive/5f683ae67b998fcadd69fa8f65f2440fa8ef135f.tar.gz",
-    "license": null,
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "puae",
-    "repo": "libretro-puae",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "puae_libretro.so"
-  },
-  "puae2021": {
-    "version": "8cfc07f986b3c68ce1e58b41aaa537c5a9bf6a65",
-    "commit": "8cfc07f986b3c68ce1e58b41aaa537c5a9bf6a65",
-    "url": "https://github.com/libretro/libretro-uae/archive/8cfc07f986b3c68ce1e58b41aaa537c5a9bf6a65.tar.gz",
+  "race": {
+    "version": "f65011e6639ccbbbb44b6ffa63ca50c070475df4",
+    "commit": "f65011e6639ccbbbb44b6ffa63ca50c070475df4",
+    "url": "https://github.com/libretro/RACE/archive/f65011e6639ccbbbb44b6ffa63ca50c070475df4.tar.gz",
     "license": "GPLv2",
     "platform": "unix",
     "submodules": false,
     "build_type": "make",
     "makefile": "Makefile",
-    "name": "puae2021",
-    "repo": "libretro-puae2021",
     "build_dir": ".",
+    "name": "race",
+    "repo": "libretro-race",
     "extra_args": [
 
     ],
     "cmake_opts": [
 
     ],
-    "so_file": "puae2021_libretro.so"
-  },
-  "px68k": {
-    "version": "4c7542e34df71e3ebab77b5867901747d58dbb38",
-    "commit": "4c7542e34df71e3ebab77b5867901747d58dbb38",
-    "url": "https://github.com/libretro/px68k-libretro/archive/4c7542e34df71e3ebab77b5867901747d58dbb38.tar.gz",
-    "license": "Unknown",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "name": "px68k",
-    "repo": "libretro-px68k",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "px68k_libretro.so"
-  },
-  "reminiscence": {
-    "version": "e21856941dcedee23026da8b2ca94708c14dae7f",
-    "commit": "e21856941dcedee23026da8b2ca94708c14dae7f",
-    "url": "https://github.com/libretro/REminiscence/archive/e21856941dcedee23026da8b2ca94708c14dae7f.tar.gz",
-    "license": "GPL-3.0",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "reminiscence",
-    "repo": "libretro-reminiscence",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "reminiscence_libretro.so"
-  },
-  "sameduck": {
-    "version": "5c5cdec7c7d3a489c8414ed04d99ee3c8779639b",
-    "commit": "5c5cdec7c7d3a489c8414ed04d99ee3c8779639b",
-    "url": "https://github.com/LIJI32/SameBoy/archive/5c5cdec7c7d3a489c8414ed04d99ee3c8779639b.tar.gz",
-    "license": "GPL-3.0",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": "libretro",
-    "name": "sameduck",
-    "repo": "libretro-sameduck",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "libretro/sameduck_libretro.so"
+    "so_file": "race_libretro.so"
   },
   "scummvm": {
     "version": "6fa7403b8b1b6e18e3a3d02120b38aad6a73ad26",
@@ -1182,46 +451,6 @@
 
     ],
     "so_file": "backends/platform/libretro/scummvm_libretro.so"
-  },
-  "smsplus-gx": {
-    "version": "96fa9bc65aa27a5ab2779f9f2ff0439fec7cf513",
-    "commit": "96fa9bc65aa27a5ab2779f9f2ff0439fec7cf513",
-    "url": "https://github.com/libretro/smsplus-gx/archive/96fa9bc65aa27a5ab2779f9f2ff0439fec7cf513.tar.gz",
-    "license": "Non-commercial",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "build_dir": ".",
-    "name": "smsplus-gx",
-    "repo": "libretro-smsplus-gx",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "smsplus-gx_libretro.so"
-  },
-  "snes9x-next": {
-    "version": "d8b10c4cd7606ed58f9c562864c986bc960faaaf",
-    "commit": "d8b10c4cd7606ed58f9c562864c986bc960faaaf",
-    "url": "https://github.com/libretro/snes9x2010/archive/d8b10c4cd7606ed58f9c562864c986bc960faaaf.tar.gz",
-    "license": "Non-commercial",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "name": "snes9x-next",
-    "repo": "libretro-snes9x-next",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "snes9x-next_libretro.so"
   },
   "snes9x": {
     "version": "ec4ebfc8f3819a9522fcb8e53eed985090017b1b",
@@ -1263,90 +492,6 @@
     ],
     "so_file": "src/os/libretro/stella_libretro.so"
   },
-  "superbroswar": {
-    "version": "d8d5d58f3cbc1e08f91a0e218bc990ec47282c08",
-    "commit": "d8d5d58f3cbc1e08f91a0e218bc990ec47282c08",
-    "url": "https://github.com/libretro/superbroswar-libretro.git",
-    "license": "GPLv3",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "name": "superbroswar",
-    "repo": "libretro-superbroswar",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "superbroswar_libretro.so"
-  },
-  "swanstation": {
-    "version": "77aeeea58a45cccae7a8be37645f8f5a27ff101b",
-    "commit": "77aeeea58a45cccae7a8be37645f8f5a27ff101b",
-    "url": "https://github.com/libretro/swanstation/archive/77aeeea58a45cccae7a8be37645f8f5a27ff101b.tar.gz",
-    "license": "GPLv2",
-    "platform": null,
-    "submodules": false,
-    "build_type": "cmake",
-    "cmake_opts": [
-      "-DCMAKE_BUILD_TYPE=Release",
-      "-DBUILD_SHARED_LIBS=FALSE",
-      "-DUSE_WAYLAND=OFF",
-      "-DUSE_X11=OFF",
-      "-DUSE_EGL=OFF"
-    ],
-    "name": "swanstation",
-    "repo": "libretro-swanstation",
-    "build_dir": ".",
-    "makefile": "Makefile.libretro",
-    "extra_args": [
-
-    ],
-    "so_file": "swanstation_libretro.so"
-  },
-  "tgbdual": {
-    "version": "a6f3018e6a23030afc1873845ee54d4b2d8ec9d3",
-    "commit": "a6f3018e6a23030afc1873845ee54d4b2d8ec9d3",
-    "url": "https://github.com/libretro/tgbdual-libretro/archive/a6f3018e6a23030afc1873845ee54d4b2d8ec9d3.tar.gz",
-    "license": "GPLv2",
-    "platform": null,
-    "submodules": false,
-    "build_type": "make",
-    "build_dir": ".",
-    "name": "tgbdual",
-    "repo": "libretro-tgbdual",
-    "makefile": "Makefile",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "tgbdual_libretro.so"
-  },
-  "theodore": {
-    "version": "7889613edede5ba89de1dfe7c05cf8397cf178ba",
-    "commit": "7889613edede5ba89de1dfe7c05cf8397cf178ba",
-    "url": "https://github.com/Zlika/theodore/archive/7889613edede5ba89de1dfe7c05cf8397cf178ba.tar.gz",
-    "license": "GPLv3",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "theodore",
-    "repo": "libretro-theodore",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "theodore_libretro.so"
-  },
   "tic80": {
     "version": "765b092744162358246cb5cade712ba7bf32d679",
     "commit": "765b092744162358246cb5cade712ba7bf32d679",
@@ -1370,86 +515,6 @@
 
     ],
     "so_file": "tic80_libretro.so"
-  },
-  "tyrquake": {
-    "version": "df0d3afb623b143beb76a5b1adf2d377953bfdf2",
-    "commit": "df0d3afb623b143beb76a5b1adf2d377953bfdf2",
-    "url": "https://github.com/libretro/tyrquake/archive/df0d3afb623b143beb76a5b1adf2d377953bfdf2.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "tyrquake",
-    "repo": "libretro-tyrquake",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "tyrquake_libretro.so"
-  },
-  "uae4arm": {
-    "version": "177c2f0e892adf2603ada9b150e31beffe0f76c3",
-    "commit": "177c2f0e892adf2603ada9b150e31beffe0f76c3",
-    "url": "https://github.com/chips-fr/uae4arm-rpi/archive/177c2f0e892adf2603ada9b150e31beffe0f76c3.tar.gz",
-    "license": null,
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "name": "uae4arm",
-    "repo": "libretro-uae4arm",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "uae4arm_libretro.so"
-  },
-  "uzem": {
-    "version": "08e39e19167727c89fb995e3fa70dde252e6aab0",
-    "commit": "08e39e19167727c89fb995e3fa70dde252e6aab0",
-    "url": "https://github.com/libretro/libretro-uzem/archive/08e39e19167727c89fb995e3fa70dde252e6aab0.tar.gz",
-    "license": "MIT",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "name": "uzem",
-    "repo": "libretro-uzem",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "uzem_libretro.so"
-  },
-  "vba-m": {
-    "version": "215e3c5ae9b1e3d32a708f729f481f429c00eef9",
-    "commit": "215e3c5ae9b1e3d32a708f729f481f429c00eef9",
-    "url": "https://github.com/visualboyadvance-m/visualboyadvance-m/archive/215e3c5ae9b1e3d32a708f729f481f429c00eef9.tar.gz",
-    "license": null,
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": "src/libretro",
-    "name": "vba-m",
-    "repo": "libretro-vba-m",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "src/libretro/vba-m_libretro.so"
   },
   "vecx": {
     "version": "56a99fa08a7601b304d752188ca573febf26faeb",
@@ -1490,125 +555,5 @@
 
     ],
     "so_file": "vice_libretro.so"
-  },
-  "vitaquake2": {
-    "version": "a74ca613ef71ed910a3cf49e71aa3c5f0294d9bf",
-    "commit": "a74ca613ef71ed910a3cf49e71aa3c5f0294d9bf",
-    "url": "https://github.com/libretro/vitaquake2/archive/a74ca613ef71ed910a3cf49e71aa3c5f0294d9bf.tar.gz",
-    "license": "GPL-2.0",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": ".",
-    "name": "vitaquake2",
-    "repo": "libretro-vitaquake2",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "vitaquake2_libretro.so"
-  },
-  "watara": {
-    "version": "aed31f9254cada9826c65ff4528cc8bdda338275",
-    "commit": "aed31f9254cada9826c65ff4528cc8bdda338275",
-    "url": "https://github.com/libretro/potator/archive/aed31f9254cada9826c65ff4528cc8bdda338275.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": "platform/libretro",
-    "name": "watara",
-    "repo": "libretro-watara",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "platform/libretro/watara_libretro.so"
-  },
-  "xmil": {
-    "version": "04b3c90af710b66b31df3c9621fa8da13b24e123",
-    "commit": "04b3c90af710b66b31df3c9621fa8da13b24e123",
-    "url": "https://github.com/libretro/xmil-libretro",
-    "license": "BSD-3",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "build_dir": "libretro",
-    "name": "xmil",
-    "repo": "libretro-xmil",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "libretro/xmil_libretro.so"
-  },
-  "xrick": {
-    "version": "58e544ee8de08ca8421e97c064d52ef6cdd73bd2",
-    "commit": "58e544ee8de08ca8421e97c064d52ef6cdd73bd2",
-    "url": "https://github.com/libretro/xrick-libretro/archive/58e544ee8de08ca8421e97c064d52ef6cdd73bd2.tar.gz",
-    "license": "GPL-3.0",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile.libretro",
-    "name": "xrick",
-    "repo": "libretro-xrick",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "xrick_libretro.so"
-  },
-  "yabasanshiro": {
-    "version": "7513c8459034a0fe415d3cae4d692a54d0f90296",
-    "commit": "7513c8459034a0fe415d3cae4d692a54d0f90296",
-    "url": "https://github.com/libretro/yabause/archive/7513c8459034a0fe415d3cae4d692a54d0f90296.tar.gz",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": false,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "build_dir": "yabause/src/libretro",
-    "name": "yabasanshiro",
-    "repo": "libretro-yabasanshiro",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "yabause/src/libretro/yabasanshiro_libretro.so"
-  },
-  "zc210": {
-    "version": "b6426da40b074245fda097fd345fa7c9cdbf152a",
-    "commit": "b6426da40b074245fda097fd345fa7c9cdbf152a",
-    "url": "https://github.com/netux79/zc210-libretro.git",
-    "license": "GPLv2",
-    "platform": "unix",
-    "submodules": true,
-    "build_type": "make",
-    "makefile": "Makefile",
-    "name": "zc210",
-    "repo": "libretro-zc210",
-    "build_dir": ".",
-    "extra_args": [
-
-    ],
-    "cmake_opts": [
-
-    ],
-    "so_file": "zc210_libretro.so"
   }
 }

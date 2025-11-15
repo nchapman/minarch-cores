@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Generate core lists from systems.yml configuration
+# Usage: generate-cores-from-systems <cpu-family>
+
+require 'yaml'
+require 'set'
+
+cpu_family = ARGV[0]
+unless cpu_family
+  puts "Usage: generate-cores-from-systems <cpu-family>"
+  puts "Example: generate-cores-from-systems cortex-a53"
+  exit 1
+end
+
+config_file = 'config/systems.yml'
+unless File.exist?(config_file)
+  puts "ERROR: Configuration file not found: #{config_file}"
+  exit 1
+end
+
+puts "Generating core list for #{cpu_family} from systems configuration..."
+
+config = YAML.load_file(config_file)
+systems = config.reject { |k, _v| k == 'cpu_families' }
+cpu_config = config['cpu_families'][cpu_family]
+
+unless cpu_config
+  puts "ERROR: CPU family '#{cpu_family}' not found in configuration"
+  puts "Available families: #{config['cpu_families'].keys.join(', ')}"
+  exit 1
+end
+
+# Determine which systems to enable
+enabled_systems = if cpu_config['enabled_systems'] == 'all'
+  systems.keys
+else
+  cpu_config['enabled_systems']
+end
+
+# Collect cores
+cores = Set.new
+system_mappings = []
+
+enabled_systems.each do |system_id|
+  system = systems[system_id]
+  next unless system
+
+  # Get the appropriate core for this CPU family
+  core_config = system['cores']
+  next unless core_config
+
+  # Try CPU-specific core first, then fall back to default
+  core = core_config[cpu_family] || core_config['default']
+
+  # Skip if null (system not supported on this CPU)
+  next if core.nil?
+
+  cores << core
+  system_mappings << {
+    system: system_id,
+    name: system['name'],
+    core: core
+  }
+end
+
+cores_list = cores.to_a.sort
+
+puts "\n" + "="*60
+puts "Core List for #{cpu_family}"
+puts "="*60
+puts "\nSystems: #{enabled_systems.size}"
+puts "Cores: #{cores_list.size} unique cores\n\n"
+
+puts "System → Core Mapping:"
+puts "-"*60
+system_mappings.sort_by { |m| m[:system] }.each do |mapping|
+  puts "%-20s → %-20s (%s)" % [mapping[:system], mapping[:core], mapping[:name]]
+end
+
+# Save core list
+output_file = "config/cores-#{cpu_family}.list"
+File.open(output_file, 'w') do |f|
+  f.puts "# Cores for #{cpu_family} - Generated from systems.yml"
+  f.puts "# Generated: #{Time.now}"
+  f.puts "# Systems: #{enabled_systems.size} | Cores: #{cores_list.size}"
+  f.puts ""
+  cores_list.each { |c| f.puts c }
+end
+
+puts "\n" + "="*60
+puts "Saved to: #{output_file}"
+puts "="*60
+
+# Show any notes/warnings
+warnings = []
+system_mappings.each do |m|
+  system = systems[m[:system]]
+  warnings << "#{m[:system]}: #{system['note']}" if system['note']
+end
+
+if warnings.any?
+  puts "\nNotes:"
+  warnings.each { |w| puts "  ⚠️  #{w}" }
+end

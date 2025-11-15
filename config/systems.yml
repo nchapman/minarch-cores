@@ -1,0 +1,292 @@
+# Systems Configuration for LessUI-Cores
+# Define systems to support and the best libretro core for each CPU family
+#
+# Based on: MinUI core system list (superset) + additional Onion OS systems
+#   - MinUI systems: All 13 core systems covered
+#   - Additional: Atari 2600/5200/7800, Lynx, Vectrex, C64, ZX Spectrum,
+#                 Sega CD, N64, NDS, Dreamcast, TIC-80, ScummVM
+# Validated against: Knulli's actual device configurations
+#   - cortex-a7 cores from Knulli BCM2835 (Raspberry Pi 1)
+#   - cortex-a53+ cores from Knulli H700/A133 (RG35xx/RG40xx)
+# All cores verified to exist in Knulli's libretro package directory
+#
+# Structure:
+#   system_id:
+#     name: Display name
+#     cores:
+#       default: Core name (used if no CPU-specific override)
+#       cortex-a7: Core for ARM32 (optional override)
+#       cortex-a53: Core for mid-range ARM64 (optional override)
+#       cortex-a76: Core for high-end ARM64 (optional override)
+#
+# Core Selection Philosophy (from Knulli's tested configurations):
+#   - cortex-a7: ARM-optimized cores (pocketsnes, stella2014, gpsp dynarec)
+#   - cortex-a53/a55: Balance of accuracy and performance
+#   - cortex-a76: Can handle cycle-accurate/heavy cores (bsnes, beetle)
+
+# Atari Systems
+atari2600:
+  name: Atari 2600
+  cores:
+    default: stella
+    cortex-a7: stella2014  # Lighter 2014 version for weak devices
+
+atari5200:
+  name: Atari 5200
+  cores:
+    default: a5200
+
+atari7800:
+  name: Atari 7800
+  cores:
+    default: prosystem
+
+# Retro Consoles
+colecovision:
+  name: ColecoVision
+  cores:
+    default: bluemsx
+
+vectrex:
+  name: GCE Vectrex
+  cores:
+    default: vecx
+
+# Home Computers
+c64:
+  name: Commodore 64
+  cores:
+    default: vice
+
+zxspectrum:
+  name: Sinclair ZX Spectrum
+  cores:
+    default: fuse
+
+# Nintendo
+nes:
+  name: Nintendo Entertainment System
+  cores:
+    default: fceumm
+    # Alternative: nestopia for higher accuracy
+
+mastersystem:
+  name: Sega Master System
+  cores:
+    default: genesisplusgx
+    # Alternative: smsplus-gx for lighter devices
+
+# Handheld Systems
+lynx:
+  name: Atari Lynx
+  cores:
+    default: beetle-lynx
+    cortex-a7: handy  # Lighter alternative for weak devices
+
+# 16-bit Era
+pcengine:
+  name: NEC TurboGrafx-16
+  cores:
+    default: beetle-pce-fast
+    cortex-a76: beetle-supergrafx  # Full accuracy on powerful devices
+
+megadrive:
+  name: Sega Genesis
+  cores:
+    default: genesisplusgx
+    cortex-a7: picodrive  # Lighter, assembly-optimized for ARM32
+
+snes:
+  name: Super Nintendo Entertainment System
+  cores:
+    default: snes9x
+    cortex-a7: pocketsnes  # ARM-optimized, lightest SNES core
+    cortex-a76: bsnes  # Cycle-accurate on powerful devices
+
+# CD Systems
+pcenginecd:
+  name: NEC TurboGrafx CD
+  cores:
+    default: beetle-pce-fast
+
+megacd:
+  name: Sega CD
+  cores:
+    default: genesisplusgx
+
+# Arcade
+neogeo:
+  name: SNK Neo Geo
+  cores:
+    default: fbneo
+
+# Game Boy Family
+gb:
+  name: Nintendo Game Boy
+  cores:
+    default: gambatte
+    # Alternative: sameboy for higher accuracy
+
+gamegear:
+  name: Sega Game Gear
+  cores:
+    default: genesisplusgx
+
+gbc:
+  name: Nintendo Game Boy Color
+  cores:
+    default: gambatte
+
+# Handheld Systems (continued)
+sgb:
+  name: Super Game Boy
+  cores:
+    default: mgba
+    # Note: SGB requires GBA hardware for GB games with SGB enhancements
+
+virtualboy:
+  name: Nintendo Virtual Boy
+  cores:
+    default: beetle-vb
+    # Note: Same as mednafen_vb in MinUI
+
+ngp:
+  name: Neo Geo Pocket
+  cores:
+    default: race
+
+ngpc:
+  name: Neo Geo Pocket Color
+  cores:
+    default: race
+    # Note: Same core as NGP, handles both B&W and Color
+
+pokemini:
+  name: Pokémon mini
+  cores:
+    default: pokemini
+
+gba:
+  name: Nintendo Game Boy Advance
+  cores:
+    default: mgba
+    cortex-a7: gpsp  # Lightest option for very weak devices (uses dynarec)
+    # Note: H700/A133 also has gpsp available as lighter alternative to mgba
+
+# PlayStation Era
+psx:
+  name: Sony PlayStation
+  cores:
+    default: beetle-psx
+    cortex-a7: pcsx  # Lighter for weak devices
+    cortex-a76: swanstation  # More accurate on powerful devices
+
+n64:
+  name: Nintendo 64
+  cores:
+    default: mupen64plus-next
+    cortex-a7: null  # Too heavy for cortex-a7
+
+nds:
+  name: Nintendo DS
+  cores:
+    default: melonds
+    cortex-a7: null  # Too heavy for cortex-a7
+    # Note: Knulli also has melonds-ds as an alternative
+
+# Dreamcast
+dreamcast:
+  name: Sega Dreamcast
+  cores:
+    default: flycast-xtreme  # Optimized Makefile build for ARM handhelds
+    cortex-a7: null  # Too heavy for cortex-a7
+    # Note: Using flycast-xtreme instead of flycast due to:
+    #   1. Makefile build (avoids GCC 8.3 CMake ICE bug)
+    #   2. Specifically tuned for H700/A133 devices
+    #   3. Knulli's preferred choice for mid-range ARM64 handhelds
+    # Alternative: flycastvl (even lighter for low-end devices)
+
+psp:
+  name: Sony PlayStation Portable
+  cores:
+    default: ppsspp
+    cortex-a7: null  # Too heavy for cortex-a7
+    # Note: Requires CMake 3.16+, needs CMAKE_SYSTEM_PROCESSOR set
+
+# Fantasy Consoles
+pico8:
+  name: PICO-8
+  cores:
+    default: fake08
+
+tic80:
+  name: TIC-80
+  cores:
+    default: tic80
+
+# Special Categories
+ports:
+  name: Ports Collection
+  cores:
+    default: null  # Ports are standalone, not libretro cores
+  note: "Ports like Doom, Quake, etc. are built separately"
+
+scummvm:
+  name: ScummVM
+  cores:
+    default: scummvm
+
+fbneo:
+  name: Arcade (FinalBurn Neo)
+  cores:
+    default: fbneo
+    cortex-a7: fbalpha  # Older, lighter version for weak devices
+
+# Build Settings per CPU Family
+# This section defines which systems to build for each CPU
+cpu_families:
+  cortex-a7:
+    enabled_systems:
+      - atari2600
+      - atari5200
+      - atari7800
+      - colecovision
+      - vectrex
+      - c64
+      - zxspectrum
+      - nes
+      - mastersystem
+      - lynx
+      - pcengine
+      - megadrive
+      - snes
+      - pcenginecd
+      - megacd
+      - neogeo
+      - gb
+      - gamegear
+      - gbc
+      - sgb
+      - virtualboy
+      - ngp
+      - ngpc
+      - pokemini
+      - gba
+      - psx
+      - pico8
+      - tic80
+      - scummvm
+      - fbneo
+      # Excluded: n64, nds, dreamcast (too heavy for ARM32)
+
+  cortex-a35:
+    enabled_systems: all  # Legacy ARM64 (RG351 series)
+
+  cortex-a53:
+    enabled_systems: all  # Mid-range ARM64 (RG35xx, RG40xx, Trimui)
+
+  cortex-a55:
+    enabled_systems: all  # Newer mid-range (RK3566, Miyoo Flip)
+
+  cortex-a76:
+    enabled_systems: all  # High-end (Retroid Pocket 5)

@@ -78,28 +78,13 @@ class CoreBuilder
 
   def run_prebuild_steps(name, core_dir)
     # Core-specific pre-build steps
-    case name
-    when 'picodrive'
-      # Build cyclone generator
-      @logger.detail("  Pre-build: cyclone")
-      env = @cpu_config.to_env
-      Dir.chdir(core_dir) do
-        run_command(env, "make", "-C", "cpu/cyclone", "CONFIG_FILE=../../cpu/cyclone_config.h")
-      end
-    when 'emuscv'
-      # Build bin2c tool (for host, not target)
-      @logger.detail("  Pre-build: bin2c")
-      bin2c_dir = File.join(core_dir, 'tools', 'bin2c')
-      Dir.chdir(bin2c_dir) do
-        # Compile with host compiler, not cross-compiler
-        run_command({}, "gcc", "-o", "bin2c", "bin2c.c")
-      end
-    end
-  rescue StandardError => e
-    @logger.warn("  Pre-build step failed: #{e.message}")
+    # Currently no cores require pre-build steps
   end
 
   def build_cmake(name, metadata, core_dir)
+    # Handle special pre-build steps for specific cores
+    run_prebuild_steps(name, core_dir)
+
     build_dir = File.join(core_dir, 'build')
     FileUtils.mkdir_p(build_dir)
 
@@ -109,13 +94,20 @@ class CoreBuilder
 
     # Add our cross-compile settings
     env = @cpu_config.to_env
+
     cmake_opts += [
       "-DCMAKE_C_COMPILER=#{env['CC']}",
       "-DCMAKE_CXX_COMPILER=#{env['CXX']}",
       "-DCMAKE_C_FLAGS=#{env['CFLAGS']}",
       "-DCMAKE_CXX_FLAGS=#{env['CXXFLAGS']}",
+      "-DCMAKE_SYSTEM_PROCESSOR=#{@cpu_config.arch}",
       "-DCMAKE_BUILD_TYPE=Release"
     ]
+
+    # Add CMAKE_PREFIX_PATH if set (for dependency finding)
+    if ENV['CMAKE_PREFIX_PATH']
+      cmake_opts += ["-DCMAKE_PREFIX_PATH=#{ENV['CMAKE_PREFIX_PATH']}"]
+    end
 
     # Run CMake
     Dir.chdir(build_dir) do
@@ -141,6 +133,39 @@ class CoreBuilder
     platform = metadata['platform']
     platform = @cpu_config.platform if platform.nil? || platform.include?('$(')
 
+    # Core-specific platform overrides and extra arguments
+    extra_make_args = []
+
+    if name == 'flycast-xtreme'
+      # flycast-xtreme configuration matching Knulli's settings
+      # See: libretro-flycast-xtreme.mk for reference
+      extra_make_args << 'HAVE_OPENMP=1'
+
+      case @cpu_config.family
+      when 'cortex-a53'
+        # H700/A133 devices (RG28xx/35xx/40xx, Trimui)
+        platform = 'odroid-n2'
+        extra_make_args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
+        @logger.detail("  Using Knulli H700/A133 config: platform=#{platform}")
+      when 'cortex-a55'
+        # RK3566 devices (Miyoo Flip, etc.)
+        platform = 'odroidc4'
+        extra_make_args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
+        @logger.detail("  Using platform=#{platform} for Cortex-A55")
+      when 'cortex-a7', 'cortex-a35'
+        platform = 'arm'
+        extra_make_args += ['FORCE_GLES=1', 'ARCH=arm', 'LDFLAGS=-lrt']
+        @logger.detail("  Using platform=#{platform} for ARM32")
+      else
+        # Generic ARM64 fallback
+        if @cpu_config.arch == 'aarch64'
+          platform = 'arm64'
+          extra_make_args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
+          @logger.detail("  Using platform=#{platform} for ARM64")
+        end
+      end
+    end
+
     # Handle special pre-build steps for specific cores
     run_prebuild_steps(name, core_dir)
 
@@ -160,8 +185,10 @@ class CoreBuilder
       return
     end
 
-    # Build platform argument
-    platform_arg = platform ? "platform=#{platform}" : ""
+    # Build make arguments
+    make_args = []
+    make_args << "platform=#{platform}" if platform
+    make_args += extra_make_args
 
     # Run make
     env = @cpu_config.to_env
@@ -171,7 +198,7 @@ class CoreBuilder
 
       # Build
       args = ["make", "-f", actual_makefile, "-j#{@parallel}"]
-      args << platform_arg unless platform_arg.empty?
+      args += make_args
       run_command(env, *args)
     end
 

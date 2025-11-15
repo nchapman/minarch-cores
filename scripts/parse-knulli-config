@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Parse Knulli Config.in to extract cores for a specific target
+# Usage: parse-knulli-config <target>
+
+target = ARGV[0] || "H700"
+knulli_path = "/Users/nchapman/knulli"
+config_file = File.join(knulli_path, "package/batocera/core/batocera-system/Config.in")
+
+unless File.exist?(config_file)
+  puts "ERROR: Config.in not found: #{config_file}"
+  exit 1
+end
+
+puts "Parsing Knulli Config.in for #{target} target..."
+
+content = File.read(config_file)
+
+# Handle line continuations (backslash)
+content = content.gsub(/\\\n\s*/, ' ')
+
+cores = Set.new
+
+# Find all select statements for LIBRETRO packages
+content.scan(/^\s*select\s+(BR2_PACKAGE_(?:LIBRETRO_)?[\w]+)(.*)$/i) do
+  package = $1
+  condition_raw = $2
+
+  # Strip comments
+  condition = condition_raw.sub(/#.*$/, '').strip
+
+  # Extract core name
+  core_name = if package =~ /BR2_PACKAGE_LIBRETRO_(\w+)/i
+    $1.downcase.gsub('_', '-')
+  elsif package =~ /BR2_PACKAGE_(\w+)/i
+    $1.downcase.gsub('_', '-')
+  else
+    next
+  end
+
+  # Skip non-emulator packages
+  next if core_name =~ /^(batocera|retroarch|system|tools|wine|kodi|mpv)/
+
+  # Parse condition
+  if condition.empty?
+    # Unconditional select - always include
+    cores << core_name
+  elsif condition =~ /^if\s+(.+)$/i
+    cond_expr = $1
+
+    # Check if this applies to our target
+    target_mentioned = cond_expr =~ /BR2_PACKAGE_BATOCERA_TARGET_#{target}/i
+    target_excluded = cond_expr =~ /!\s*BR2_PACKAGE_BATOCERA_TARGET_#{target}/i
+
+    # Include if:
+    # 1. Target is explicitly mentioned and not excluded
+    # 2. No specific targets mentioned (applies to all)
+    if target_mentioned && !target_excluded
+      cores << core_name
+    elsif !cond_expr.include?('BR2_PACKAGE_BATOCERA_TARGET_') && !target_excluded
+      # No target specificity - might apply to all
+      # But skip if it requires x86_64
+      unless cond_expr =~ /BR2_PACKAGE_BATOCERA_TARGET_X86|BR2_x86/i
+        cores << core_name
+      end
+    end
+  end
+end
+
+cores_list = cores.to_a.sort
+
+puts "\nFound #{cores_list.size} cores for #{target}:"
+puts cores_list.join("\n")
+
+# Save to file
+output_file = "config/cores-knulli-#{target.downcase}.list"
+File.open(output_file, 'w') do |f|
+  f.puts "# Cores extracted from Knulli Config.in for #{target} target"
+  f.puts "# Auto-generated: #{Time.now}"
+  f.puts "# #{cores_list.size} cores total"
+  f.puts ""
+  cores_list.each { |c| f.puts c }
+end
+
+puts "\nSaved to: #{output_file}"
+puts "\nKey cores found:"
+puts "  - flycast: #{cores_list.include?('flycast') ? 'YES' : 'NO'}"
+puts "  - flycast-xtreme: #{cores_list.include?('flycast-xtreme') ? 'YES' : 'NO'}"
+puts "  - flycastvl: #{cores_list.include?('flycastvl') ? 'YES' : 'NO'}"
+puts "  - ppsspp: #{cores_list.include?('ppsspp') ? 'YES' : 'NO'}"

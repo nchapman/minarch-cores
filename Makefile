@@ -5,6 +5,7 @@
 
 # Docker configuration
 DOCKER_IMAGE := minarch-cores-builder
+# Use native architecture (ARM64 on Apple Silicon, x86_64 elsewhere)
 DOCKER_RUN := docker run --rm -v $(PWD):/workspace -w /workspace $(DOCKER_IMAGE)
 
 # CPU families
