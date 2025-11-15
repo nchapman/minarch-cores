@@ -29,8 +29,8 @@ class CoresBuilder
     @cpu_family = cpu_family
     @package_dir = package_dir
     @config_dir = config_dir
-    @cores_dir = cores_dir
-    @output_dir = output_dir || "build/#{cpu_family}"
+    @cores_dir = File.expand_path(cores_dir)
+    @output_dir = File.expand_path(output_dir || "build/#{cpu_family}")
     @recipe_file = recipe_file || "recipes/linux/#{cpu_family}.json"
     @parallel_fetch = parallel_fetch
     @parallel_build = parallel_build
