@@ -58,30 +58,24 @@ ppsspp:
 
 ---
 
-### 2. tic80 (Fantasy Console) - STILL BROKEN ⚠️
+### 2. tic80 (Fantasy Console) - DISABLED ⚠️
 
-**Status:** ❌ **NOT BUILDING**
+**Status:** ❌ **DISABLED** (commented out in systems.yml)
 
-**Root Cause:** TIC-80 requires dependencies Knulli builds from source:
-1. **janet library** (LIBRETRO_TIC80_DEPENDENCIES = janet in Knulli)
-2. **Asset generation** - needs `build/assets/cart.png.dat` created before cmake
-3. **Tools dependencies** - studio/tools always built, need source files
+**Root Cause:** Language API source files (`src/api/lua.c`, `squirrel.c`, etc.) have hardcoded `#include` statements for demo cart binary data files (e.g., `#include "../build/assets/luademo.tic.dat"`). While these .dat files are committed to git, the build is fragile outside Buildroot.
 
-**Error:**
-```
-CMake Error: No SOURCES given to target: tic80studio
-Cannot find source file: build/assets/cart.png.dat
-```
+**Issues:**
+- Demo carts embedded as binary data via #include in C source
+- Requires janet library dependency
+- `-DBUILD_DEMO_CARTS=OFF` doesn't prevent the #includes
+- Complex build environment requirements
 
-**Priority:** Low (fantasy console, niche use case)
+**Decision:** Disabled (niche fantasy console)
 
-**Next Steps to Fix:**
-1. Build janet from source in Dockerfile (not available in Debian Buster)
-2. Add `-DBUILD_TOOLS=OFF -DBUILD_PRO=OFF` (already in overrides)
-3. Pre-generate cart.png.dat asset file or patch cmake to skip it
-4. Investigate if libretro-only build can skip studio entirely
-
-**Notes:** Knulli has janet as a separate package. TIC-80's cmake is poorly designed for libretro-only builds.
+**Useful infrastructure added:**
+- ✅ Patching system (`apply_patches()` in `core_builder.rb`)
+- ✅ Git-aware cmake cleaning (preserves tracked files in `build/`)
+- ✅ Patch documentation (`patches/README.md`)
 
 ---
 

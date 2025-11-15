@@ -219,10 +219,12 @@ pico8:
   cores:
     default: fake08
 
-tic80:
-  name: TIC-80
-  cores:
-    default: tic80
+# TIC-80 disabled - requires janet library and has complex asset dependencies
+# Not enabled by default in Knulli configs
+# tic80:
+#   name: TIC-80
+#   cores:
+#     default: tic80
 
 # Special Categories
 ports:

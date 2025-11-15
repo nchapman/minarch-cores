@@ -60,6 +60,9 @@ class CoreBuilder
       return
     end
 
+    # Apply patches before building
+    apply_patches(name, core_dir)
+
     # Clean before building to prevent contamination
     clean_before_build(name, build_type, metadata, core_dir)
 
@@ -81,6 +84,45 @@ class CoreBuilder
 
   def run_prebuild_steps(name, core_dir)
     # Core-specific pre-build steps can be added here if needed
+  end
+
+  def apply_patches(name, core_dir)
+    # Check if there are patches for this core
+    patches_dir = File.join(File.dirname(__dir__), 'patches', name)
+    return unless Dir.exist?(patches_dir)
+
+    patches = Dir.glob(File.join(patches_dir, '*.patch')).sort
+
+    return if patches.empty?
+
+    @logger.detail("  Applying #{patches.length} patch(es)")
+
+    Dir.chdir(core_dir) do
+      patches.each do |patch_file|
+        patch_name = File.basename(patch_file)
+        @logger.detail("    → #{patch_name}")
+
+        # Use git apply if available (better handling), otherwise fall back to patch
+        if system('git rev-parse --git-dir > /dev/null 2>&1')
+          # Check if patch is already applied
+          unless system("git apply --check #{patch_file} > /dev/null 2>&1")
+            # Patch already applied or doesn't apply cleanly
+            # Try reverse check to see if it's already applied
+            if system("git apply --reverse --check #{patch_file} > /dev/null 2>&1")
+              @logger.detail("      (already applied, skipping)")
+              next
+            else
+              raise "Patch #{patch_name} doesn't apply cleanly"
+            end
+          end
+
+          run_command({}, 'git', 'apply', patch_file)
+        else
+          # Fall back to patch command
+          run_command({}, 'patch', '-p1', '-i', patch_file)
+        end
+      end
+    end
   end
 
   def clean_before_build(name, build_type, metadata, core_dir)
@@ -106,9 +148,16 @@ class CoreBuilder
         end
 
       when 'cmake'
-        # CMake-based cores: Delete entire build directory
-        # This is critical because CMakeCache.txt stores architecture-specific settings
-        FileUtils.rm_rf('build') if Dir.exist?('build')
+        # CMake-based cores: Delete build directory carefully
+        # Use git clean if possible to avoid deleting committed files (e.g., TIC-80's build/assets/)
+        if system('git rev-parse --git-dir > /dev/null 2>&1')
+          # Use git clean to remove untracked files in build/, preserving tracked files
+          system('git clean -fd build/ 2>/dev/null') if Dir.exist?('build')
+        else
+          # Fallback: delete entire build directory if not a git repo
+          FileUtils.rm_rf('build') if Dir.exist?('build')
+        end
+
         FileUtils.rm_f('CMakeCache.txt')
         FileUtils.rm_f('cmake_install.cmake')
         FileUtils.rm_rf('CMakeFiles')
