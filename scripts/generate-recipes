@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Generate JSON recipes from Knulli .mk files
+# Usage: generate-recipes <cpu-family>
+
+require_relative '../lib/logger'
+require_relative '../lib/cpu_config'
+require_relative '../lib/recipe_generator'
+
+# Get CPU family
+cpu_family = ARGV[0]
+
+unless cpu_family
+  puts "ERROR: CPU family required"
+  puts "Usage: generate-recipes <cpu-family>"
+  exit 1
+end
+
+# Setup
+logger = BuildLogger.new
+package_dir = 'package/batocera/emulators/retroarch/libretro'
+config_dir = 'config'
+output_file = "recipes/linux/#{cpu_family}.json"
+
+# Load config
+cpu_config = CpuConfig.new(cpu_family, config_dir: config_dir, logger: logger)
+
+# Generate recipes
+generator = RecipeGenerator.new(
+  package_dir: package_dir,
+  cpu_config: cpu_config,
+  logger: logger
+)
+
+recipes = generator.generate
+generator.save(output_file)
+
+logger.success("Generated #{recipes.size} recipes for #{cpu_family}")
+logger.close

@@ -1,153 +1,172 @@
-# minarch-cores
+# LessUI-Cores
 
-Pre-compiled libretro emulator cores for ARM-based retro handhelds.
+Build libretro emulator cores for ARM-based retro handhelds using Knulli's tested configurations.
 
-## Downloads
+**Ruby-based build system** - Fast, maintainable, and production-ready!
 
-We provide four different core packages optimized for ARM Linux devices:
+## Current Status
 
-### Standard Builds
+✅ **78/78 cores** - Recipe generation (100%)
+✅ **78/78 cores** - Source fetching (100%)
+✅ **64/78 cores** - Building successfully (82%)
 
-**linux-arm7neonhf.zip** - 32-bit ARM cores
-- For ARMv7 devices with NEON (Cortex-A7 and newer)
-- Examples: Anbernic RG35XX (original), Miyoo Mini Plus, Trimui Smart Pro
-- 130+ cores including NES, SNES, Genesis, PlayStation, GBA, and more
-
-**linux-aarch64.zip** - 64-bit ARM cores
-- For ARMv8 64-bit devices (Cortex-A53 and newer)
-- Examples: Anbernic RG35XX-H/Plus/SP, Retroid Pocket, Powkiddy devices
-- 130+ cores with better performance for demanding systems
-- Includes N64 (mupen64plus_next) with dynarec
-
-### Custom Builds
-
-**linux-arm7neonhf-custom.zip** - 32-bit ARM cores with minarch customizations
-- Same as standard 32-bit build, plus cores with custom patches
-- Currently includes: Gambatte (Game Boy/Color) with enhanced features
-
-**linux-aarch64-custom.zip** - 64-bit ARM cores with minarch customizations
-- Same as standard 64-bit build, plus cores with custom patches
-- Currently includes: Gambatte (Game Boy/Color) with enhanced features
-
-## Which Package Do I Need?
-
-1. **Check your device's CPU architecture**:
-   - If your device runs a 64-bit OS → use `aarch64` (better performance)
-   - If your device runs a 32-bit OS → use `arm7neonhf`
-
-2. **Choose standard or custom**:
-   - Most users want the standard builds
-   - Use custom builds if you want the minarch-specific enhancements
-
-If unsure, try the standard 64-bit build first (`linux-aarch64.zip`). Most modern retro handhelds support it.
-
-## What's Included
-
-Standard packages contain 130+ libretro cores covering systems like:
-- Nintendo: NES, SNES, N64, GB/GBC, GBA, DS
-- Sega: Genesis/MD, Master System, Game Gear, Saturn, Dreamcast
-- Sony: PlayStation, PSP
-- Arcade: MAME, FBNeo, CPS1/2/3
-- And many more retro systems
-
-See the recipe files in `recipes/linux/` for the complete list.
-
-## Build Information
-
-All cores are built using:
-- Official libretro recipes and sources
-- Debian Buster (glibc 2.28, GCC 8.3.0) for maximum compatibility
-- ARM cross-compilation toolchains
-- Optimized flags: NEON SIMD, hard float, Cortex-A7/A53 tuning
-
-Cores include upstream build fixes for cross-compilation issues. Custom builds additionally include minarch-specific behavior patches.
-
----
-
-## Building from Source
-
-### Prerequisites
-
-- Docker
-- Make
-- 20+ GB free disk space
-- 2-3 hours for initial build
-
-### Quick Start
+## Quick Start
 
 ```bash
-# Build all standard cores + create packages
-make all
+# 1. Generate recipes from Knulli
+make recipes-cortex-a53
 
-# Or build specific architectures
-make build-arm7neonhf        # 32-bit cores only
-make build-aarch64           # 64-bit cores only
-make build-all               # Both architectures
+# 2. Build all cores
+make build-cortex-a53
 
-# Package for distribution
-make package-all             # Creates all 4 zip files
+# 3. Package for distribution
+make package-cortex-a53
 ```
 
-### Build Targets
+**Output:** `dist/linux-cortex-a53.zip` (64 cores @ ~130-190 MB)
+**Build time:** ~25-35 minutes with JOBS=4
 
-**Standard builds:**
-- `make build-arm7neonhf` - Build 32-bit ARM cores
-- `make build-aarch64` - Build 64-bit ARM cores
-- `make build-all` - Build both architectures
+## Supported CPU Families
 
-**Custom builds (with patches):**
-- `make build-arm7neonhf-custom` - Build custom 32-bit cores
-- `make build-aarch64-custom` - Build custom 64-bit cores
-- `make build-all-custom` - Build all clean + custom
+| CPU Family | Devices | Market Share |
+|------------|---------|--------------|
+| **cortex-a53** | Anbernic RG28xx/35xx/40xx, Trimui | ~70% |
+| **cortex-a55** | Miyoo Flip, RGB30, RG353, RK3566 | ~15% |
+| **cortex-a7** | Miyoo Mini series | ~15% |
+| **cortex-a35** | RG351 series (legacy) | Legacy |
+| **cortex-a76** | Retroid Pocket 5, RK3588 | Premium |
 
-**Packaging:**
-- `make package-arm7neonhf` - Create `linux-arm7neonhf.zip`
-- `make package-aarch64` - Create `linux-aarch64.zip`
-- `make package-arm7neonhf-custom` - Create `linux-arm7neonhf-custom.zip`
-- `make package-aarch64-custom` - Create `linux-aarch64-custom.zip`
-- `make package-all` - Create all 4 zip files
+### CPU Family Details
 
-**Utilities:**
-- `make clean` - Remove build artifacts
-- `make shell` - Open shell in build container
-- `JOBS=N make build-*` - Set parallel jobs (default: 8)
+Each CPU family uses optimized compiler flags for best performance:
 
-### Output
+**Cortex-A53** (64-bit, ARMv8-a baseline)
+- Arch: `aarch64`
+- Flags: `-march=armv8-a+crc -mcpu=cortex-a53 -mtune=cortex-a53`
+- Features: CRC extensions
+- Devices: H700/A133 SoCs (RG35xx, RG40xx, Trimui)
 
-Built cores: `build/{arm7neonhf,aarch64,arm7neonhf-custom,aarch64-custom}/`
-Distribution packages: `dist/*.zip`
+**Cortex-A55** (64-bit, ARMv8.2-a advanced)
+- Arch: `aarch64`
+- Flags: `-march=armv8.2-a+crc+crypto+dotprod -mcpu=cortex-a55 -mtune=cortex-a55`
+- Features: Crypto extensions, dot product (ML/AI)
+- Devices: RK3566/RK3568 (RGB30, RG353, Miyoo Flip)
 
-### Configuration
+**Cortex-A7** (32-bit, ARMv7)
+- Arch: `arm`
+- Flags: `-march=armv7ve -mcpu=cortex-a7 -mtune=cortex-a7`
+- Features: Virtualization extensions, NEON
+- Devices: R16 SoC (Miyoo Mini, A30)
 
-Edit `config.env` to customize:
-- `JOBS` - Parallel build jobs
-- `BUILD_FIX_CORES` - Cores with build fix patches
-- `CUSTOM_CORES` - Cores with custom behavior patches
+**Cortex-A35** (64-bit, ARMv8-a with SIMD)
+- Arch: `aarch64`
+- Flags: `-march=armv8-a+crc+fp+simd -mcpu=cortex-a35 -mtune=cortex-a35`
+- Features: Floating point, SIMD optimizations
+- Devices: RK3326 (RG351 series, GameForce)
 
-### Project Structure
+**Cortex-A76** (64-bit big.LITTLE, ARMv8.2-a)
+- Arch: `aarch64`
+- Flags: `-march=armv8.2-a+crc+crypto+rcpc+dotprod -mtune=cortex-a76.cortex-a55`
+- Features: Release-consistent, tuned for big.LITTLE (A76+A55)
+- Devices: RK3588, Snapdragon (Retroid Pocket 5)
+
+## How It Works
+
+1. **Extract from Knulli**: Uses Make to evaluate Knulli's `.mk` files, extracting tested commit hashes and build configs
+2. **Filter cores**: Uses CPU-specific core lists (78 cores for cortex-a53, tested by Knulli on RG35xx)
+3. **Build in Docker**: Cross-compiles with CPU-optimized flags in Debian Buster (glibc 2.28) for maximum device compatibility
+
+### Benefits
+
+✅ **Knulli's tested commits** - Production-proven on real hardware
+✅ **Auto-updates** - Re-run extraction when Knulli updates
+✅ **No Buildroot complexity** - Simple recipe-based builds
+✅ **Proven build system** - Uses tested fetch/build scripts
+✅ **glibc 2.28 compatibility** - Works on older device firmware
+
+## Build Commands
+
+```bash
+# Build specific CPU family
+make build-cortex-a53
+make build-cortex-a55
+make build-cortex-a7
+
+# Build all families
+make build-all
+
+# Package builds
+make package-cortex-a53
+make package-all
+
+# Clean
+make clean-cortex-a53
+make clean
+```
+
+## Updating from Knulli
+
+When Knulli updates their cores:
+
+```bash
+cd /Users/nchapman/knulli
+git pull
+
+cd /Users/nchapman/Drive/Code/LessUI-Cores
+make recipes-cortex-a53
+```
+
+This regenerates recipes with updated commits.
+
+## Build Environment
+
+- **Docker**: Debian Buster
+- **Compiler**: GCC 8.3.0
+- **glibc**: 2.28 (for maximum compatibility)
+- **Toolchains**: arm-linux-gnueabihf, aarch64-linux-gnu
+
+## Architecture
 
 ```
 minarch-cores/
-├── Dockerfile           # Build environment (Debian Buster)
-├── Makefile            # Build orchestration
-├── config.env          # Build configuration
-├── scripts/            # Build scripts
-│   ├── fetch-cores.sh  # Repository management
-│   └── build-cores.sh  # Cross-compilation build
-├── recipes/            # Core recipes (which cores to build)
-│   └── linux/
-│       ├── cores-linux-arm7neonhf
-│       ├── cores-linux-aarch64
-│       ├── cores-linux-arm7neonhf-custom
-│       └── cores-linux-aarch64-custom
-├── patches/            # Patch files
-│   ├── build/          # Build fixes (all builds)
-│   └── custom/         # Custom patches (custom builds only)
-├── cores/              # Cloned core repositories (gitignored)
-├── build/              # Build output (gitignored)
-└── dist/               # Distribution packages (gitignored)
+├── config/                      # CPU family configs
+│   ├── cortex-a53.config        # Compiler flags
+│   ├── cores-cortex-a53.list    # Enabled cores (78 cores)
+│   ├── cortex-a55.config
+│   ├── cores-cortex-a55.list
+│   └── ...
+├── recipes/linux/               # Generated recipes (JSON)
+│   ├── cortex-a53.json          # 78 cores with commit SHAs
+│   └── ...
+├── lib/                         # Ruby build system
+│   ├── logger.rb                # Colored output
+│   ├── cpu_config.rb            # Parse CPU configs
+│   ├── mk_parser.rb             # Parse Knulli .mk files
+│   ├── recipe_generator.rb      # Generate recipes
+│   ├── source_fetcher.rb        # Fetch sources
+│   ├── core_builder.rb          # Build individual cores
+│   └── cores_builder.rb         # Orchestrate builds
+├── scripts/                     # Entry points
+│   ├── generate-recipes         # Generate JSON recipes
+│   ├── build-all                # Build all cores
+│   ├── build-one                # Build single core
+│   └── fetch-sources            # Fetch source code
+├── Dockerfile                   # Debian Buster build environment
+└── Makefile                     # Build orchestration
 ```
+
+## Output
+
+Cores are built as `.so` files:
+- `build/cortex-a53/*.so` - Individual cores
+- `dist/linux-cortex-a53.zip` - Distribution package
+
+## Requirements
+
+- Docker
+- ~10GB disk space
+- 1-3 hours build time
 
 ## License
 
-Individual cores have their own licenses. See each core's repository for details.
+Individual cores have their own licenses (typically GPLv2). See upstream repositories for details.

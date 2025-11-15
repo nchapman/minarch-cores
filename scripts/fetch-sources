@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Fetch source code for cores from JSON recipe
+# Usage: fetch-sources <recipe-file> [cores-dir]
+
+require 'json'
+require_relative '../lib/logger'
+require_relative '../lib/source_fetcher'
+
+# Parse arguments
+recipe_file = ARGV[0]
+cores_dir = ARGV[1] || 'cores'
+
+unless recipe_file && File.exist?(recipe_file)
+  puts "ERROR: Recipe file required"
+  puts "Usage: fetch-sources <recipe-file> [cores-dir]"
+  exit 1
+end
+
+# Setup
+logger = BuildLogger.new
+
+# Load recipes
+logger.info("Loading recipes from #{recipe_file}")
+recipes = JSON.parse(File.read(recipe_file))
+
+# Fetch sources
+fetcher = SourceFetcher.new(
+  cores_dir: cores_dir,
+  logger: logger,
+  parallel: ENV['PARALLEL']&.to_i || 4
+)
+
+fetcher.fetch_all(recipes)
+logger.close

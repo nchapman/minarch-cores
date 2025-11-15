@@ -34,10 +34,13 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	python \
 	python3 \
 	python3-pip \
+	ruby \
+	ruby-dev \
 	ccache \
 	autoconf \
 	automake \
 	libtool \
+	jq \
 	zlib1g-dev \
 	zlib1g-dev:armhf \
 	zlib1g-dev:arm64 \
@@ -63,11 +66,20 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 RUN echo "=== Build Environment ===" && \
     uname -m && \
     gcc --version | head -1 && \
+    ruby --version && \
     echo "" && \
     echo "=== ARM Cross-Compilers ===" && \
     arm-linux-gnueabihf-gcc --version | head -1 && \
     aarch64-linux-gnu-gcc --version | head -1
 
 WORKDIR /workspace
+
+# Clear any problematic bash configs
+RUN rm -f /etc/bash.bashrc /root/.bashrc /etc/profile.d/* || true
+
+# Configure git to avoid credential issues with public repos
+RUN git config --global credential.helper "" && \
+    git config --global http.postBuffer 524288000 && \
+    git config --global core.compression 0
 
 CMD ["/bin/bash"]

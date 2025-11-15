@@ -1,0 +1,122 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Build a single libretro core
+# Usage: build-one <cpu-family> <core-name> [options]
+
+require 'optparse'
+require 'json'
+require 'fileutils'
+require_relative '../lib/logger'
+require_relative '../lib/cpu_config'
+require_relative '../lib/source_fetcher'
+require_relative '../lib/core_builder'
+
+# Parse arguments
+options = {
+  parallel_build: ENV['JOBS']&.to_i || 1,
+  skip_fetch: false,
+  verbose: true
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: build-one <cpu-family> <core-name> [options]"
+
+  opts.on("-j", "--jobs N", Integer, "Parallel build jobs (default: 1)") do |n|
+    options[:parallel_build] = n
+  end
+
+  opts.on("--skip-fetch", "Skip fetching source") do
+    options[:skip_fetch] = true
+  end
+
+  opts.on("-h", "--help", "Show this help") do
+    puts opts
+    exit
+  end
+end.parse!
+
+# Get arguments
+cpu_family = ARGV[0]
+core_name = ARGV[1]
+
+unless cpu_family && core_name
+  puts "ERROR: CPU family and core name required"
+  puts "Usage: build-one <cpu-family> <core-name>"
+  puts "Example: build-one cortex-a53 gambatte"
+  exit 1
+end
+
+# Initialize
+logger = BuildLogger.new
+recipe_file = "recipes/linux/#{cpu_family}.json"
+
+unless File.exist?(recipe_file)
+  logger.error("Recipe file not found: #{recipe_file}")
+  logger.info("Run: make recipes-#{cpu_family}")
+  exit 1
+end
+
+# Load recipes
+recipes = JSON.parse(File.read(recipe_file))
+
+unless recipes.key?(core_name)
+  logger.error("Core not found in recipes: #{core_name}")
+  logger.info("Available cores:")
+  recipes.keys.sort.each { |name| logger.info("  - #{name}") }
+  exit 1
+end
+
+metadata = recipes[core_name]
+
+# Load CPU config
+cpu_config = CpuConfig.new(cpu_family, logger: logger)
+
+logger.section("Building Single Core: #{core_name}")
+logger.info("CPU Family: #{cpu_family}")
+logger.info("Architecture: #{cpu_config.arch}")
+logger.info("")
+
+# Fetch source if needed
+unless options[:skip_fetch]
+  cores_dir = 'cores'
+  repo_name = metadata['repo']
+  core_dir = File.join(cores_dir, repo_name)
+
+  if Dir.exist?(core_dir)
+    logger.info("Source exists: #{core_dir}")
+  else
+    logger.step("Fetching source")
+    fetcher = SourceFetcher.new(
+      cores_dir: cores_dir,
+      logger: logger,
+      parallel: 1
+    )
+    fetcher.fetch_one(core_name, metadata)
+  end
+end
+
+# Build
+output_dir = "build/#{cpu_family}"
+builder = CoreBuilder.new(
+  cores_dir: 'cores',
+  output_dir: output_dir,
+  cpu_config: cpu_config,
+  logger: logger,
+  parallel: options[:parallel_build]
+)
+
+logger.step("Building #{core_name}")
+builder.build_one(core_name, metadata)
+
+# Check result
+so_file = File.join(output_dir, "#{core_name}_libretro.so")
+if File.exist?(so_file)
+  file_size = File.size(so_file) / (1024.0 * 1024.0)
+  logger.success("Built successfully!")
+  logger.success("Output: #{so_file} (%.1f MB)" % file_size)
+  exit 0
+else
+  logger.error("Build failed - no .so file produced")
+  exit 1
+end

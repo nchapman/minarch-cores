@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Main entry point for building libretro cores
+# Usage: build-all <cpu-family> [options]
+
+require 'optparse'
+require_relative '../lib/cores_builder'
+
+# Parse arguments
+options = {
+  parallel_fetch: 4,
+  parallel_build: ENV['JOBS']&.to_i || 1,
+  dry_run: ENV['DRY_RUN'] == 'true',
+  skip_fetch: false,
+  skip_build: false,
+  log_file: nil
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: build-all <cpu-family> [options]"
+
+  opts.on("-j", "--jobs N", Integer, "Parallel build jobs (default: 1)") do |n|
+    options[:parallel_build] = n
+  end
+
+  opts.on("-f", "--fetch-parallel N", Integer, "Parallel fetches (default: 4)") do |n|
+    options[:parallel_fetch] = n
+  end
+
+  opts.on("--dry-run", "Show what would be built without compiling") do
+    options[:dry_run] = true
+  end
+
+  opts.on("--skip-fetch", "Skip fetching sources") do
+    options[:skip_fetch] = true
+  end
+
+  opts.on("--skip-build", "Skip building (fetch only)") do
+    options[:skip_build] = true
+  end
+
+  opts.on("-l", "--log FILE", "Write log to file") do |file|
+    options[:log_file] = file
+  end
+
+  opts.on("-h", "--help", "Show this help") do
+    puts opts
+    exit
+  end
+end.parse!
+
+# Get CPU family
+cpu_family = ARGV[0]
+
+unless cpu_family
+  puts "ERROR: CPU family required"
+  puts "Usage: build-all <cpu-family>"
+  puts "Available: cortex-a53, cortex-a55, cortex-a7, cortex-a35, cortex-a76"
+  exit 1
+end
+
+# Run build
+builder = CoresBuilder.new(
+  cpu_family: cpu_family,
+  parallel_fetch: options[:parallel_fetch],
+  parallel_build: options[:parallel_build],
+  dry_run: options[:dry_run],
+  skip_fetch: options[:skip_fetch],
+  skip_build: options[:skip_build],
+  log_file: options[:log_file]
+)
+
+exit(builder.run)
