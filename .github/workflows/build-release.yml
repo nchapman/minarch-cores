@@ -11,14 +11,18 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # 6 hours max for all builds
+    timeout-minutes: 120  # 2 hours max per CPU family
+    strategy:
+      matrix:
+        cpu: [cortex-a7, cortex-a53]
+      fail-fast: false  # Continue other builds even if one fails
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
           submodules: recursive
-          fetch-depth: 0  # Fetch all history for git operations
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -29,45 +33,85 @@ jobs:
       - name: Clean previous builds
         run: make clean
 
-      - name: Build all CPU families
+      - name: Build ${{ matrix.cpu }}
         env:
           JOBS: 4
         run: |
-          echo "Starting full build at $(date)"
-          make build-all
+          echo "Starting build for ${{ matrix.cpu }} at $(date)"
+          make build-${{ matrix.cpu }}
           echo "Build completed at $(date)"
 
-      - name: Verify builds
+      - name: Verify build
         run: |
-          echo "Build verification:"
-          for family in cortex-a7 cortex-a53 cortex-a55 cortex-a76; do
-            count=$(ls output/$family/*.so 2>/dev/null | wc -l)
-            echo "  $family: $count cores"
-            if [ "$count" -eq 0 ]; then
-              echo "ERROR: No cores built for $family"
-              exit 1
-            fi
-          done
+          count=$(ls output/${{ matrix.cpu }}/*.so 2>/dev/null | wc -l)
+          echo "${{ matrix.cpu }}: $count cores built"
+          if [ "$count" -eq 0 ]; then
+            echo "ERROR: No cores built for ${{ matrix.cpu }}"
+            exit 1
+          fi
 
-      - name: Package builds
-        run: make package-all
+      - name: Package build
+        run: make package-${{ matrix.cpu }}
 
-      - name: Verify packages
+      - name: Verify package
         run: |
-          echo "Package verification:"
-          for family in cortex-a7 cortex-a53 cortex-a55 cortex-a76; do
-            if [ -f "output/dist/linux-$family.zip" ]; then
-              size=$(du -h "output/dist/linux-$family.zip" | cut -f1)
-              echo "  linux-$family.zip: $size"
-            else
-              echo "ERROR: output/dist/linux-$family.zip not found"
-              exit 1
-            fi
-          done
+          if [ -f "output/dist/linux-${{ matrix.cpu }}.zip" ]; then
+            size=$(du -h "output/dist/linux-${{ matrix.cpu }}.zip" | cut -f1)
+            echo "linux-${{ matrix.cpu }}.zip: $size"
+          else
+            echo "ERROR: output/dist/linux-${{ matrix.cpu }}.zip not found"
+            exit 1
+          fi
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.cpu }}
+          path: output/dist/linux-${{ matrix.cpu }}.zip
+          retention-days: 7
+
+      - name: Save build info
+        run: |
+          count=$(ls output/${{ matrix.cpu }}/*.so 2>/dev/null | wc -l)
+          echo "$count" > core-count-${{ matrix.cpu }}.txt
+
+      - name: Upload build info artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-info-${{ matrix.cpu }}
+          path: core-count-${{ matrix.cpu }}.txt
+          retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Organize artifacts
+        run: |
+          mkdir -p release-packages
+          mv artifacts/linux-cortex-a7/linux-cortex-a7.zip release-packages/
+          mv artifacts/linux-cortex-a53/linux-cortex-a53.zip release-packages/
+          ls -lh release-packages/
 
       - name: Generate release notes
         id: release_notes
         run: |
+          # Get core counts
+          a7_count=$(cat artifacts/build-info-cortex-a7/core-count-cortex-a7.txt)
+          a53_count=$(cat artifacts/build-info-cortex-a53/core-count-cortex-a53.txt)
+
           cat << EOF > release_notes.md
           # LessUI-Cores Build ${GITHUB_REF_NAME}
 
@@ -84,10 +128,8 @@ jobs:
 
           | CPU Family | Architecture | Cores | Devices |
           |------------|--------------|-------|---------|
-          | **cortex-a7** | ARM32 (ARMv7) | $(ls output/cortex-a7/*.so 2>/dev/null | wc -l) | Miyoo Mini, A30 |
-          | **cortex-a53** | ARM64 (ARMv8-a) | $(ls output/cortex-a53/*.so 2>/dev/null | wc -l) | RG28xx/35xx/40xx, Trimui |
-          | **cortex-a55** | ARM64 (ARMv8.2-a) | $(ls output/cortex-a55/*.so 2>/dev/null | wc -l) | Miyoo Flip, RGB30, RG353 |
-          | **cortex-a76** | ARM64 (ARMv8.2-a) | $(ls output/cortex-a76/*.so 2>/dev/null | wc -l) | RG406/556, Retroid Pocket 5 |
+          | **cortex-a7** | ARM32 (ARMv7) | ${a7_count} | Miyoo Mini, A30 |
+          | **cortex-a53** | ARM64 (ARMv8-a) | ${a53_count} | RG28xx/35xx/40xx, Trimui |
 
           ## Installation
 
@@ -109,11 +151,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            output/dist/linux-cortex-a7.zip
-            output/dist/linux-cortex-a53.zip
-            output/dist/linux-cortex-a55.zip
-            output/dist/linux-cortex-a76.zip
+          files: release-packages/*.zip
           body_path: release_notes.md
           prerelease: false
           make_latest: true
