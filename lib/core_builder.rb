@@ -46,14 +46,13 @@ class CoreBuilder
   end
 
   def build_one(name, metadata)
-    repo_name = metadata['repo']
-    build_type = metadata['build_type']
-    core_dir = File.join(@cores_dir, repo_name)
+    build_type = metadata['build_type'] || raise("Missing 'build_type' for #{name}")
+
+    # Core directory is always libretro-{name}
+    core_dir = File.join(@cores_dir, "libretro-#{name}")
 
     unless Dir.exist?(core_dir)
-      log_error(name, "Directory not found: #{core_dir}")
-      @failed += 1
-      return
+      raise "Directory not found: #{core_dir}"
     end
 
     @logger.step("Building #{name} (#{build_type})")
@@ -76,11 +75,9 @@ class CoreBuilder
              when 'make'
                build_make(name, metadata, core_dir)
              else
-               log_error(name, "Unknown build type: #{build_type}")
-               @failed += 1
-               nil
+               raise "Unknown build type: #{build_type}"
              end
-    result # Return the path to the built .so file (or nil if failed)
+    result
   rescue StandardError => e
     log_error(name, "Build failed: #{e.message}")
     @failed += 1
@@ -133,46 +130,31 @@ class CoreBuilder
   end
 
   def clean_before_build(name, build_type, metadata, core_dir)
-    # Clean build artifacts to prevent cross-contamination between CPU families
     @logger.detail("  Cleaning previous build artifacts")
 
     Dir.chdir(core_dir) do
       case build_type
       when 'make'
-        # Make-based cores: Use standard 'make clean'
-        build_subdir = metadata['build_dir'] || '.'
-        makefile = metadata['makefile'] || 'Makefile'
+        build_subdir = metadata['build_dir'] || raise("Missing 'build_dir' for #{name}")
+        makefile = metadata['makefile'] || raise("Missing 'makefile' for #{name}")
 
         Dir.chdir(build_subdir) do
-          # Try to run make clean (ignore errors if clean target doesn't exist)
-          platform = metadata['platform'] || @cpu_config.platform
-          system("make -f #{makefile} clean platform=#{platform} 2>/dev/null") || true
+          # Run make clean
+          env = @cpu_config.to_env
+          run_command(env, *@command_builder.make_command(metadata, makefile, clean: true)) rescue nil
 
-          # Also manually remove common artifacts as fallback (recursively to catch subdirs)
-          Dir.glob('**/*.o').each { |f| File.delete(f) rescue nil }
-          Dir.glob('**/*.so').each { |f| File.delete(f) rescue nil }
-          Dir.glob('**/*.a').each { |f| File.delete(f) rescue nil }
+          # Run extra clean commands if specified in recipe (for repos with broken clean targets)
+          if metadata['clean_extra']
+            system(metadata['clean_extra'])
+          end
         end
 
       when 'cmake'
-        # CMake-based cores: Delete build directory carefully
-        # Use git clean if possible to avoid deleting committed files (e.g., TIC-80's build/assets/)
-        if system('git rev-parse --git-dir > /dev/null 2>&1')
-          # Use git clean to remove untracked files in build/, preserving tracked files
-          system('git clean -fd build/ 2>/dev/null') if Dir.exist?('build')
-        else
-          # Fallback: delete entire build directory if not a git repo
-          FileUtils.rm_rf('build') if Dir.exist?('build')
-        end
-
+        # CMake: delete build directory
+        FileUtils.rm_rf('build') if Dir.exist?('build')
         FileUtils.rm_f('CMakeCache.txt')
         FileUtils.rm_f('cmake_install.cmake')
         FileUtils.rm_rf('CMakeFiles')
-
-        # Remove any stray build artifacts
-        Dir.glob('*.so').each { |f| File.delete(f) rescue nil }
-        Dir.glob('**/*.o').each { |f| File.delete(f) rescue nil }
-        Dir.glob('**/*.a').each { |f| File.delete(f) rescue nil }
       end
     end
   rescue StandardError => e
@@ -180,6 +162,8 @@ class CoreBuilder
   end
 
   def build_cmake(name, metadata, core_dir)
+    so_file_path = metadata['so_file'] || raise("Missing 'so_file' for #{name}")
+
     run_prebuild_steps(name, core_dir)
 
     build_dir = File.join(core_dir, 'build')
@@ -194,103 +178,58 @@ class CoreBuilder
       run_command(env, *@command_builder.cmake_build_command)
     end
 
-    # Find and copy .so file
-    # For cmake builds, the .so might be in build/ subdirectory
-    so_file = find_so_file(core_dir, name, metadata)
-    if so_file
-      dest_path = copy_so_file(so_file, name, metadata)
-      @built += 1
-      dest_path # Return the destination path
-    else
-      log_error(name, "No .so file found")
-      @failed += 1
-      nil
+    # Copy .so file to output (using explicit path from recipe)
+    so_file = File.join(core_dir, so_file_path)
+    unless File.exist?(so_file)
+      raise "Built .so file not found: #{so_file}"
     end
+
+    dest_path = copy_so_file(so_file, name)
+    @built += 1
+    dest_path
   end
 
   def build_make(name, metadata, core_dir)
-    build_subdir = metadata['build_dir'] || '.'
-    makefile = metadata['makefile'] || 'Makefile'
+    build_subdir = metadata['build_dir'] || raise("Missing 'build_dir' for #{name}")
+    makefile = metadata['makefile'] || raise("Missing 'makefile' for #{name}")
+    so_file_path = metadata['so_file'] || raise("Missing 'so_file' for #{name}")
 
     run_prebuild_steps(name, core_dir)
 
     work_dir = File.join(core_dir, build_subdir)
-
     unless Dir.exist?(work_dir)
-      log_error(name, "Build directory not found: #{work_dir}")
-      @failed += 1
-      return
+      raise "Build directory not found: #{work_dir}"
     end
 
-    # Find actual makefile
-    actual_makefile = find_makefile(work_dir, makefile)
-    unless actual_makefile
-      log_error(name, "Makefile not found: #{makefile}")
-      @failed += 1
-      return
+    makefile_path = File.join(work_dir, makefile)
+    unless File.exist?(makefile_path)
+      raise "Makefile not found: #{makefile_path}"
     end
 
     # Run make
     env = @cpu_config.to_env
     Dir.chdir(work_dir) do
-      # Clean first
-      run_command(env, *@command_builder.make_command(metadata, actual_makefile, clean: true)) rescue nil
-
-      # Build using CommandBuilder
-      run_command(env, *@command_builder.make_command(metadata, actual_makefile))
+      run_command(env, *@command_builder.make_command(metadata, makefile))
     end
 
-    # Find and copy .so file
-    so_file = find_so_file(core_dir, name, metadata)
-    if so_file
-      dest_path = copy_so_file(so_file, name, metadata)
-      @built += 1
-      dest_path # Return the destination path
-    else
-      log_error(name, "No .so file found")
-      @failed += 1
-      nil
+    # Copy .so file to output (using explicit path from recipe)
+    so_file = File.join(core_dir, so_file_path)
+    unless File.exist?(so_file)
+      raise "Built .so file not found: #{so_file}"
     end
+
+    dest_path = copy_so_file(so_file, name)
+    @built += 1
+    dest_path
   end
 
-  def find_makefile(dir, preferred)
-    candidates = [preferred, 'Makefile.libretro', 'Makefile', 'makefile']
-    candidates.each do |mf|
-      path = File.join(dir, mf)
-      return mf if File.exist?(path)
-    end
-    nil
-  end
-
-  def find_so_file(core_dir, name, metadata = {})
-    # If recipe specifies exact .so file path, use it
-    if metadata && metadata['so_file']
-      specific_path = File.join(core_dir, metadata['so_file'])
-      return specific_path if File.exist?(specific_path)
-    end
-
-    # Fallback: Search for .so files
-    pattern = File.join(core_dir, '**', '*_libretro.so')
-    so_files = Dir.glob(pattern)
-
-    # Prefer files with matching name
-    so_files.find { |f| File.basename(f).start_with?(name) } || so_files.first
-  end
-
-  def copy_so_file(so_file, name, metadata = {})
-    # Use custom so_file name if specified in recipe (for output file override)
-    # Otherwise, preserve the original filename from the build
-    if metadata && metadata['so_file'] && !metadata['so_file'].include?('/')
-      dest_name = metadata['so_file']
-    else
-      # Preserve the original filename (e.g., snes9x2005_plus_libretro.so)
-      dest_name = File.basename(so_file)
-    end
-
+  def copy_so_file(so_file, name)
+    # Always preserve the original filename from the build
+    dest_name = File.basename(so_file)
     dest = File.join(@output_dir, dest_name)
     FileUtils.cp(so_file, dest)
     @logger.detail("  ✓ #{dest_name}")
-    dest # Return the destination path
+    dest
   end
 
   def run_command(env, *args)

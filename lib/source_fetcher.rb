@@ -47,11 +47,12 @@ class SourceFetcher
   end
 
   def fetch_one(name, metadata)
-    repo_name = metadata['repo']
-    url = metadata['url']
-    commit = metadata['commit']
-    needs_submodules = metadata['submodules']
+    repo = metadata['repo'] || raise("Missing 'repo' for #{name}")
+    commit = metadata['commit'] || raise("Missing 'commit' for #{name}")
+    needs_submodules = metadata['submodules'] || false
 
+    # Construct directory name: libretro-{corename}
+    repo_name = "libretro-#{name}"
     target_dir = File.join(@cores_dir, repo_name)
 
     # Skip if already exists
@@ -61,16 +62,17 @@ class SourceFetcher
       return
     end
 
-    log_thread("Fetching #{name}")
+    log_thread("Fetching #{name} from #{repo}@#{commit}")
 
-    # Determine fetch strategy
-    if url.end_with?('.tar.gz', '.zip', '.tar.bz2')
-      fetch_tarball(url, target_dir, repo_name)
-    elsif url.end_with?('.git') || url.include?('github.com') && !url.include?('/archive/')
-      fetch_git(url, target_dir, commit, needs_submodules)
+    # Determine if we need git clone (submodules or version tag) or can use tarball (faster)
+    if needs_submodules || commit =~ /^v[\d.]+$/
+      # Use git clone for submodules or version tags
+      git_url = "https://github.com/#{repo}.git"
+      fetch_git(git_url, target_dir, commit, needs_submodules)
     else
-      # Assume tarball
-      fetch_tarball(url, target_dir, repo_name)
+      # Use tarball for commit SHAs (faster)
+      tarball_url = "https://github.com/#{repo}/archive/#{commit}.tar.gz"
+      fetch_tarball(tarball_url, target_dir, repo_name)
     end
 
     @mutex.synchronize { @fetched += 1 }

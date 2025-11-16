@@ -19,16 +19,12 @@ class CommandBuilder
     args = []
 
     # Platform argument (required for most cores)
-    platform = resolve_platform(metadata)
-    args << "platform=#{platform}" if platform
+    platform = metadata['platform'] || raise("Missing 'platform' in metadata")
+    args << "platform=#{platform}"
 
     # Core-specific extra args from recipe (e.g., USE_BLARGG_APU=1 for snes9x2005)
     recipe_extra_args = metadata['extra_args'] || []
     args += recipe_extra_args
-
-    # Special case handling (flycast-xtreme adds HAVE_OPENMP, FORCE_GLES, etc.)
-    # These are appended AFTER recipe args, so they can override if needed
-    args += special_case_args(metadata['name'])
 
     args
   end

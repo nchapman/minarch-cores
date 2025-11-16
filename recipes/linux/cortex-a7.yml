@@ -1,420 +1,253 @@
 # LessUI-Cores Recipe File
 # CPU Family: cortex-a7
 #
-# This file is the source of truth for which cores to build.
-# It is manually maintained - edit directly to add/update/remove cores.
+# Explicit recipe format - no guessing, no fallbacks.
+# All required fields must be present.
 #
-# To update a core from Knulli:
-#   1. Check knulli/package/batocera/emulators/retroarch/libretro/libretro-<core>.mk
-#   2. Find the _VERSION variable (git commit hash)
-#   3. Update the 'commit' and 'version' fields below
-#   4. Rebuild: make build-cortex-a7
+# Required fields for make builds:
+#   repo: GitHub org/repo (e.g., "libretro/gambatte-libretro")
+#   commit: Git commit SHA or tag
+#   build_type: "make"
+#   makefile: Exact makefile name (e.g., "Makefile.libretro")
+#   build_dir: Directory where makefile lives (e.g., ".")
+#   platform: Platform string for make (e.g., "unix")
+#   so_file: Relative path to .so output (e.g., "gambatte_libretro.so")
 #
-# Core entry format:
-#   core-name:
-#     version: <git-commit-hash>
-#     commit: <git-commit-hash>
-#     url: <github-tarball-url>
-#     license: <license>
-#     platform: unix|<platform-specific>
-#     submodules: true|false
-#     build_type: make|cmake
-#     makefile: Makefile.libretro|Makefile|<path>
-#     name: <core-name>
-#     repo: <repo-name>
-#     build_dir: .|<subdir>
-#     extra_args: [<make-args>]           # Optional
-#     cmake_opts: [<cmake-options>]       # Optional (cmake only)
-#     so_file: <path-to-output.so>        # Optional (override default)
-
+# Optional fields:
+#   submodules: true (only include if needed)
+#   extra_args: ["ARG=value"] (only include if needed)
+#
+# Required fields for cmake builds:
+#   repo, commit, build_type: "cmake", so_file
+#   cmake_opts: ["-DFOO=bar"] (cmake-specific options)
+#
 ---
 a5200:
-  version: 526404072821bb2021fab16f8c5dbbca300512c8
+  repo: libretro/a5200
   commit: 526404072821bb2021fab16f8c5dbbca300512c8
-  url: https://github.com/libretro/a5200/archive/526404072821bb2021fab16f8c5dbbca300512c8.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile
-  name: a5200
-  repo: libretro-a5200
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: a5200_libretro.so
+
 beetle-lynx:
-  version: 7fead71b49e0f08be5c4d4224fea73c6174763bf
+  repo: libretro/beetle-lynx-libretro
   commit: 7fead71b49e0f08be5c4d4224fea73c6174763bf
-  url: https://github.com/libretro/beetle-lynx-libretro/archive/7fead71b49e0f08be5c4d4224fea73c6174763bf.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile
-  name: beetle-lynx
-  repo: libretro-beetle-lynx
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
-  so_file: beetle-lynx_libretro.so
+  platform: unix
+  so_file: mednafen_lynx_libretro.so
+
 beetle-pce-fast:
-  version: cfbb0946f79de33bc615d0a079e1a92f1454c3e3
+  repo: libretro/beetle-pce-fast-libretro
   commit: cfbb0946f79de33bc615d0a079e1a92f1454c3e3
-  url: https://github.com/libretro/beetle-pce-fast-libretro/archive/cfbb0946f79de33bc615d0a079e1a92f1454c3e3.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
-  build_dir: "."
-  name: beetle-pce-fast
-  repo: libretro-beetle-pce-fast
   makefile: Makefile
-  extra_args: []
-  cmake_opts: []
-  so_file: beetle-pce-fast_libretro.so
+  build_dir: "."
+  platform: unix
+  so_file: mednafen_pce_fast_libretro.so
+
 beetle-supergrafx:
-  version: a776133c34ae8da5daf7d9ccb43e3e292e2b07b0
+  repo: libretro/beetle-supergrafx-libretro
   commit: a776133c34ae8da5daf7d9ccb43e3e292e2b07b0
-  url: https://github.com/libretro/beetle-supergrafx-libretro/archive/a776133c34ae8da5daf7d9ccb43e3e292e2b07b0.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile
-  name: beetle-supergrafx
-  repo: libretro-beetle-supergrafx
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
-  so_file: beetle-supergrafx_libretro.so
+  platform: unix
+  so_file: mednafen_supergrafx_libretro.so
+
 beetle-vb:
-  version: 8f837ebc077afdd6652efb2827fd8308a07113ca
+  repo: libretro/beetle-vb-libretro
   commit: 8f837ebc077afdd6652efb2827fd8308a07113ca
-  url: https://github.com/libretro/beetle-vb-libretro/archive/8f837ebc077afdd6652efb2827fd8308a07113ca.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
-  build_dir: "."
-  name: beetle-vb
-  repo: libretro-beetle-vb
   makefile: Makefile
-  extra_args: []
-  cmake_opts: []
-  so_file: beetle-vb_libretro.so
-bluemsx:
-  version: 824690b5ac997ec9694e8db1595186459bb3b652
-  commit: 824690b5ac997ec9694e8db1595186459bb3b652
-  url: https://github.com/libretro/blueMSX-libretro/archive/824690b5ac997ec9694e8db1595186459bb3b652.tar.gz
-  license: GPLv2
+  build_dir: "."
   platform: unix
-  submodules: false
+  so_file: mednafen_vb_libretro.so
+
+bluemsx:
+  repo: libretro/blueMSX-libretro
+  commit: 824690b5ac997ec9694e8db1595186459bb3b652
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  name: bluemsx
-  repo: libretro-bluemsx
-  extra_args: []
-  cmake_opts: []
-  so_file: bluemsx_libretro.so
-fake08:
-  version: 0d26fd59103941e5f95e0ee665c6e0fb8c6b6f03
-  commit: 0d26fd59103941e5f95e0ee665c6e0fb8c6b6f03
-  url: https://github.com/jtothebell/fake-08
-  license: MIT
   platform: unix
-  submodules: true
+  so_file: bluemsx_libretro.so
+
+fake08:
+  repo: jtothebell/fake-08
+  commit: 0d26fd59103941e5f95e0ee665c6e0fb8c6b6f03
   build_type: make
-  so_file: platform/libretro/fake08_libretro.so
   makefile: Makefile
   build_dir: platform/libretro
-  name: fake08
-  repo: libretro-fake08
-  extra_args: []
-  cmake_opts: []
-fbneo:
-  version: d72f49f4a45dbfc5a855956d1a75ce2d0601c1c5
-  commit: d72f49f4a45dbfc5a855956d1a75ce2d0601c1c5
-  url: https://github.com/libretro/FBNeo/archive/d72f49f4a45dbfc5a855956d1a75ce2d0601c1c5.tar.gz
-  license: Non-commercial
   platform: unix
-  submodules: false
+  so_file: platform/libretro/fake08_libretro.so
+  submodules: true
+
+fbneo:
+  repo: libretro/FBNeo
+  commit: d72f49f4a45dbfc5a855956d1a75ce2d0601c1c5
   build_type: make
-  so_file: src/burner/libretro/fbneo_libretro.so
   makefile: Makefile
   build_dir: src/burner/libretro
-  name: fbneo
-  repo: libretro-fbneo
-  extra_args: []
-  cmake_opts: []
+  platform: unix
+  so_file: src/burner/libretro/fbneo_libretro.so
+
 fceumm:
-  version: 63643ba02c8eaea15dbe167ef907f3da7a3e6fd7
+  repo: libretro/libretro-fceumm
   commit: 63643ba02c8eaea15dbe167ef907f3da7a3e6fd7
-  url: https://github.com/libretro/libretro-fceumm/archive/63643ba02c8eaea15dbe167ef907f3da7a3e6fd7.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  name: fceumm
-  repo: libretro-fceumm
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: fceumm_libretro.so
+
 fuse:
-  version: 847dbbd6f787823ac9a5dfacdd68ab181063374e
+  repo: libretro/fuse-libretro
   commit: 847dbbd6f787823ac9a5dfacdd68ab181063374e
-  url: https://github.com/libretro/fuse-libretro/archive/847dbbd6f787823ac9a5dfacdd68ab181063374e.tar.gz
-  license: GPLv3
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile.libretro
-  name: fuse
-  repo: libretro-fuse
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: fuse_libretro.so
+
 gambatte:
-  version: 4041d5a6c474d2d01b4cb1e81324b06b51d0147b
+  repo: libretro/gambatte-libretro
   commit: 4041d5a6c474d2d01b4cb1e81324b06b51d0147b
-  url: https://github.com/libretro/gambatte-libretro/archive/4041d5a6c474d2d01b4cb1e81324b06b51d0147b.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
-  makefile: Makefile
+  makefile: Makefile.libretro
   build_dir: "."
-  name: gambatte
-  repo: libretro-gambatte
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: gambatte_libretro.so
+
 gpsp:
-  version: 4caf7a167d159866479ea94d6b2d13c26ceb3e72
+  repo: libretro/gpsp
   commit: 4caf7a167d159866479ea94d6b2d13c26ceb3e72
-  url: https://github.com/libretro/gpsp/archive/4caf7a167d159866479ea94d6b2d13c26ceb3e72.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
-  build_dir: "."
-  name: gpsp
-  repo: libretro-gpsp
   makefile: Makefile
-  extra_args: []
-  cmake_opts: []
+  build_dir: "."
+  platform: unix
   so_file: gpsp_libretro.so
+
 melonds:
-  version: c6488c88cb4c7583dbcd61609e0eef441572fae8
+  repo: libretro/melonds
   commit: c6488c88cb4c7583dbcd61609e0eef441572fae8
-  url: https://github.com/libretro/melonds/archive/c6488c88cb4c7583dbcd61609e0eef441572fae8.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile
-  name: melonds
-  repo: libretro-melonds
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: melonds_libretro.so
+
 mgba:
-  version: c758314a639aa0066e7b65a8341448181b73c804
+  repo: libretro/mgba
   commit: c758314a639aa0066e7b65a8341448181b73c804
-  url: https://github.com/libretro/mgba.git
-  license: MPLv2.0
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile.libretro
-  name: mgba
-  repo: libretro-mgba
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: mgba_libretro.so
-mupen64plus-next:
-  version: c7cd8edcd015ddcbd4a2e984573c9c1d1ddd0b6e
-  commit: c7cd8edcd015ddcbd4a2e984573c9c1d1ddd0b6e
-  url: https://github.com/libretro/mupen64plus-libretro-nx/archive/c7cd8edcd015ddcbd4a2e984573c9c1d1ddd0b6e.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
-  build_type: make
-  makefile: Makefile
-  name: mupen64plus-next
-  repo: libretro-mupen64plus-next
-  build_dir: "."
-  extra_args: []
-  cmake_opts: []
-  so_file: mupen64plus-next_libretro.so
+
 pcsx:
-  version: 9aefd427e47e1cdf94578e1913054bc14a44bab6
+  repo: libretro/pcsx_rearmed
   commit: 9aefd427e47e1cdf94578e1913054bc14a44bab6
-  url: https://github.com/libretro/pcsx_rearmed/archive/9aefd427e47e1cdf94578e1913054bc14a44bab6.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  name: pcsx
-  repo: libretro-pcsx
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: pcsx_rearmed_libretro.so
+
 picodrive:
-  version: ad93670449a28825d4b2cebf2eeff72cf03377a9
+  repo: libretro/picodrive
   commit: ad93670449a28825d4b2cebf2eeff72cf03377a9
-  url: https://github.com/libretro/picodrive.git
-  license: MAME
-  platform: unix
-  submodules: true
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  name: picodrive
-  repo: libretro-picodrive
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: picodrive_libretro.so
+  submodules: true
+
 pokemini:
-  version: 9bf450887026d9b92d4f9432b5d2a5ed749a35e2
+  repo: libretro/PokeMini
   commit: 9bf450887026d9b92d4f9432b5d2a5ed749a35e2
-  url: https://github.com/libretro/PokeMini/archive/9bf450887026d9b92d4f9432b5d2a5ed749a35e2.tar.gz
-  license: GPLv3
-  platform: unix
-  submodules: false
   build_type: make
-  makefile: Makefile
-  name: pokemini
-  repo: libretro-pokemini
+  makefile: Makefile.libretro
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: pokemini_libretro.so
+
 prosystem:
-  version: 4202ac5bdb2ce1a21f84efc0e26d75bb5aa7e248
+  repo: libretro/prosystem-libretro
   commit: 4202ac5bdb2ce1a21f84efc0e26d75bb5aa7e248
-  url: https://github.com/libretro/prosystem-libretro/archive/4202ac5bdb2ce1a21f84efc0e26d75bb5aa7e248.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile
-  name: prosystem
-  repo: libretro-prosystem
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: prosystem_libretro.so
+
 race:
-  version: f65011e6639ccbbbb44b6ffa63ca50c070475df4
+  repo: libretro/RACE
   commit: f65011e6639ccbbbb44b6ffa63ca50c070475df4
-  url: https://github.com/libretro/RACE/archive/f65011e6639ccbbbb44b6ffa63ca50c070475df4.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile
   build_dir: "."
-  name: race
-  repo: libretro-race
-  extra_args: []
-  cmake_opts: []
+  platform: unix
   so_file: race_libretro.so
+
 scummvm:
-  version: 6fa7403b8b1b6e18e3a3d02120b38aad6a73ad26
+  repo: libretro/scummvm
   commit: 6fa7403b8b1b6e18e3a3d02120b38aad6a73ad26
-  url: https://github.com/libretro/scummvm/archive/6fa7403b8b1b6e18e3a3d02120b38aad6a73ad26.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
   build_type: make
-  so_file: backends/platform/libretro/scummvm_libretro.so
+  makefile: Makefile
   build_dir: backends/platform/libretro
-  name: scummvm
-  repo: libretro-scummvm
-  makefile: Makefile
-  extra_args: []
-  cmake_opts: []
+  platform: unix
+  so_file: backends/platform/libretro/scummvm_libretro.so
+
 snes9x2005:
-  version: 74d871db9b4dba6dbe6c5ecebc88cbf255be5349
+  repo: libretro/snes9x2005
   commit: 74d871db9b4dba6dbe6c5ecebc88cbf255be5349
-  url: https://github.com/libretro/snes9x2005/archive/74d871db9b4dba6dbe6c5ecebc88cbf255be5349.tar.gz
-  license: Non-commercial
-  platform: unix
-  submodules: false
   build_type: make
   makefile: Makefile
-  name: snes9x2005
-  repo: libretro-snes9x2005
   build_dir: "."
-  extra_args:
-  - USE_BLARGG_APU=1
-  cmake_opts: []
-stella:
-  version: 4557099e5d7a0c0b02424ea85d2a4b093911e048
-  commit: 4557099e5d7a0c0b02424ea85d2a4b093911e048
-  url: https://github.com/stella-emu/stella/archive/4557099e5d7a0c0b02424ea85d2a4b093911e048.tar.gz
-  license: GPLv2
   platform: unix
-  submodules: false
+  so_file: snes9x2005_plus_libretro.so
+  extra_args:
+    - USE_BLARGG_APU=1
+  clean_extra: "rm -f source/apu_blargg.o"
+
+stella:
+  repo: stella-emu/stella
+  commit: 4557099e5d7a0c0b02424ea85d2a4b093911e048
   build_type: make
-  so_file: src/os/libretro/stella_libretro.so
   makefile: Makefile
   build_dir: src/os/libretro
-  name: stella
-  repo: libretro-stella
-  extra_args: []
-  cmake_opts: []
-supafaust:
-  version: 75c658cce454e58ae04ea252f53a31c60d61548e
-  commit: 75c658cce454e58ae04ea252f53a31c60d61548e
-  url: https://github.com/libretro/supafaust/archive/75c658cce454e58ae04ea252f53a31c60d61548e.tar.gz
-  license: Non-commercial
   platform: unix
-  submodules: false
+  so_file: src/os/libretro/stella_libretro.so
+
+supafaust:
+  repo: libretro/supafaust
+  commit: 75c658cce454e58ae04ea252f53a31c60d61548e
   build_type: make
   makefile: Makefile
-  name: supafaust
-  repo: libretro-supafaust
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
-  so_file: mednafen_supafaust_libretro.so
-vecx:
-  version: 56a99fa08a7601b304d752188ca573febf26faeb
-  commit: 56a99fa08a7601b304d752188ca573febf26faeb
-  url: https://github.com/libretro/libretro-vecx/archive/56a99fa08a7601b304d752188ca573febf26faeb.tar.gz
-  license: GPLv2|LGPLv2.1
   platform: unix
-  submodules: false
+  so_file: mednafen_supafaust_libretro.so
+
+vecx:
+  repo: libretro/libretro-vecx
+  commit: 56a99fa08a7601b304d752188ca573febf26faeb
   build_type: make
   makefile: Makefile.libretro
-  name: vecx
-  repo: libretro-vecx
   build_dir: "."
-  extra_args: []
-  cmake_opts: []
-  so_file: vecx_libretro.so
-vice:
-  version: 86eca8b0a64aa4ca442e696e75d43de19b9556d3
-  commit: 86eca8b0a64aa4ca442e696e75d43de19b9556d3
-  url: https://github.com/libretro/vice-libretro/archive/86eca8b0a64aa4ca442e696e75d43de19b9556d3.tar.gz
-  license: GPLv2
   platform: unix
-  submodules: false
+  so_file: vecx_libretro.so
+
+vice:
+  repo: libretro/vice-libretro
+  commit: 86eca8b0a64aa4ca442e696e75d43de19b9556d3
   build_type: make
   makefile: Makefile
   build_dir: "."
-  name: vice
-  repo: libretro-vice
-  extra_args: []
-  cmake_opts: []
-  so_file: vice_libretro.so
+  platform: unix
+  so_file: vice_x64_libretro.so
