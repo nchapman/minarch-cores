@@ -148,10 +148,10 @@ class CoreBuilder
           platform = metadata['platform'] || @cpu_config.platform
           system("make -f #{makefile} clean platform=#{platform} 2>/dev/null") || true
 
-          # Also manually remove common artifacts as fallback
-          Dir.glob('*.o').each { |f| File.delete(f) rescue nil }
-          Dir.glob('*.so').each { |f| File.delete(f) rescue nil }
-          Dir.glob('*.a').each { |f| File.delete(f) rescue nil }
+          # Also manually remove common artifacts as fallback (recursively to catch subdirs)
+          Dir.glob('**/*.o').each { |f| File.delete(f) rescue nil }
+          Dir.glob('**/*.so').each { |f| File.delete(f) rescue nil }
+          Dir.glob('**/*.a').each { |f| File.delete(f) rescue nil }
         end
 
       when 'cmake'

@@ -73,21 +73,6 @@ beetle-pce-fast:
   extra_args: []
   cmake_opts: []
   so_file: beetle-pce-fast_libretro.so
-beetle-psx:
-  version: 51ffd50564d54abfb62eccf358166bd9ccc708ac
-  commit: 51ffd50564d54abfb62eccf358166bd9ccc708ac
-  url: https://github.com/libretro/beetle-psx-libretro/archive/51ffd50564d54abfb62eccf358166bd9ccc708ac.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
-  build_type: make
-  makefile: Makefile
-  build_dir: "."
-  name: beetle-psx
-  repo: libretro-beetle-psx
-  extra_args: []
-  cmake_opts: []
-  so_file: beetle-psx_libretro.so
 beetle-supergrafx:
   version: a776133c34ae8da5daf7d9ccb43e3e292e2b07b0
   commit: a776133c34ae8da5daf7d9ccb43e3e292e2b07b0
@@ -133,21 +118,6 @@ bluemsx:
   extra_args: []
   cmake_opts: []
   so_file: bluemsx_libretro.so
-bsnes:
-  version: 7e81fc46a7aa7a58030413ed0ae0707832c8d9e6
-  commit: 7e81fc46a7aa7a58030413ed0ae0707832c8d9e6
-  url: https://github.com/libretro/bsnes-libretro/archive/7e81fc46a7aa7a58030413ed0ae0707832c8d9e6.tar.gz
-  license: GPLv3
-  platform: unix
-  submodules: false
-  build_type: make
-  makefile: Makefile
-  name: bsnes
-  repo: libretro-bsnes
-  build_dir: "."
-  extra_args: []
-  cmake_opts: []
-  so_file: bsnes_libretro.so
 fake08:
   version: 0d26fd59103941e5f95e0ee665c6e0fb8c6b6f03
   commit: 0d26fd59103941e5f95e0ee665c6e0fb8c6b6f03
@@ -163,21 +133,6 @@ fake08:
   repo: libretro-fake08
   extra_args: []
   cmake_opts: []
-fbalpha:
-  version: b7ac554c53561d41640372f23dab15cd6fc4f0c4
-  commit: b7ac554c53561d41640372f23dab15cd6fc4f0c4
-  url: https://github.com/libretro/fbalpha2012/archive/b7ac554c53561d41640372f23dab15cd6fc4f0c4.tar.gz
-  license: Non-commercial
-  platform: unix
-  submodules: false
-  build_type: make
-  makefile: makefile.libretro
-  build_dir: svn-current/trunk/
-  name: fbalpha
-  repo: libretro-fbalpha
-  extra_args: []
-  cmake_opts: []
-  so_file: svn-current/trunk//fbalpha_libretro.so
 fbneo:
   version: d72f49f4a45dbfc5a855956d1a75ce2d0601c1c5
   commit: d72f49f4a45dbfc5a855956d1a75ce2d0601c1c5
@@ -238,21 +193,6 @@ gambatte:
   extra_args: []
   cmake_opts: []
   so_file: gambatte_libretro.so
-genesisplusgx:
-  version: 302fe82fccbe2e036c3e13891db6513982a497ac
-  commit: 302fe82fccbe2e036c3e13891db6513982a497ac
-  url: https://github.com/ekeeke/Genesis-Plus-GX/archive/302fe82fccbe2e036c3e13891db6513982a497ac.tar.gz
-  license: Non-commercial
-  platform: unix
-  submodules: false
-  build_type: make
-  makefile: Makefile.libretro
-  build_dir: "."
-  name: genesisplusgx
-  repo: libretro-genesisplusgx
-  extra_args: []
-  cmake_opts: []
-  so_file: genesisplusgx_libretro.so
 gpsp:
   version: 4caf7a167d159866479ea94d6b2d13c26ceb3e72
   commit: 4caf7a167d159866479ea94d6b2d13c26ceb3e72
@@ -268,21 +208,6 @@ gpsp:
   extra_args: []
   cmake_opts: []
   so_file: gpsp_libretro.so
-handy:
-  version: 65d6b865544cd441ef2bd18cde7bd834c23d0e48
-  commit: 65d6b865544cd441ef2bd18cde7bd834c23d0e48
-  url: https://github.com/libretro/libretro-handy/archive/65d6b865544cd441ef2bd18cde7bd834c23d0e48.tar.gz
-  license: Zlib
-  platform: unix
-  submodules: false
-  build_type: make
-  makefile: Makefile
-  name: handy
-  repo: libretro-handy
-  build_dir: "."
-  extra_args: []
-  cmake_opts: []
-  so_file: handy_libretro.so
 melonds:
   version: c6488c88cb4c7583dbcd61609e0eef441572fae8
   commit: c6488c88cb4c7583dbcd61609e0eef441572fae8
@@ -358,21 +283,6 @@ picodrive:
   extra_args: []
   cmake_opts: []
   so_file: picodrive_libretro.so
-pocketsnes:
-  version: 540baad622d9833bba7e0696193cb06f5f02f564
-  commit: 540baad622d9833bba7e0696193cb06f5f02f564
-  url: https://github.com/libretro/snes9x2002/archive/540baad622d9833bba7e0696193cb06f5f02f564.tar.gz
-  license: Non-commercial
-  platform: unix
-  submodules: false
-  build_type: make
-  makefile: Makefile
-  build_dir: "."
-  name: pocketsnes
-  repo: libretro-pocketsnes
-  extra_args: []
-  cmake_opts: []
-  so_file: snes9x2002_libretro.so
 pokemini:
   version: 9bf450887026d9b92d4f9432b5d2a5ed749a35e2
   commit: 9bf450887026d9b92d4f9432b5d2a5ed749a35e2
@@ -433,21 +343,6 @@ scummvm:
   makefile: Makefile
   extra_args: []
   cmake_opts: []
-snes9x:
-  version: ec4ebfc8f3819a9522fcb8e53eed985090017b1b
-  commit: ec4ebfc8f3819a9522fcb8e53eed985090017b1b
-  url: https://github.com/libretro/snes9x/archive/ec4ebfc8f3819a9522fcb8e53eed985090017b1b.tar.gz
-  license: Non-commercial
-  platform: unix
-  submodules: false
-  build_type: make
-  so_file: libretro/snes9x_libretro.so
-  makefile: Makefile
-  build_dir: libretro
-  name: snes9x
-  repo: libretro-snes9x
-  extra_args: []
-  cmake_opts: []
 snes9x2005:
   version: 74d871db9b4dba6dbe6c5ecebc88cbf255be5349
   commit: 74d871db9b4dba6dbe6c5ecebc88cbf255be5349
@@ -478,21 +373,6 @@ stella:
   repo: libretro-stella
   extra_args: []
   cmake_opts: []
-stella2014:
-  version: 8ab051edd4816f33a5631d230d54059eeed52c5f
-  commit: 8ab051edd4816f33a5631d230d54059eeed52c5f
-  url: https://github.com/libretro/stella2014-libretro/archive/8ab051edd4816f33a5631d230d54059eeed52c5f.tar.gz
-  license: GPLv2
-  platform: unix
-  submodules: false
-  build_type: make
-  makefile: Makefile
-  name: stella2014
-  repo: libretro-stella2014
-  build_dir: "."
-  extra_args: []
-  cmake_opts: []
-  so_file: stella2014_libretro.so
 supafaust:
   version: 75c658cce454e58ae04ea252f53a31c60d61548e
   commit: 75c658cce454e58ae04ea252f53a31c60d61548e
