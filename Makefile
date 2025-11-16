@@ -66,6 +66,7 @@ help:
 	@echo "  make clean-cortex-a53       Clean specific CPU family build"
 	@echo "  make shell                  Open shell in build container"
 	@echo "  make release                Create git flow release and trigger build"
+	@echo "  make release FORCE=1        Force recreate today's release (deletes existing)"
 	@echo ""
 	@echo "Recipe Management:"
 	@echo "  make update-recipes-cortex-a53      Check for core updates (dry-run)"
@@ -235,7 +236,11 @@ test:
 # Create a git flow release
 .PHONY: release
 release:
-	@./scripts/release
+	@if [ "$(FORCE)" = "1" ]; then \
+		./scripts/release --force; \
+	else \
+		./scripts/release; \
+	fi
 
 # Update recipe commit hashes to latest versions
 .PHONY: update-recipes-%
