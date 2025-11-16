@@ -2,7 +2,6 @@
 # frozen_string_literal: true
 
 require 'fileutils'
-require 'set'
 require_relative 'logger'
 
 # Parse CPU family configuration files
@@ -11,7 +10,7 @@ class CpuConfig
   attr_reader :family, :arch, :target_cross, :gnu_target_name,
               :target_cpu, :target_arch, :target_optimization,
               :target_cflags, :target_cxxflags, :target_ldflags,
-              :br2_flags, :cores_list
+              :br2_flags
 
   def initialize(family, config_dir: 'config', logger: nil)
     @family = family
@@ -21,7 +20,6 @@ class CpuConfig
     @br2_flags = {}
 
     load_config
-    load_cores_list
   end
 
   def platform
@@ -109,22 +107,6 @@ class CpuConfig
     validate_config
   end
 
-  def load_cores_list
-    list_file = File.join(@config_dir, "cores-#{@family}.list")
-
-    unless File.exist?(list_file)
-      @logger.warn("No cores list found: #{list_file}, will use all cores")
-      @cores_list = nil
-      return
-    end
-
-    @cores_list = File.readlines(list_file)
-                      .map(&:strip)
-                      .reject { |line| line.empty? || line.start_with?('#') }
-                      .to_set
-
-    @logger.detail("Loaded #{@cores_list.size} cores for #{@family}")
-  end
 
   def expand_variables(value)
     # Expand ${VAR} and $(VAR) references

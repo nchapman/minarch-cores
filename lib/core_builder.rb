@@ -6,6 +6,7 @@ require 'open3'
 require 'thread'
 require_relative 'logger'
 require_relative 'cpu_config'
+require_relative 'command_builder'
 
 # Build individual libretro cores with cross-compilation
 # Handles both Make and CMake builds
@@ -21,6 +22,9 @@ class CoreBuilder
     @built = 0
     @failed = 0
     @skipped = 0
+
+    # Initialize command builder for generating build commands
+    @command_builder = CommandBuilder.new(cpu_config: @cpu_config, parallel: @parallel)
 
     FileUtils.mkdir_p(@output_dir)
   end
@@ -66,18 +70,21 @@ class CoreBuilder
     # Clean before building to prevent contamination
     clean_before_build(name, build_type, metadata, core_dir)
 
-    case build_type
-    when 'cmake'
-      build_cmake(name, metadata, core_dir)
-    when 'make'
-      build_make(name, metadata, core_dir)
-    else
-      log_error(name, "Unknown build type: #{build_type}")
-      @failed += 1
-    end
+    result = case build_type
+             when 'cmake'
+               build_cmake(name, metadata, core_dir)
+             when 'make'
+               build_make(name, metadata, core_dir)
+             else
+               log_error(name, "Unknown build type: #{build_type}")
+               @failed += 1
+               nil
+             end
+    result # Return the path to the built .so file (or nil if failed)
   rescue StandardError => e
     log_error(name, "Build failed: #{e.message}")
     @failed += 1
+    nil
   end
 
   private
@@ -178,97 +185,32 @@ class CoreBuilder
     build_dir = File.join(core_dir, 'build')
     FileUtils.mkdir_p(build_dir)
 
-    # Prepare CMake options
-    cmake_opts = metadata['cmake_opts'] || []
-    cmake_opts = cmake_opts.flat_map { |opt| opt.split } # Split combined options
-
-    # Add our cross-compile settings
+    # Use CommandBuilder to generate CMake commands
     env = @cpu_config.to_env
-
-    cmake_opts += [
-      "-DCMAKE_C_COMPILER=#{env['CC']}",
-      "-DCMAKE_CXX_COMPILER=#{env['CXX']}",
-      "-DCMAKE_C_FLAGS=#{env['CFLAGS']}",
-      "-DCMAKE_CXX_FLAGS=#{env['CXXFLAGS']}",
-      "-DCMAKE_SYSTEM_PROCESSOR=#{@cpu_config.arch}",
-      "-DTHREADS_PREFER_PTHREAD_FLAG=ON",
-      "-DCMAKE_BUILD_TYPE=Release"
-    ]
-
-    # For ARM32, force C99 standard to avoid glibc Float128 issues (GCC 8.3 limitation)
-    # This overrides any CMAKE_C_STANDARD set by the core's CMakeLists.txt
-    if @cpu_config.arch == 'arm'
-      cmake_opts += [
-        "-DCMAKE_C_STANDARD=99",
-        "-DCMAKE_CXX_STANDARD=11"
-      ]
-    end
-
-    # Add CMAKE_PREFIX_PATH if set (for dependency finding)
-    if ENV['CMAKE_PREFIX_PATH']
-      cmake_opts += ["-DCMAKE_PREFIX_PATH=#{ENV['CMAKE_PREFIX_PATH']}"]
-    end
 
     # Run CMake
     Dir.chdir(build_dir) do
-      run_command(env, "cmake", "..", *cmake_opts)
-      run_command(env, "make", "-j#{@parallel}")
+      run_command(env, *@command_builder.cmake_configure_command(metadata))
+      run_command(env, *@command_builder.cmake_build_command)
     end
 
     # Find and copy .so file
     # For cmake builds, the .so might be in build/ subdirectory
     so_file = find_so_file(core_dir, name, metadata)
     if so_file
-      copy_so_file(so_file, name, metadata)
+      dest_path = copy_so_file(so_file, name, metadata)
       @built += 1
+      dest_path # Return the destination path
     else
       log_error(name, "No .so file found")
       @failed += 1
+      nil
     end
   end
 
   def build_make(name, metadata, core_dir)
     build_subdir = metadata['build_dir'] || '.'
     makefile = metadata['makefile'] || 'Makefile'
-    # Use recipe platform unless it's a variable reference or null
-    platform = metadata['platform']
-    platform = @cpu_config.platform if platform.nil? || platform.include?('$(')
-
-    # flycast-xtreme requires CPU-specific platform flags
-    extra_make_args = []
-
-    if name == 'flycast-xtreme'
-      extra_make_args << 'HAVE_OPENMP=1'
-
-      case @cpu_config.family
-      when 'cortex-a53'
-        # H700/A133 devices (RG28xx/35xx/40xx, Trimui)
-        platform = 'odroid-n2'
-        extra_make_args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
-        @logger.detail("  Using Knulli H700/A133 config: platform=#{platform}")
-      when 'cortex-a35'
-        # RG351 series (legacy 64-bit ARM)
-        platform = 'odroid-n2'
-        extra_make_args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
-        @logger.detail("  Using platform=#{platform} for Cortex-A35")
-      when 'cortex-a55'
-        # RK3566 devices (Miyoo Flip, etc.)
-        platform = 'odroidc4'
-        extra_make_args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
-        @logger.detail("  Using platform=#{platform} for Cortex-A55")
-      when 'cortex-a7'
-        platform = 'arm'
-        extra_make_args += ['FORCE_GLES=1', 'ARCH=arm', 'LDFLAGS=-lrt']
-        @logger.detail("  Using platform=#{platform} for ARM32")
-      else
-        # Generic ARM64 fallback
-        if @cpu_config.arch == 'aarch64'
-          platform = 'arm64'
-          extra_make_args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
-          @logger.detail("  Using platform=#{platform} for ARM64")
-        end
-      end
-    end
 
     run_prebuild_steps(name, core_dir)
 
@@ -288,31 +230,26 @@ class CoreBuilder
       return
     end
 
-    # Build make arguments
-    make_args = []
-    make_args << "platform=#{platform}" if platform
-    make_args += extra_make_args
-
     # Run make
     env = @cpu_config.to_env
     Dir.chdir(work_dir) do
       # Clean first
-      run_command(env, "make", "-f", actual_makefile, "clean") rescue nil
+      run_command(env, *@command_builder.make_command(metadata, actual_makefile, clean: true)) rescue nil
 
-      # Build
-      args = ["make", "-f", actual_makefile, "-j#{@parallel}"]
-      args += make_args
-      run_command(env, *args)
+      # Build using CommandBuilder
+      run_command(env, *@command_builder.make_command(metadata, actual_makefile))
     end
 
     # Find and copy .so file
     so_file = find_so_file(core_dir, name, metadata)
     if so_file
-      copy_so_file(so_file, name, metadata)
+      dest_path = copy_so_file(so_file, name, metadata)
       @built += 1
+      dest_path # Return the destination path
     else
       log_error(name, "No .so file found")
       @failed += 1
+      nil
     end
   end
 
@@ -341,16 +278,19 @@ class CoreBuilder
   end
 
   def copy_so_file(so_file, name, metadata = {})
-    # Use custom so_file name if specified in recipe, otherwise default to {name}_libretro.so
+    # Use custom so_file name if specified in recipe (for output file override)
+    # Otherwise, preserve the original filename from the build
     if metadata && metadata['so_file'] && !metadata['so_file'].include?('/')
       dest_name = metadata['so_file']
     else
-      dest_name = "#{name}_libretro.so"
+      # Preserve the original filename (e.g., snes9x2005_plus_libretro.so)
+      dest_name = File.basename(so_file)
     end
 
     dest = File.join(@output_dir, dest_name)
     FileUtils.cp(so_file, dest)
     @logger.detail("  ✓ #{dest_name}")
+    dest # Return the destination path
   end
 
   def run_command(env, *args)

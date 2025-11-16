@@ -109,11 +109,10 @@ builder = CoreBuilder.new(
 )
 
 logger.step("Building #{core_name}")
-builder.build_one(core_name, metadata)
+so_file = builder.build_one(core_name, metadata)
 
-# Check result
-so_file = File.join(output_dir, "#{core_name}_libretro.so")
-if File.exist?(so_file)
+# Check result - build_one returns the path to the built .so file
+if so_file
   file_size = File.size(so_file) / (1024.0 * 1024.0)
   logger.success("Built successfully!")
   logger.success("Output: #{so_file} (%.1f MB)" % file_size)

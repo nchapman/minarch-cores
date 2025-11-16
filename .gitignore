@@ -20,3 +20,8 @@ libretro-super/log/
 
 # macOS
 .DS_Store
+
+# Ruby/Bundler
+Gemfile.lock
+.bundle/
+vendor/bundle/

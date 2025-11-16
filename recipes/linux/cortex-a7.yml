@@ -28,7 +28,6 @@
 #     so_file: <path-to-output.so>        # Optional (override default)
 
 ---
----
 a5200:
   version: 526404072821bb2021fab16f8c5dbbca300512c8
   commit: 526404072821bb2021fab16f8c5dbbca300512c8
@@ -464,7 +463,6 @@ snes9x2005:
   extra_args:
   - USE_BLARGG_APU=1
   cmake_opts: []
-  so_file: snes9x2005_plus_libretro.so
 stella:
   version: 4557099e5d7a0c0b02424ea85d2a4b093911e048
   commit: 4557099e5d7a0c0b02424ea85d2a4b093911e048

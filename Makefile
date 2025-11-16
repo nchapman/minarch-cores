@@ -1,7 +1,7 @@
 # minarch-cores - Build libretro cores using Knulli definitions
 # CPU family-based builds for optimal performance
 
-.PHONY: help list-cores build-% build-all core-% package-% package-all clean-% clean docker-build shell release
+.PHONY: help list-cores build-% build-all core-% package-% package-all clean-% clean docker-build shell release test
 
 # Docker configuration
 DOCKER_IMAGE := minarch-cores-builder
@@ -58,6 +58,7 @@ help:
 	@echo "  make package-all            Create all packages"
 	@echo ""
 	@echo "Utilities:"
+	@echo "  make test                   Run RSpec test suite"
 	@echo "  make list-cores             List available cores (131 from Knulli)"
 	@echo "  make clean                  Clean build outputs (keeps downloaded cores)"
 	@echo "  make clean-artifacts        Clean .o/.a/.so from cores/ (keeps source code)"
@@ -136,16 +137,7 @@ core-%: docker-build
 		exit 1; \
 	fi; \
 	mkdir -p output/$$FAMILY output/cores output/logs; \
-	$(DOCKER_RUN) ruby scripts/build-one $$FAMILY $$CORE -j $(JOBS); \
-	if [ -f output/$$FAMILY/$${CORE}_libretro.so ]; then \
-		echo ""; \
-		echo "✓ Built successfully: output/$$FAMILY/$${CORE}_libretro.so"; \
-		ls -lh output/$$FAMILY/$${CORE}_libretro.so | awk '{print "  Size: " $$5}'; \
-	else \
-		echo ""; \
-		echo "✗ Build failed"; \
-		exit 1; \
-	fi
+	$(DOCKER_RUN) ruby scripts/build-one $$FAMILY $$CORE -j $(JOBS)
 
 # Generic package target
 .PHONY: package-%
@@ -222,6 +214,17 @@ shell: docker-build
 	@echo "Type 'exit' to return"
 	@echo ""
 	docker run --rm -it -v $(PWD):/output -w /output $(DOCKER_IMAGE) /bin/bash
+
+# Run tests
+.PHONY: test
+test:
+	@echo "=== Running RSpec Tests ==="
+	@if ! command -v bundle >/dev/null 2>&1; then \
+		echo "ERROR: bundler not found. Install with: gem install bundler"; \
+		exit 1; \
+	fi
+	@bundle check >/dev/null 2>&1 || bundle install
+	@bundle exec rspec
 
 # Create a git flow release
 .PHONY: release
