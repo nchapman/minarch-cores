@@ -1,7 +1,7 @@
 # minarch-cores - Build libretro cores using Knulli definitions
 # CPU family-based builds for optimal performance
 
-.PHONY: help list-cores recipes-% recipes-all build-% build-all core-% package-% package-all clean-% clean docker-build shell
+.PHONY: help list-cores recipes-% recipes-all build-% build-all core-% package-% package-all clean-% clean docker-build shell release
 
 # Docker configuration
 DOCKER_IMAGE := minarch-cores-builder
@@ -69,6 +69,7 @@ help:
 	@echo "  make clean-cores            Delete cores/ directory (forces re-download)"
 	@echo "  make clean-cortex-a53       Clean specific CPU family build"
 	@echo "  make shell                  Open shell in build container"
+	@echo "  make release                Create git flow release and trigger build"
 	@echo ""
 	@echo "Device Guide:"
 	@echo "  Anbernic RG28xx/35xx/40xx, Trimui → cortex-a53"
@@ -240,3 +241,8 @@ shell: docker-build
 	@echo "Type 'exit' to return"
 	@echo ""
 	docker run --rm -it -v $(PWD):/output -w /output $(DOCKER_IMAGE) /bin/bash
+
+# Create a git flow release
+.PHONY: release
+release:
+	@./scripts/release

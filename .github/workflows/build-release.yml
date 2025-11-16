@@ -1,0 +1,126 @@
+name: Build and Release Cores
+
+on:
+  push:
+    tags:
+      - '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'  # Match YYYYMMDD format (e.g., 20251115)
+
+permissions:
+  contents: write  # Required for creating releases and pushing tags
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 hours max for all builds
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0  # Fetch all history for git operations
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: make docker-build
+
+      - name: Clean previous builds
+        run: make clean
+
+      - name: Build all CPU families
+        run: |
+          echo "Starting full build at $(date)"
+          make build-all
+          echo "Build completed at $(date)"
+
+      - name: Verify builds
+        run: |
+          echo "Build verification:"
+          for family in cortex-a7 cortex-a53 cortex-a55 cortex-a76; do
+            count=$(ls output/$family/*.so 2>/dev/null | wc -l)
+            echo "  $family: $count cores"
+            if [ "$count" -eq 0 ]; then
+              echo "ERROR: No cores built for $family"
+              exit 1
+            fi
+          done
+
+      - name: Package builds
+        run: make package-all
+
+      - name: Verify packages
+        run: |
+          echo "Package verification:"
+          for family in cortex-a7 cortex-a53 cortex-a55 cortex-a76; do
+            if [ -f "output/dist/linux-$family.zip" ]; then
+              size=$(du -h "output/dist/linux-$family.zip" | cut -f1)
+              echo "  linux-$family.zip: $size"
+            else
+              echo "ERROR: output/dist/linux-$family.zip not found"
+              exit 1
+            fi
+          done
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          cat << EOF > release_notes.md
+          # LessUI-Cores Build ${GITHUB_REF_NAME}
+
+          Automated build of libretro cores for ARM-based retro handhelds running MinUI.
+
+          ## Build Information
+          - Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          - Tag: ${GITHUB_REF_NAME}
+          - Commit: ${GITHUB_SHA:0:8}
+
+          ## CPU Family Packages
+
+          Download the package for your device's CPU family:
+
+          | CPU Family | Architecture | Cores | Devices |
+          |------------|--------------|-------|---------|
+          | **cortex-a7** | ARM32 (ARMv7) | $(ls output/cortex-a7/*.so 2>/dev/null | wc -l) | Miyoo Mini, A30 |
+          | **cortex-a53** | ARM64 (ARMv8-a) | $(ls output/cortex-a53/*.so 2>/dev/null | wc -l) | RG28xx/35xx/40xx, Trimui |
+          | **cortex-a55** | ARM64 (ARMv8.2-a) | $(ls output/cortex-a55/*.so 2>/dev/null | wc -l) | Miyoo Flip, RGB30, RG353 |
+          | **cortex-a76** | ARM64 (ARMv8.2-a) | $(ls output/cortex-a76/*.so 2>/dev/null | wc -l) | RG406/556, Retroid Pocket 5 |
+
+          ## Installation
+
+          1. Download the appropriate .zip file for your device
+          2. Extract the .so files to your MinUI cores directory
+          3. Restart your device
+
+          ## Systems Supported
+
+          This build includes cores for ~35 retro gaming systems. See \`config/systems.yml\` for the complete list.
+
+          ## Source
+
+          All cores built from production-tested commits sourced from [Knulli](https://github.com/knulli-cfw/distribution).
+          EOF
+
+          echo "notes_file=release_notes.md" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            output/dist/linux-cortex-a7.zip
+            output/dist/linux-cortex-a53.zip
+            output/dist/linux-cortex-a55.zip
+            output/dist/linux-cortex-a76.zip
+          body_path: release_notes.md
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update 'latest' tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f latest
+          git push -f origin latest
