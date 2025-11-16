@@ -142,6 +142,7 @@ sgb:
   name: Super Game Boy
   cores:
     default: mgba
+    cortex-a7: gambatte  # mgba doesn't build on ARM32, use gambatte for cortex-a7
     # Note: SGB requires GBA hardware for GB games with SGB enhancements
 
 virtualboy:
@@ -170,8 +171,8 @@ gba:
   name: Nintendo Game Boy Advance
   cores:
     default: mgba
-    cortex-a7: gpsp  # Lightest option for very weak devices (uses dynarec)
-    # Note: H700/A133 also has gpsp available as lighter alternative to mgba
+    cortex-a7: gpsp  # Required for ARM32 (mgba has _Float128 compiler errors on ARM32/GCC 8.3)
+    # Note: mgba doesn't build on cortex-a7 due to glibc/compiler Float128 incompatibility
 
 # PlayStation Era
 psx:
@@ -276,10 +277,10 @@ cpu_families:
       - gba
       - psx
       - pico8
-      - tic80
       - scummvm
       - fbneo
-      # Excluded: n64, nds, dreamcast (too heavy for ARM32)
+      # Excluded: n64, nds, dreamcast, psp (too heavy for ARM32)
+      # Excluded: tic80 (requires janet library and has complex asset dependencies)
 
   cortex-a35:
     enabled_systems: all  # Legacy ARM64 (RG351 series)

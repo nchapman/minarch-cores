@@ -11,8 +11,12 @@
     "name": "a5200",
     "repo": "libretro-a5200",
     "build_dir": ".",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "a5200_libretro.so"
   },
   "beetle-pce-fast": {
@@ -27,8 +31,12 @@
     "name": "beetle-pce-fast",
     "repo": "libretro-beetle-pce-fast",
     "makefile": "Makefile",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "beetle-pce-fast_libretro.so"
   },
   "beetle-vb": {
@@ -43,8 +51,12 @@
     "name": "beetle-vb",
     "repo": "libretro-beetle-vb",
     "makefile": "Makefile",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "beetle-vb_libretro.so"
   },
   "bluemsx": {
@@ -59,8 +71,12 @@
     "build_dir": ".",
     "name": "bluemsx",
     "repo": "libretro-bluemsx",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "bluemsx_libretro.so"
   },
   "fake08": {
@@ -76,8 +92,12 @@
     "build_dir": "platform/libretro",
     "name": "fake08",
     "repo": "libretro-fake08",
-    "extra_args": [],
-    "cmake_opts": []
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ]
   },
   "fbalpha": {
     "version": "b7ac554c53561d41640372f23dab15cd6fc4f0c4",
@@ -91,8 +111,12 @@
     "build_dir": "svn-current/trunk/",
     "name": "fbalpha",
     "repo": "libretro-fbalpha",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "svn-current/trunk//fbalpha_libretro.so"
   },
   "fbneo": {
@@ -108,8 +132,12 @@
     "build_dir": "src/burner/libretro",
     "name": "fbneo",
     "repo": "libretro-fbneo",
-    "extra_args": [],
-    "cmake_opts": []
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ]
   },
   "fceumm": {
     "version": "63643ba02c8eaea15dbe167ef907f3da7a3e6fd7",
@@ -123,8 +151,12 @@
     "build_dir": ".",
     "name": "fceumm",
     "repo": "libretro-fceumm",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "fceumm_libretro.so"
   },
   "fuse": {
@@ -139,8 +171,12 @@
     "name": "fuse",
     "repo": "libretro-fuse",
     "build_dir": ".",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "fuse_libretro.so"
   },
   "gambatte": {
@@ -155,8 +191,12 @@
     "build_dir": ".",
     "name": "gambatte",
     "repo": "libretro-gambatte",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "gambatte_libretro.so"
   },
   "genesisplusgx": {
@@ -171,8 +211,12 @@
     "build_dir": ".",
     "name": "genesisplusgx",
     "repo": "libretro-genesisplusgx",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "genesisplusgx_libretro.so"
   },
   "gpsp": {
@@ -187,8 +231,12 @@
     "name": "gpsp",
     "repo": "libretro-gpsp",
     "makefile": "Makefile",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "gpsp_libretro.so"
   },
   "handy": {
@@ -203,38 +251,13 @@
     "name": "handy",
     "repo": "libretro-handy",
     "build_dir": ".",
-    "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "handy_libretro.so"
-  },
-  "mgba": {
-    "version": "3571b112dc821d3612e5073afb8b6be41a35dc55",
-    "commit": "3571b112dc821d3612e5073afb8b6be41a35dc55",
-    "url": "https://github.com/mgba-emu/mgba/archive/3571b112dc821d3612e5073afb8b6be41a35dc55.tar.gz",
-    "license": "MPLv2.0",
-    "platform": null,
-    "submodules": false,
-    "build_type": "cmake",
-    "cmake_opts": [
-      "-DCMAKE_BUILD_TYPE=Release",
-      "-DBUILD_LIBRETRO=ON",
-      "-DSKIP_LIBRARY=ON",
-      "-DBUILD_QT=OFF",
-      "-DBUILD_SDL=OFF",
-      "-DUSE_DISCORD_RPC=OFF",
-      "-DUSE_GDB_STUB=OFF",
-      "-DUSE_SQLITE3=OFF",
-      "-DUSE_DEBUGGERS=OFF",
-      "-DUSE_EDITLINE=OFF",
-      "-DUSE_EPOXY=OFF",
-      "-DBUILD_GL=OFF"
+    "extra_args": [
+
     ],
-    "name": "mgba",
-    "repo": "libretro-mgba",
-    "build_dir": ".",
-    "makefile": "Makefile.libretro",
-    "extra_args": [],
-    "so_file": "mgba_libretro.so"
+    "cmake_opts": [
+
+    ],
+    "so_file": "handy_libretro.so"
   },
   "pcsx": {
     "version": "9aefd427e47e1cdf94578e1913054bc14a44bab6",
@@ -248,8 +271,12 @@
     "build_dir": ".",
     "name": "pcsx",
     "repo": "libretro-pcsx",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "pcsx_libretro.so"
   },
   "picodrive": {
@@ -264,8 +291,12 @@
     "build_dir": ".",
     "name": "picodrive",
     "repo": "libretro-picodrive",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "picodrive_libretro.so"
   },
   "pocketsnes": {
@@ -280,8 +311,12 @@
     "build_dir": ".",
     "name": "pocketsnes",
     "repo": "libretro-pocketsnes",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "pocketsnes_libretro.so"
   },
   "pokemini": {
@@ -296,8 +331,12 @@
     "name": "pokemini",
     "repo": "libretro-pokemini",
     "build_dir": ".",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "pokemini_libretro.so"
   },
   "prosystem": {
@@ -312,8 +351,12 @@
     "name": "prosystem",
     "repo": "libretro-prosystem",
     "build_dir": ".",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "prosystem_libretro.so"
   },
   "race": {
@@ -328,8 +371,12 @@
     "build_dir": ".",
     "name": "race",
     "repo": "libretro-race",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "race_libretro.so"
   },
   "scummvm": {
@@ -345,8 +392,12 @@
     "name": "scummvm",
     "repo": "libretro-scummvm",
     "makefile": "Makefile",
-    "extra_args": [],
-    "cmake_opts": []
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ]
   },
   "stella2014": {
     "version": "8ab051edd4816f33a5631d230d54059eeed52c5f",
@@ -360,33 +411,13 @@
     "name": "stella2014",
     "repo": "libretro-stella2014",
     "build_dir": ".",
-    "extra_args": [],
-    "cmake_opts": [],
-    "so_file": "stella2014_libretro.so"
-  },
-  "tic80": {
-    "version": "765b092744162358246cb5cade712ba7bf32d679",
-    "commit": "765b092744162358246cb5cade712ba7bf32d679",
-    "url": "https://github.com/nesbox/TIC-80.git",
-    "license": "MIT",
-    "platform": null,
-    "submodules": true,
-    "build_type": "cmake",
-    "cmake_opts": [
-      "-DBUILD_LIBRETRO=ON",
-      "-DBUILD_PLAYER=OFF",
-      "-DBUILD_SOKOL=OFF",
-      "-DBUILD_SDL=OFF",
-      "-DBUILD_DEMO_CARTS=OFF",
-      "-DBUILD_TOOLS=OFF",
-      "-DBUILD_PRO=OFF"
+    "extra_args": [
+
     ],
-    "so_file": "build/bin/tic80_libretro.so",
-    "name": "tic80",
-    "repo": "libretro-tic80",
-    "build_dir": ".",
-    "makefile": "Makefile.libretro",
-    "extra_args": []
+    "cmake_opts": [
+
+    ],
+    "so_file": "stella2014_libretro.so"
   },
   "vecx": {
     "version": "56a99fa08a7601b304d752188ca573febf26faeb",
@@ -400,8 +431,12 @@
     "name": "vecx",
     "repo": "libretro-vecx",
     "build_dir": ".",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "vecx_libretro.so"
   },
   "vice": {
@@ -416,8 +451,12 @@
     "build_dir": ".",
     "name": "vice",
     "repo": "libretro-vice",
-    "extra_args": [],
-    "cmake_opts": [],
+    "extra_args": [
+
+    ],
+    "cmake_opts": [
+
+    ],
     "so_file": "vice_libretro.so"
   }
 }

@@ -1,6 +1,14 @@
 # CMake option overrides for specific cores
 # These override the options extracted from Knulli's .mk files
 
+mgba:
+  # .so file is in build/ subdirectory (CMake out-of-source build)
+  so_file: "build/mgba_libretro.so"
+  # Disable on cortex-a7: _Float128 compiler errors on ARM32/GCC 8.3
+  # Use gpsp for GBA on cortex-a7 instead
+  disabled_on:
+    - cortex-a7
+
 ppsspp:
   # Use system FFmpeg instead of bundled (matches Knulli's Buildroot environment)
   # Bundled FFmpeg requires pre-building which is complex

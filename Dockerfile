@@ -116,6 +116,9 @@ RUN echo "=== Build Environment ===" && \
 
 WORKDIR /workspace
 
+# Clear any problematic bash configs
+RUN rm -f /etc/bash.bashrc /root/.bashrc /etc/profile.d/* || true
+
 # Configure git to avoid credential issues with public repos
 RUN git config --global credential.helper "" && \
     git config --global http.postBuffer 524288000 && \

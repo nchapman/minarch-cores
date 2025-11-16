@@ -1,5 +1,8 @@
-# Build output (everything under workspace/)
-workspace/
+# Build output (everything under output/)
+output/
+
+# Downloaded core sources
+cores/
 
 # libretro-super working directories (legacy)
 libretro-super/libretro-*/

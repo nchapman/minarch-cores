@@ -16,7 +16,7 @@ class CoresBuilder
     cpu_family:,
     package_dir: File.expand_path('../knulli/package/batocera/emulators/retroarch/libretro', __dir__),
     config_dir: 'config',
-    cores_dir: 'workspace/cores',
+    cores_dir: 'output/cores',
     output_dir: nil,
     recipe_file: nil,
     log_file: nil,
@@ -30,7 +30,7 @@ class CoresBuilder
     @package_dir = package_dir
     @config_dir = config_dir
     @cores_dir = File.expand_path(cores_dir)
-    @output_dir = File.expand_path(output_dir || "workspace/#{cpu_family}")
+    @output_dir = File.expand_path(output_dir || "output/#{cpu_family}")
     @recipe_file = recipe_file || "recipes/linux/#{cpu_family}.json"
     @parallel_fetch = parallel_fetch
     @parallel_build = parallel_build

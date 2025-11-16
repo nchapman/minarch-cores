@@ -97,6 +97,13 @@ class RecipeGenerator
     @overrides.each do |core_name, overrides|
       next unless @recipes.key?(core_name)
 
+      # Check if core is disabled for this CPU family
+      if overrides['disabled_on']&.include?(@cpu_config.family)
+        @recipes.delete(core_name)
+        @logger.info("Disabled #{core_name} for #{@cpu_config.family}")
+        next
+      end
+
       if overrides['cmake_opts']
         # Merge overrides: remove conflicting options, then add override options
         existing_opts = @recipes[core_name]['cmake_opts'] || []
