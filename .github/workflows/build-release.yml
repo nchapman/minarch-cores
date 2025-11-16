@@ -30,6 +30,8 @@ jobs:
         run: make clean
 
       - name: Build all CPU families
+        env:
+          JOBS: 4
         run: |
           echo "Starting full build at $(date)"
           make build-all
