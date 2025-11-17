@@ -63,6 +63,9 @@ class CoreBuilder
       return
     end
 
+    # Run prebuild script if specified
+    run_prebuild_steps(name, metadata, core_dir)
+
     # Apply patches before building
     apply_patches(name, core_dir)
 
@@ -86,8 +89,26 @@ class CoreBuilder
 
   private
 
-  def run_prebuild_steps(name, core_dir)
-    # Core-specific pre-build steps can be added here if needed
+  def run_prebuild_steps(name, metadata, core_dir)
+    return unless metadata['prebuild_script']
+
+    script_path = File.join(File.dirname(__dir__), 'scripts', metadata['prebuild_script'])
+
+    unless File.exist?(script_path)
+      raise "Prebuild script not found: #{script_path}"
+    end
+
+    @logger.detail("  Running prebuild script: #{metadata['prebuild_script']}")
+
+    # Execute script with core_dir and cpu_config as arguments
+    cmd = "#{script_path} #{@cpu_config.arch} #{core_dir}"
+
+    output, status = Open3.capture2e(cmd)
+    unless status.success?
+      raise "Prebuild script failed:\n#{output}"
+    end
+
+    @logger.detail("  ✓ Prebuild script completed")
   end
 
   def apply_patches(name, core_dir)
@@ -164,8 +185,6 @@ class CoreBuilder
   def build_cmake(name, metadata, core_dir)
     so_file_path = metadata['so_file'] || raise("Missing 'so_file' for #{name}")
 
-    run_prebuild_steps(name, core_dir)
-
     build_dir = File.join(core_dir, 'build')
     FileUtils.mkdir_p(build_dir)
 
@@ -193,8 +212,6 @@ class CoreBuilder
     build_subdir = metadata['build_dir'] || raise("Missing 'build_dir' for #{name}")
     makefile = metadata['makefile'] || raise("Missing 'makefile' for #{name}")
     so_file_path = metadata['so_file'] || raise("Missing 'so_file' for #{name}")
-
-    run_prebuild_steps(name, core_dir)
 
     work_dir = File.join(core_dir, build_subdir)
     unless Dir.exist?(work_dir)

@@ -115,7 +115,7 @@ fceumm:
 
 flycast:
   repo: flyinghead/flycast
-  commit: 4747e6190899949bafd3391b3ba33b8e4c37219c
+  tag: v2.0
   build_type: cmake
   so_file: build/flycast_libretro.so
   submodules: true
@@ -218,10 +218,11 @@ pokemini:
 
 ppsspp:
   repo: hrydgard/ppsspp
-  commit: a477ae023fe634e99de05c8baa101630b70e3518
+  tag: v1.18.1
   build_type: cmake
   so_file: build/lib/ppsspp_libretro.so
   submodules: true
+  prebuild_script: build-ppsspp-ffmpeg.sh
   cmake_opts:
     - -DCMAKE_BUILD_TYPE=Release
     - -DBUILD_SHARED_LIBS=OFF

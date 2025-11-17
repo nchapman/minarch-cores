@@ -4,6 +4,9 @@ output/
 # Downloaded core sources
 cores/
 
+# External build dependencies (ppsspp-ffmpeg, etc.)
+external/
+
 # Legacy build directories
 build/
 
