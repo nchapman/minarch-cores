@@ -48,7 +48,11 @@ class SourceFetcher
 
   def fetch_one(name, metadata)
     repo = metadata['repo'] || raise("Missing 'repo' for #{name}")
-    commit = metadata['commit'] || raise("Missing 'commit' for #{name}")
+
+    # Support both 'tag' (preferred) and 'commit' (legacy)
+    ref = metadata['tag'] || metadata['commit']
+    raise("Missing 'tag' or 'commit' for #{name}") unless ref
+
     needs_submodules = metadata['submodules'] || false
 
     # Construct directory name: libretro-{corename}
@@ -62,16 +66,16 @@ class SourceFetcher
       return
     end
 
-    log_thread("Fetching #{name} from #{repo}@#{commit}")
+    log_thread("Fetching #{name} from #{repo}@#{ref}")
 
     # Determine if we need git clone (submodules or version tag) or can use tarball (faster)
-    if needs_submodules || commit =~ /^v[\d.]+$/
+    if needs_submodules || ref =~ /^v[\d.]+$/
       # Use git clone for submodules or version tags
       git_url = "https://github.com/#{repo}.git"
-      fetch_git(git_url, target_dir, commit, needs_submodules)
+      fetch_git(git_url, target_dir, ref, needs_submodules)
     else
       # Use tarball for commit SHAs (faster)
-      tarball_url = "https://github.com/#{repo}/archive/#{commit}.tar.gz"
+      tarball_url = "https://github.com/#{repo}/archive/#{ref}.tar.gz"
       fetch_tarball(tarball_url, target_dir, repo_name)
     end
 

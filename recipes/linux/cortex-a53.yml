@@ -6,7 +6,8 @@
 #
 # Required fields for make builds:
 #   repo: GitHub org/repo (e.g., "libretro/gambatte-libretro")
-#   commit: Git commit SHA or tag
+#   tag: Git tag (e.g., "v2.0") - preferred for releases
+#   commit: Git commit SHA (use if no tag available)
 #   build_type: "make"
 #   makefile: Exact makefile name (e.g., "Makefile.libretro")
 #   build_dir: Directory where makefile lives (e.g., ".")
@@ -18,7 +19,7 @@
 #   extra_args: ["ARG=value"] (only include if needed)
 #
 # Required fields for cmake builds:
-#   repo, commit, build_type: "cmake", so_file
+#   repo, tag/commit, build_type: "cmake", so_file
 #   cmake_opts: ["-DFOO=bar"] (cmake-specific options)
 #
 ---
@@ -115,7 +116,7 @@ fceumm:
 
 flycast:
   repo: flyinghead/flycast
-  commit: aa97a6d64fb47d3ce0febaa575b26d975dd916e4  # v2.0 (stable, works with GCC 8.3.0)
+  tag: v2.0
   build_type: cmake
   so_file: build/flycast_libretro.so
   submodules: true
@@ -218,7 +219,7 @@ pokemini:
 
 ppsspp:
   repo: hrydgard/ppsspp
-  commit: 0f50225f8e741c2f8a3a35cfd3b7d9dd0a16b34f  # v1.18.1 tag
+  tag: v1.18.1
   build_type: cmake
   so_file: build/lib/ppsspp_libretro.so
   submodules: true
