@@ -5,8 +5,14 @@
 
 # Docker configuration
 DOCKER_IMAGE := minarch-cores-builder
-# Use native architecture (ARM64 on Apple Silicon, x86_64 elsewhere)
-DOCKER_RUN := docker run --rm -v $(PWD):/workspace -w /workspace $(DOCKER_IMAGE)
+# Platform: Set PLATFORM=amd64 to force x86_64 (for testing GitHub Actions environment)
+# Default: uses native architecture (ARM64 on Apple Silicon, x86_64 elsewhere)
+ifdef PLATFORM
+DOCKER_PLATFORM := --platform linux/$(PLATFORM)
+else
+DOCKER_PLATFORM :=
+endif
+DOCKER_RUN := docker run --rm $(DOCKER_PLATFORM) -v $(PWD):/workspace -w /workspace $(DOCKER_IMAGE)
 
 # CPU families to build (all MinUI-compatible optimized variants)
 # Building 4 CPU families for optimal per-device performance
@@ -68,6 +74,10 @@ help:
 	@echo "  make release                Create git flow release and trigger build"
 	@echo "  make release FORCE=1        Force recreate today's release (deletes existing)"
 	@echo ""
+	@echo "Testing GitHub Actions Environment:"
+	@echo "  make docker-build PLATFORM=amd64    Build x86_64 Docker image"
+	@echo "  make build-cortex-a7 PLATFORM=amd64 Test ARM32 cross-compile from x86_64"
+	@echo ""
 	@echo "Recipe Management:"
 	@echo "  make update-recipes-cortex-a53      Check for core updates (dry-run)"
 	@echo "  make update-recipes-cortex-a53 LIVE=1  Apply core updates"
@@ -84,7 +94,10 @@ help:
 # Build Docker image
 docker-build:
 	@echo "=== Building Docker image ==="
-	docker build -t $(DOCKER_IMAGE) .
+	@if [ -n "$(DOCKER_PLATFORM)" ]; then \
+		echo "Using platform: $(DOCKER_PLATFORM)"; \
+	fi
+	docker build $(DOCKER_PLATFORM) -t $(DOCKER_IMAGE) .
 	@echo "✓ Docker image ready"
 
 # Note: Recipes are now manually maintained YAML files in recipes/linux/

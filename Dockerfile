@@ -91,12 +91,12 @@ RUN ARCH=$(uname -m) && \
         echo "Unsupported architecture: $ARCH" && exit 1; \
     fi && \
     echo "Installing CMake for $CMAKE_ARCH" && \
-    wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0-linux-${CMAKE_ARCH}.tar.gz && \
-    tar -xzf cmake-3.20.0-linux-${CMAKE_ARCH}.tar.gz -C /opt && \
-    ln -sf /opt/cmake-3.20.0-linux-${CMAKE_ARCH}/bin/cmake /usr/local/bin/cmake && \
-    ln -sf /opt/cmake-3.20.0-linux-${CMAKE_ARCH}/bin/ctest /usr/local/bin/ctest && \
-    ln -sf /opt/cmake-3.20.0-linux-${CMAKE_ARCH}/bin/cpack /usr/local/bin/cpack && \
-    rm cmake-3.20.0-linux-${CMAKE_ARCH}.tar.gz
+    wget https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-${CMAKE_ARCH}.tar.gz && \
+    tar -xzf cmake-3.22.1-linux-${CMAKE_ARCH}.tar.gz -C /opt && \
+    ln -sf /opt/cmake-3.22.1-linux-${CMAKE_ARCH}/bin/cmake /usr/local/bin/cmake && \
+    ln -sf /opt/cmake-3.22.1-linux-${CMAKE_ARCH}/bin/ctest /usr/local/bin/ctest && \
+    ln -sf /opt/cmake-3.22.1-linux-${CMAKE_ARCH}/bin/cpack /usr/local/bin/cpack && \
+    rm cmake-3.22.1-linux-${CMAKE_ARCH}.tar.gz
 
 # Verify build environment
 RUN echo "=== Build Environment ===" && \

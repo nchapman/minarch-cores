@@ -137,7 +137,7 @@ gpsp:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: gpsp_libretro.so
 
 melonds:
@@ -236,12 +236,12 @@ snes9x2005:
 
 stella:
   repo: stella-emu/stella
-  commit: 7c4e3b2f8c027ae54a3ad9c90d7f00fccde15de9
+  commit: 6.7.1
   build_type: make
   makefile: Makefile
-  build_dir: src/os/libretro
+  build_dir: src/libretro
   platform: unix
-  so_file: src/os/libretro/stella_libretro.so
+  so_file: src/libretro/stella_libretro.so
 
 supafaust:
   repo: libretro/supafaust
