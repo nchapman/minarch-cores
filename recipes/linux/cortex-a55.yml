@@ -241,7 +241,7 @@ ppsspp:
     - -DCMAKE_C_FLAGS=-O2 -DEGL_NO_X11=1 -DMESA_EGL_NO_X11_HEADERS=1
     - -DCMAKE_CXX_FLAGS=-O2 -DEGL_NO_X11=1 -DMESA_EGL_NO_X11_HEADERS=1
     - -DUSE_FFMPEG=ON
-    - -DUSE_SYSTEM_FFMPEG=ON
+    - -DUSE_SYSTEM_FFMPEG=OFF
 
 prosystem:
   repo: libretro/prosystem-libretro
@@ -284,12 +284,12 @@ snes9x2005:
 
 stella:
   repo: stella-emu/stella
-  commit: 7c4e3b2f8c027ae54a3ad9c90d7f00fccde15de9
+  commit: 6.7.1
   build_type: make
   makefile: Makefile
-  build_dir: src/os/libretro
+  build_dir: src/libretro
   platform: unix
-  so_file: src/os/libretro/stella_libretro.so
+  so_file: src/libretro/stella_libretro.so
 
 supafaust:
   repo: libretro/supafaust
