@@ -11,12 +11,19 @@ class CommandBuilder
 
   # Build Make command arguments for a core
   # Order of arguments (all are appended to make command):
-  #   1. platform=<value> (from recipe or CPU config)
-  #   2. Recipe extra_args (from YAML) - e.g., USE_BLARGG_APU=1
-  #   3. Special case args (e.g., flycast-xtreme platform overrides)
+  #   1. Toolchain vars (CC, CXX, AR) - ensures correct cross-compiler is used
+  #   2. platform=<value> (from recipe or CPU config)
+  #   3. Recipe extra_args (from YAML) - e.g., USE_BLARGG_APU=1
   # Make variables can be overridden; last value wins
   def make_args(metadata)
     args = []
+
+    # Toolchain arguments (must be passed on command line, not just env vars)
+    # Some platform strings (classic_armv7_a7) don't set CC, so we must provide it
+    env = @cpu_config.to_env
+    args << "CC=#{env['CC']}"
+    args << "CXX=#{env['CXX']}"
+    args << "AR=#{env['AR']} cru"
 
     # Platform argument (required for most cores)
     platform = metadata['platform'] || raise("Missing 'platform' in metadata")

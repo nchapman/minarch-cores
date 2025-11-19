@@ -36,6 +36,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	automake \
 	libtool \
 	jq \
+	bc \
 	zlib1g-dev \
 	zlib1g-dev:armhf \
 	zlib1g-dev:arm64 \

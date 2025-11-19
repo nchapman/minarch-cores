@@ -171,7 +171,7 @@ class CoreBuilder
       raise "Built .so file not found: #{so_file}"
     end
 
-    dest_path = copy_so_file(so_file, name)
+    dest_path = copy_so_file(so_file, name, metadata)
     @built += 1
     dest_path
   end
@@ -203,14 +203,19 @@ class CoreBuilder
       raise "Built .so file not found: #{so_file}"
     end
 
-    dest_path = copy_so_file(so_file, name)
+    dest_path = copy_so_file(so_file, name, metadata)
     @built += 1
     dest_path
   end
 
-  def copy_so_file(so_file, name)
-    # Always preserve the original filename from the build
-    dest_name = File.basename(so_file)
+  def copy_so_file(so_file, name, metadata)
+    # Use output_name from recipe if specified, otherwise preserve original filename
+    if metadata['output_name']
+      dest_name = metadata['output_name']
+    else
+      dest_name = File.basename(so_file)
+    end
+
     dest = File.join(@output_dir, dest_name)
     FileUtils.cp(so_file, dest)
     @logger.detail("  ✓ #{dest_name}")
