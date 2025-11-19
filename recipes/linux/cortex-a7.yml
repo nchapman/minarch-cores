@@ -138,6 +138,8 @@ gambatte:
   build_dir: "."
   platform: classic_armv7_a7
   so_file: gambatte_libretro.so
+  extra_args:
+    - PLATFORM_DEFINES=-DCC_RESAMPLER -DCC_RESAMPLER_NO_HIGHPASS
 
 gpsp:
   repo: libretro/gpsp
