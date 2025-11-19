@@ -81,7 +81,9 @@ logger.info("")
 
 # Fetch source if needed
 unless options[:skip_fetch]
-  cores_dir = 'output/cores'
+  # Use CPU-specific cores directory to prevent contamination
+  cores_dir = "output/cores-#{cpu_family}"
+  cache_dir = "output/cache"
   repo_name = metadata['repo']
   core_dir = File.join(cores_dir, repo_name)
 
@@ -91,6 +93,7 @@ unless options[:skip_fetch]
     logger.step("Fetching source")
     fetcher = SourceFetcher.new(
       cores_dir: cores_dir,
+      cache_dir: cache_dir,
       logger: logger,
       parallel: 1
     )
@@ -101,7 +104,7 @@ end
 # Build
 output_dir = File.expand_path("output/#{cpu_family}")
 builder = CoreBuilder.new(
-  cores_dir: File.expand_path('output/cores'),
+  cores_dir: File.expand_path("output/cores-#{cpu_family}"),
   output_dir: output_dir,
   cpu_config: cpu_config,
   logger: logger,

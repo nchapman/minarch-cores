@@ -66,10 +66,10 @@ help:
 	@echo "Utilities:"
 	@echo "  make test                   Run RSpec test suite"
 	@echo "  make list-cores             List available cores (131 from Knulli)"
-	@echo "  make clean                  Clean build outputs (keeps downloaded cores)"
-	@echo "  make clean-artifacts        Clean .o/.a/.so from cores/ (keeps source code)"
-	@echo "  make clean-cores            Delete cores/ directory (forces re-download)"
-	@echo "  make clean-cortex-a53       Clean specific CPU family build"
+	@echo "  make clean                  Clean all build outputs"
+	@echo "  make clean-cortex-a53       Clean specific CPU family (built cores + sources)"
+	@echo "  make clean-cores            Delete all cores-* source directories"
+	@echo "  make clean-cache            Delete download cache (forces re-download)"
 	@echo "  make shell                  Open shell in build container"
 	@echo "  make release                Create git flow release and trigger build"
 	@echo "  make release FORCE=1        Force recreate today's release (deletes existing)"
@@ -120,7 +120,7 @@ build-%: docker-build
 	@CORE_COUNT=$$(grep -c "^[a-z]" recipes/linux/$*.yml | head -1); \
 	echo "Building cores for $*"
 	@echo "This will take 1-3 hours..."
-	@mkdir -p output/$* output/cores output/logs
+	@mkdir -p output/$* output/cores-$* output/cache output/logs
 	$(DOCKER_RUN) ruby scripts/build-all $* -j $(JOBS) -l output/logs/$*-build.log
 	@echo ""
 	@echo "✓ Build complete for $*"
@@ -156,7 +156,7 @@ core-%: docker-build
 		echo "ERROR: Recipe not found: recipes/linux/$$FAMILY.yml"; \
 		exit 1; \
 	fi; \
-	mkdir -p output/$$FAMILY output/cores output/logs; \
+	mkdir -p output/$$FAMILY output/cores-$$FAMILY output/cache output/logs; \
 	$(DOCKER_RUN) ruby scripts/build-one $$FAMILY $$CORE -j $(JOBS)
 
 # Generic package target
@@ -193,33 +193,25 @@ list-cores:
 clean-%:
 	@echo "=== Cleaning $* ==="
 	rm -rf output/$*
+	rm -rf output/cores-$*
 	rm -f output/dist/linux-$*.zip
-	@echo "✓ Cleaned $*"
+	@echo "✓ Cleaned $* (built cores and source files)"
 
-# Clean build artifacts from cores (IMPORTANT: Run between CPU family builds!)
-.PHONY: clean-artifacts
-clean-artifacts:
-	@echo "=== Cleaning build artifacts from cores directories ==="
-	@echo "Removing .o files..."
-	find output/cores -name "*.o" -type f -delete 2>/dev/null || true
-	@echo "Removing .a files..."
-	find output/cores -name "*.a" -type f -delete 2>/dev/null || true
-	@echo "Removing .so files..."
-	find output/cores -name "*.so" -type f -delete 2>/dev/null || true
-	@echo "Removing .dylib files..."
-	find output/cores -name "*.dylib" -type f -delete 2>/dev/null || true
-	@echo "Removing build directories..."
-	find output/cores -type d -name "build" -exec rm -rf {} + 2>/dev/null || true
-	find output/cores -type d -name "obj" -exec rm -rf {} + 2>/dev/null || true
-	@echo "✓ Cleaned $(shell find output/cores -name '*.o' -o -name '*.a' -o -name '*.so' 2>/dev/null | wc -l) artifact files"
-
-# Clean downloaded core sources
+# Clean downloaded core sources for all CPU families
 .PHONY: clean-cores
 clean-cores:
-	@echo "=== Cleaning downloaded core sources ==="
-	-rm -rf cores
-	@echo "✓ Removed cores/ directory"
+	@echo "=== Cleaning all CPU-specific core source directories ==="
+	-rm -rf output/cores-*
+	@echo "✓ Removed all cores-* directories"
 	@echo "Note: Core sources will be re-downloaded on next build"
+
+# Clean download cache
+.PHONY: clean-cache
+clean-cache:
+	@echo "=== Cleaning download cache ==="
+	-rm -rf output/cache
+	@echo "✓ Removed cache directory"
+	@echo "Note: Tarballs will be re-downloaded on next build"
 
 # Clean everything
 clean:

@@ -69,8 +69,8 @@ class CoreBuilder
     # Apply patches before building
     apply_patches(name, core_dir)
 
-    # Clean before building to prevent contamination
-    clean_before_build(name, build_type, metadata, core_dir)
+    # No need to clean - CPU-specific directories prevent contamination
+    # Skipping clean speeds up builds significantly
 
     result = case build_type
              when 'cmake'
@@ -150,38 +150,6 @@ class CoreBuilder
     end
   end
 
-  def clean_before_build(name, build_type, metadata, core_dir)
-    @logger.detail("  Cleaning previous build artifacts")
-
-    Dir.chdir(core_dir) do
-      case build_type
-      when 'make'
-        build_subdir = metadata['build_dir'] || raise("Missing 'build_dir' for #{name}")
-        makefile = metadata['makefile'] || raise("Missing 'makefile' for #{name}")
-
-        Dir.chdir(build_subdir) do
-          # Run make clean
-          env = @cpu_config.to_env
-          run_command(env, *@command_builder.make_command(metadata, makefile, clean: true)) rescue nil
-
-          # Run extra clean commands if specified in recipe (for repos with broken clean targets)
-          if metadata['clean_extra']
-            system(metadata['clean_extra'])
-          end
-        end
-
-      when 'cmake'
-        # CMake: delete build directory
-        FileUtils.rm_rf('build') if Dir.exist?('build')
-        FileUtils.rm_f('CMakeCache.txt')
-        FileUtils.rm_f('cmake_install.cmake')
-        FileUtils.rm_rf('CMakeFiles')
-      end
-    end
-  rescue StandardError => e
-    @logger.detail("  Warning: Clean failed (#{e.message}), continuing anyway")
-  end
-
   def build_cmake(name, metadata, core_dir)
     so_file_path = metadata['so_file'] || raise("Missing 'so_file' for #{name}")
 
@@ -203,7 +171,7 @@ class CoreBuilder
       raise "Built .so file not found: #{so_file}"
     end
 
-    dest_path = copy_so_file(so_file, name)
+    dest_path = copy_so_file(so_file, name, metadata)
     @built += 1
     dest_path
   end
@@ -235,14 +203,19 @@ class CoreBuilder
       raise "Built .so file not found: #{so_file}"
     end
 
-    dest_path = copy_so_file(so_file, name)
+    dest_path = copy_so_file(so_file, name, metadata)
     @built += 1
     dest_path
   end
 
-  def copy_so_file(so_file, name)
-    # Always preserve the original filename from the build
-    dest_name = File.basename(so_file)
+  def copy_so_file(so_file, name, metadata)
+    # Use output_name from recipe if specified, otherwise preserve original filename
+    if metadata['output_name']
+      dest_name = metadata['output_name']
+    else
+      dest_name = File.basename(so_file)
+    end
+
     dest = File.join(@output_dir, dest_name)
     FileUtils.cp(so_file, dest)
     @logger.detail("  ✓ #{dest_name}")

@@ -1,12 +1,13 @@
 # LessUI-Cores Recipe File
-# CPU Family: cortex-a53
+# CPU Family: cortex-a76
 #
 # Explicit recipe format - no guessing, no fallbacks.
 # All required fields must be present.
 #
 # Required fields for make builds:
 #   repo: GitHub org/repo (e.g., "libretro/gambatte-libretro")
-#   commit: Git commit SHA or tag
+#   tag: Git tag (e.g., "v2.0") - preferred for releases
+#   commit: Git commit SHA (use if no tag available)
 #   build_type: "make"
 #   makefile: Exact makefile name (e.g., "Makefile.libretro")
 #   build_dir: Directory where makefile lives (e.g., ".")
@@ -18,7 +19,7 @@
 #   extra_args: ["ARG=value"] (only include if needed)
 #
 # Required fields for cmake builds:
-#   repo, commit, build_type: "cmake", so_file
+#   repo, tag/commit, build_type: "cmake", so_file
 #   cmake_opts: ["-DFOO=bar"] (cmake-specific options)
 #
 ---
@@ -112,6 +113,8 @@ fceumm:
   build_dir: "."
   platform: unix
   so_file: fceumm_libretro.so
+  extra_args:
+    - HAVE_NTSC=0
 
 flycast:
   repo: flyinghead/flycast
@@ -142,6 +145,8 @@ gambatte:
   build_dir: "."
   platform: unix
   so_file: gambatte_libretro.so
+  extra_args:
+    - PLATFORM_DEFINES=-DCC_RESAMPLER -DCC_RESAMPLER_NO_HIGHPASS
 
 gpsp:
   repo: libretro/gpsp
@@ -228,6 +233,7 @@ ppsspp:
     - -DBUILD_SHARED_LIBS=OFF
     - -DCMAKE_SYSTEM_NAME=Linux
     - -DLIBRETRO=ON
+    - -DARM64=ON
     - -DANDROID=OFF
     - -DWIN32=OFF
     - -DAPPLE=OFF

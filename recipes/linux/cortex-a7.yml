@@ -28,7 +28,7 @@ a5200:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: a5200_libretro.so
 
 atari800:
@@ -37,7 +37,7 @@ atari800:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: atari800_libretro.so
 
 beetle-lynx:
@@ -46,7 +46,7 @@ beetle-lynx:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: mednafen_lynx_libretro.so
 
 beetle-pce-fast:
@@ -55,7 +55,7 @@ beetle-pce-fast:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: mednafen_pce_fast_libretro.so
 
 beetle-supergrafx:
@@ -64,7 +64,7 @@ beetle-supergrafx:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: mednafen_supergrafx_libretro.so
 
 beetle-vb:
@@ -73,7 +73,7 @@ beetle-vb:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: mednafen_vb_libretro.so
 
 bluemsx:
@@ -82,8 +82,10 @@ bluemsx:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: bluemsx_libretro.so
+  extra_args:
+    - PLATFORM_DEFINES=-O3 -fdata-sections -ffunction-sections -fno-stack-protector -fno-ident -fomit-frame-pointer -falign-functions=1 -falign-jumps=1 -falign-loops=1 -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-unroll-loops -fmerge-all-constants -fno-math-errno -marm -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard
 
 fake08:
   repo: jtothebell/fake-08
@@ -91,8 +93,9 @@ fake08:
   build_type: make
   makefile: Makefile
   build_dir: platform/libretro
-  platform: unix
-  so_file: platform/libretro/fake08_libretro.so
+  platform: miyoomini
+  so_file: platform/libretro/fake08_libretro_miyoomini.so
+  output_name: fake08_libretro.so
   submodules: true
 
 fbneo:
@@ -101,8 +104,10 @@ fbneo:
   build_type: make
   makefile: Makefile
   build_dir: src/burner/libretro
-  platform: unix
+  platform: classic_armv7_a7
   so_file: src/burner/libretro/fbneo_libretro.so
+  extra_args:
+    - LDFLAGS+=-lpthread
 
 fceumm:
   repo: libretro/libretro-fceumm
@@ -110,8 +115,10 @@ fceumm:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: fceumm_libretro.so
+  extra_args:
+    - HAVE_NTSC=0
 
 fuse:
   repo: libretro/fuse-libretro
@@ -119,7 +126,7 @@ fuse:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: fuse_libretro.so
 
 gambatte:
@@ -128,8 +135,10 @@ gambatte:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: gambatte_libretro.so
+  extra_args:
+    - PLATFORM_DEFINES=-DCC_RESAMPLER -DCC_RESAMPLER_NO_HIGHPASS
 
 gpsp:
   repo: libretro/gpsp
@@ -146,7 +155,7 @@ melonds:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: melonds_libretro.so
 
 mgba:
@@ -155,7 +164,7 @@ mgba:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: mgba_libretro.so
 
 mame2003-plus:
@@ -164,7 +173,7 @@ mame2003-plus:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: mame2003_plus_libretro.so
 
 pcsx:
@@ -173,7 +182,7 @@ pcsx:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: pcsx_rearmed_libretro.so
 
 picodrive:
@@ -182,7 +191,7 @@ picodrive:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: picodrive_libretro.so
   submodules: true
 
@@ -192,7 +201,7 @@ pokemini:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: pokemini_libretro.so
 
 prosystem:
@@ -201,7 +210,7 @@ prosystem:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: prosystem_libretro.so
 
 race:
@@ -210,7 +219,7 @@ race:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: race_libretro.so
 
 scummvm:
@@ -219,7 +228,7 @@ scummvm:
   build_type: make
   makefile: Makefile
   build_dir: backends/platform/libretro
-  platform: unix
+  platform: miyoomini
   so_file: backends/platform/libretro/scummvm_libretro.so
 
 snes9x2005:
@@ -228,7 +237,7 @@ snes9x2005:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: snes9x2005_plus_libretro.so
   extra_args:
     - USE_BLARGG_APU=1
@@ -240,8 +249,10 @@ stella:
   build_type: make
   makefile: Makefile
   build_dir: src/libretro
-  platform: unix
+  platform: classic_armv7_a7
   so_file: src/libretro/stella_libretro.so
+  extra_args:
+    - LDFLAGS+=-lpthread
 
 supafaust:
   repo: libretro/supafaust
@@ -249,7 +260,7 @@ supafaust:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: mednafen_supafaust_libretro.so
 
 vecx:
@@ -258,8 +269,10 @@ vecx:
   build_type: make
   makefile: Makefile.libretro
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: vecx_libretro.so
+  extra_args:
+    - GL_LIB=-lGLESv2
 
 vice:
   repo: libretro/vice-libretro
@@ -267,5 +280,5 @@ vice:
   build_type: make
   makefile: Makefile
   build_dir: "."
-  platform: unix
+  platform: classic_armv7_a7
   so_file: vice_x64_libretro.so

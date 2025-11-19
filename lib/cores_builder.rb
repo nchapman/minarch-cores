@@ -16,7 +16,8 @@ class CoresBuilder
     cpu_family:,
     package_dir: File.expand_path('../knulli/package/batocera/emulators/retroarch/libretro', __dir__),
     config_dir: 'config',
-    cores_dir: 'output/cores',
+    cores_dir: nil,
+    cache_dir: 'output/cache',
     output_dir: nil,
     recipe_file: nil,
     log_file: nil,
@@ -29,7 +30,10 @@ class CoresBuilder
     @cpu_family = cpu_family
     @package_dir = package_dir
     @config_dir = config_dir
-    @cores_dir = File.expand_path(cores_dir)
+    # CPU-specific cores directory to prevent contamination across builds
+    @cores_dir = File.expand_path(cores_dir || "output/cores-#{cpu_family}")
+    # Shared cache directory for downloaded tarballs
+    @cache_dir = File.expand_path(cache_dir)
     @output_dir = File.expand_path(output_dir || "output/#{cpu_family}")
     @recipe_file = recipe_file || "recipes/linux/#{cpu_family}.yml"
     @parallel_fetch = parallel_fetch
@@ -57,6 +61,7 @@ class CoresBuilder
     unless @skip_fetch
       fetcher = SourceFetcher.new(
         cores_dir: @cores_dir,
+        cache_dir: @cache_dir,
         logger: @logger,
         parallel: @parallel_fetch
       )

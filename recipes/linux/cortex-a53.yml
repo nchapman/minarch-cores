@@ -113,6 +113,8 @@ fceumm:
   build_dir: "."
   platform: unix
   so_file: fceumm_libretro.so
+  extra_args:
+    - HAVE_NTSC=0
 
 flycast:
   repo: flyinghead/flycast
@@ -143,6 +145,8 @@ gambatte:
   build_dir: "."
   platform: unix
   so_file: gambatte_libretro.so
+  extra_args:
+    - PLATFORM_DEFINES=-DCC_RESAMPLER -DCC_RESAMPLER_NO_HIGHPASS
 
 gpsp:
   repo: libretro/gpsp
@@ -244,7 +248,7 @@ ppsspp:
     - -DCMAKE_C_FLAGS=-O2 -DEGL_NO_X11=1 -DMESA_EGL_NO_X11_HEADERS=1
     - -DCMAKE_CXX_FLAGS=-O2 -DEGL_NO_X11=1 -DMESA_EGL_NO_X11_HEADERS=1
     - -DUSE_FFMPEG=ON
-    - -DUSE_SYSTEM_FFMPEG=ON
+    - -DUSE_SYSTEM_FFMPEG=OFF
 
 prosystem:
   repo: libretro/prosystem-libretro

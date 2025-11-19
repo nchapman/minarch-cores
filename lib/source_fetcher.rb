@@ -10,11 +10,13 @@ require_relative 'logger'
 # Fetch source code for cores (tarballs or git repos)
 # Optimizes for speed: tarballs > shallow git clones
 class SourceFetcher
-  def initialize(cores_dir:, logger: nil, parallel: 4)
+  def initialize(cores_dir:, cache_dir: 'output/cache', logger: nil, parallel: 4)
     @cores_dir = cores_dir
+    @cache_dir = cache_dir
     @logger = logger || BuildLogger.new
     @parallel = parallel
     @mutex = Mutex.new
+    @cache_locks = Hash.new { |h, k| h[k] = Mutex.new }
     @fetched = 0
     @skipped = 0
     @failed = 0
@@ -23,7 +25,9 @@ class SourceFetcher
   def fetch_all(recipes)
     @logger.section("Fetching Sources")
     @logger.info("Cores directory: #{@cores_dir}")
+    @logger.info("Cache directory: #{@cache_dir}")
     FileUtils.mkdir_p(@cores_dir)
+    FileUtils.mkdir_p(@cache_dir)
 
     # Process in parallel with thread pool
     queue = Queue.new
@@ -76,7 +80,7 @@ class SourceFetcher
     else
       # Use tarball for commit SHAs (faster)
       tarball_url = "https://github.com/#{repo}/archive/#{ref}.tar.gz"
-      fetch_tarball(tarball_url, target_dir, repo_name)
+      fetch_tarball(tarball_url, target_dir, repo_name, repo, ref)
     end
 
     @mutex.synchronize { @fetched += 1 }
@@ -87,18 +91,27 @@ class SourceFetcher
 
   private
 
-  def fetch_tarball(url, target_dir, repo_name)
-    temp_file = File.join(@cores_dir, "#{repo_name}.tar.gz")
+  def fetch_tarball(url, target_dir, repo_name, repo, ref)
+    # Create cache directory structure: cache/{repo}/{ref}.tar.gz
+    repo_cache_dir = File.join(@cache_dir, repo.gsub('/', '--'))
+    FileUtils.mkdir_p(repo_cache_dir)
+    cached_file = File.join(repo_cache_dir, "#{ref}.tar.gz")
+
+    # Use per-file lock to prevent multiple threads downloading same file
+    @cache_locks[cached_file].synchronize do
+      # Download to cache if not already present
+      # Double-check inside lock in case another thread just downloaded it
+      unless File.exist?(cached_file)
+        log_thread("  Downloading to cache: #{repo}@#{ref}")
+        run_command("wget", "-q", "-O", cached_file, url)
+      else
+        log_thread("  Using cached tarball: #{repo}@#{ref}")
+      end
+    end
+
+    # Extract from cache to CPU-specific directory (outside lock - different targets)
     FileUtils.mkdir_p(target_dir)
-
-    # Download tarball
-    run_command("wget", "-q", "-O", temp_file, url)
-
-    # Extract (handle GitHub archive structure)
-    run_command("tar", "-xzf", temp_file, "-C", target_dir, "--strip-components=1")
-
-    # Cleanup
-    FileUtils.rm_f(temp_file)
+    run_command("tar", "-xzf", cached_file, "-C", target_dir, "--strip-components=1")
   end
 
   def fetch_git(url, target_dir, commit, needs_submodules)
