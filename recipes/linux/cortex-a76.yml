@@ -49,6 +49,8 @@ beetle-lynx:
   build_dir: "."
   platform: unix
   so_file: mednafen_lynx_libretro.so
+  extra_args:
+    - NEED_BPP=16
 
 beetle-pce-fast:
   repo: libretro/beetle-pce-fast-libretro
@@ -58,6 +60,8 @@ beetle-pce-fast:
   build_dir: "."
   platform: unix
   so_file: mednafen_pce_fast_libretro.so
+  extra_args:
+    - NEED_BPP=16
 
 beetle-supergrafx:
   repo: libretro/beetle-supergrafx-libretro
@@ -76,6 +80,8 @@ beetle-vb:
   build_dir: "."
   platform: unix
   so_file: mednafen_vb_libretro.so
+  extra_args:
+    - NEED_BPP=16
 
 bluemsx:
   repo: libretro/blueMSX-libretro
@@ -115,6 +121,7 @@ fceumm:
   so_file: fceumm_libretro.so
   extra_args:
     - HAVE_NTSC=0
+    - WANT_32BPP=0
 
 flycast:
   repo: flyinghead/flycast

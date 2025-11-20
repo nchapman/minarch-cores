@@ -48,6 +48,8 @@ beetle-lynx:
   build_dir: "."
   platform: classic_armv7_a7
   so_file: mednafen_lynx_libretro.so
+  extra_args:
+    - NEED_BPP=16
 
 beetle-pce-fast:
   repo: libretro/beetle-pce-fast-libretro
@@ -57,6 +59,8 @@ beetle-pce-fast:
   build_dir: "."
   platform: classic_armv7_a7
   so_file: mednafen_pce_fast_libretro.so
+  extra_args:
+    - NEED_BPP=16
 
 beetle-supergrafx:
   repo: libretro/beetle-supergrafx-libretro
@@ -75,6 +79,8 @@ beetle-vb:
   build_dir: "."
   platform: classic_armv7_a7
   so_file: mednafen_vb_libretro.so
+  extra_args:
+    - NEED_BPP=16
 
 bluemsx:
   repo: libretro/blueMSX-libretro
