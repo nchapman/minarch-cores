@@ -44,7 +44,8 @@ core_name = ARGV[1]
 unless cpu_family && core_name
   puts "ERROR: CPU family and core name required"
   puts "Usage: build-one <cpu-family> <core-name>"
-  puts "Example: build-one cortex-a53 gambatte"
+  puts "Example: build-one arm64 gambatte"
+  puts "Available architectures: arm32, arm64"
   exit 1
 end
 
@@ -60,7 +61,8 @@ end
 # Load recipes
 file_content = File.read(recipe_file)
 yaml_content = file_content.split('---', 2)[1]
-recipes = YAML.load(yaml_content)
+data = YAML.load(yaml_content)
+recipes = data['cores'] || data
 
 unless recipes.key?(core_name)
   logger.error("Core not found in recipes: #{core_name}")

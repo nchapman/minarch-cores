@@ -13,26 +13,24 @@ LessUI-Cores is a build system for creating CPU-optimized libretro emulator core
 ## Common Build Commands
 
 ```bash
-# Build cores for specific CPU family
-make build-cortex-a7    # ARM32: Miyoo Mini family
-make build-cortex-a53   # ARM64: Universal baseline (RG35xx, RG40xx, Trimui)
-make build-cortex-a55   # ARM64: RK3566 optimized (Miyoo Flip, RGB30, RG353)
-make build-cortex-a76   # ARM64: High-performance (RG406/556, Retroid Pocket 5)
+# Build cores for specific architecture
+make build-arm32    # ARM32: All 32-bit devices
+make build-arm64    # ARM64: All 64-bit devices
 
-# Build all families (1-3 hours per family)
+# Build all (1-3 hours per architecture)
 make build-all
 
 # Build single core for testing/debugging
-make core-cortex-a53-gambatte
-make core-cortex-a55-flycast
+make core-arm64-gambatte
+make core-arm32-flycast
 
 # Package builds
-make package-cortex-a53
+make package-arm64
 make package-all
 
 # Clean
-make clean              # Clean all build outputs
-make clean-cortex-a53   # Clean specific CPU family
+make clean          # Clean all build outputs
+make clean-arm64    # Clean specific architecture
 ```
 
 ## Build System Architecture
@@ -45,14 +43,14 @@ make clean-cortex-a53   # Clean specific CPU family
 - **Output:** `output/cores/{corename}/` (git clones at specific commits)
 
 **Phase 2: Sources → Built Cores**
-- **Input:** Fetched sources + `config/{cpu}.config` (compiler flags)
+- **Input:** Fetched sources + CPU config from YAML (compiler flags)
 - **Script:** `lib/core_builder.rb`
 - **Output:** `output/{cpu}/*.so` files (compiled cores)
 
 ### Ruby Library Organization
 
 - **`lib/cores_builder.rb`** - Main orchestrator; coordinates fetching and building
-- **`lib/cpu_config.rb`** - Parses `config/{cpu}.config` bash files into Ruby objects
+- **`lib/cpu_config.rb`** - Extracts CPU config from recipe YAML files into Ruby objects
 - **`lib/source_fetcher.rb`** - Clones/fetches git repositories at specific commits
 - **`lib/core_builder.rb`** - Executes builds for individual cores
 - **`lib/logger.rb`** - Centralized logging with sections and timestamps
@@ -72,10 +70,8 @@ recipes/linux/{cpu}.yml → source_fetcher → output/cores/
 These are **manually maintained YAML files** that define which cores to build for each CPU family. Edit them directly to add/update/remove cores.
 
 **Location:**
-- `recipes/linux/cortex-a7.yml` - ARM32 cores (26 cores)
-- `recipes/linux/cortex-a53.yml` - ARM64 baseline (29 cores)
-- `recipes/linux/cortex-a55.yml` - RK3566 optimized (29 cores)
-- `recipes/linux/cortex-a76.yml` - High-performance (29 cores)
+- `recipes/linux/arm32.yml` - ARMv7VE + NEON-VFPv4 (All ARM32 devices)
+- `recipes/linux/arm64.yml` - ARMv8-A + NEON (All ARM64 devices)
 
 **Recipe Entry Format (Explicit & Minimal):**
 ```yaml
@@ -108,15 +104,18 @@ atari800:
 - Cores sorted alphabetically
 - Missing required fields = immediate clear error
 
-### `config/{cpu}.config` - CPU-Specific Compiler Flags
+### CPU Configuration (Embedded in YAML)
 
-Bash-formatted files with CPU-optimized compiler flags. Key variables:
-- `ARCH` - Architecture (arm, aarch64)
-- `TARGET_CROSS` - Compiler prefix (arm-linux-gnueabihf-, aarch64-linux-gnu-)
-- `TARGET_OPTIMIZATION` - CPU-specific march/mcpu/mtune flags
-- `TARGET_CFLAGS` / `TARGET_CXXFLAGS` - Compiler optimization flags
+Each recipe YAML file now contains a `config:` section with CPU-specific compiler flags and architecture settings. This eliminates the need for separate `.config` files.
 
-**Do not edit these unless you understand ARM CPU architecture specifics.**
+**Key configuration fields:**
+- `arch` - Architecture (arm, aarch64)
+- `target_cross` - Compiler prefix (arm-linux-gnueabihf-, aarch64-linux-gnu-)
+- `target_optimization` - CPU-specific march/mcpu/mtune flags
+- `target_float` - Floating point ABI and FPU settings
+- `target_cflags` / `target_cxxflags` - Base compiler optimization flags
+
+**Do not edit the config section unless you understand ARM CPU architecture specifics.**
 
 ## Adding New Cores
 
@@ -128,35 +127,32 @@ git ls-remote --heads https://github.com/libretro/libretro-atari800.git | grep m
 # Result: 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b
 ```
 
-Or check Knulli's tested commits:
-https://github.com/knulli-cfw/distribution/tree/main/packages/emulators/retroarch/libretro
+Or check the core's GitHub releases/tags for stable versions.
 
 ### 2. Add to recipe (alphabetically)
 
-Edit `recipes/linux/cortex-a53.yml`:
+Edit `recipes/linux/arm64.yml`:
 
 ```yaml
-atari800:
-  repo: libretro/libretro-atari800
-  commit: 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b
-  build_type: make
-  makefile: Makefile
-  build_dir: "."
-  platform: unix
-  so_file: atari800_libretro.so
+cores:
+  atari800:
+    repo: libretro/libretro-atari800
+    commit: 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b
+    build_type: make
+    makefile: Makefile
+    build_dir: "."
+    platform: unix
+    so_file: atari800_libretro.so
 ```
 
 ### 3. Test and replicate
 
 ```bash
-# Test on one CPU family first
-make core-cortex-a53-atari800
+# Test on one architecture first
+make core-arm64-atari800
 
-# If successful, copy entry to other families
-# Then test each
-make core-cortex-a7-atari800
-make core-cortex-a55-atari800
-make core-cortex-a76-atari800
+# If successful, copy entry to arm32.yml
+make core-arm32-atari800
 ```
 
 **Helper script for inspecting new cores:**
@@ -175,28 +171,28 @@ To update a core to a newer version:
    git ls-remote --heads https://github.com/libretro/libretro-atari800.git | grep master
    ```
 
-   Or reference Knulli's tested commits:
-   https://github.com/knulli-cfw/distribution/tree/main/packages/emulators/retroarch/libretro
+   Or check the core's GitHub releases for stable commits.
 
 2. **Update the commit hash in recipes:**
    ```bash
-   # Edit each CPU family recipe
-   vim recipes/linux/cortex-a53.yml
+   # Edit each architecture recipe
+   vim recipes/linux/arm64.yml
 
-   # Change only the commit field:
-   atari800:
-     commit: <new-commit-hash>  # ← Update this line
+   # Change only the commit field in the cores section:
+   cores:
+     atari800:
+       commit: <new-commit-hash>  # ← Update this line
    ```
 
 3. **Clean and rebuild:**
    ```bash
    # Delete fetched source to force re-download
-   rm -rf output/cores/libretro-atari800
+   rm -rf output/cores-arm64/libretro-atari800
 
    # Test build
-   make core-cortex-a53-atari800
+   make core-arm64-atari800
 
-   # Update other families and test
+   # Update other architectures and test
    ```
 
 **Note:** URLs are auto-constructed from repo + commit, so you only need to update the commit field.
@@ -228,51 +224,47 @@ These 13 cores MUST be present on all CPU families for MinUI compatibility:
 - **Toolchains:** arm-linux-gnueabihf (ARM32), aarch64-linux-gnu (ARM64)
 - **Parallel builds:** Controlled by `-j` flag or `JOBS` environment variable
 
-## CPU Family Details
+## Architecture Details
 
-| CPU Family | Architecture | Devices | Cores Built |
-|------------|--------------|---------|-------------|
-| **cortex-a7** | ARM32 (ARMv7) | Miyoo Mini, A30 | 26 cores |
-| **cortex-a53** | ARM64 (ARMv8-a) | RG28xx/35xx/40xx, Trimui | 30 cores |
-| **cortex-a55** | ARM64 (ARMv8.2-a) | Miyoo Flip, RGB30, RG353 | 30 cores |
-| **cortex-a76** | ARM64 (ARMv8.2-a) | RG406/556, Retroid Pocket 5 | 31 cores |
+| Package | Architecture | Devices |
+|---------|--------------|---------|
+| **arm32** | ARMv7VE + NEON-VFPv4 | All ARM32 devices (Miyoo Mini, RG35XX, Trimui Smart) |
+| **arm64** | ARMv8-A + NEON | All ARM64 devices (RG28xx/40xx, CubeXX, Trimui) |
 
-**Core Selection Philosophy:**
-- **cortex-a7:** Lightweight cores, exclude heavy systems (N64, PSP, Dreamcast)
-- **cortex-a53/a55:** Balanced cores, universal compatibility
-- **cortex-a76:** Can handle cycle-accurate/heavy cores (bsnes, swanstation, beetle-psx)
+**Architecture Notes:**
+- **arm32:** Cortex-A7 baseline optimizations, compatible with all ARM32 handhelds
+- **arm64:** Cortex-A53 baseline for maximum ARM64 compatibility
 
 ## Troubleshooting
 
 ### Build Failures
 
 1. Check build log: `output/logs/{cpu}-build.log`
-2. Test single core: `make core-cortex-a53-{corename}`
-3. Verify recipe exists: `grep -A 10 "^{corename}:" recipes/linux/{cpu}.yml`
+2. Test single core: `make core-arm64-{corename}`
+3. Verify recipe exists: `grep -A 10 "^  {corename}:" recipes/linux/{cpu}.yml`
 
 ### Missing Cores
 
-1. Check if core is in recipe: `grep "^{corename}:" recipes/linux/{cpu}.yml`
+1. Check if core is in recipe: `grep "^  {corename}:" recipes/linux/{cpu}.yml`
 2. Add core to recipe file if missing (see "Adding New Cores" above)
 3. Rebuild: `make build-{cpu}`
 
 ### Cross-Compilation Issues
 
 - Ensure Docker image is built: `make docker-build`
-- Check CPU config file exists: `config/{cpu}.config`
+- Check CPU config in recipe YAML: `recipes/linux/{cpu}.yml` (config section)
 - Verify toolchain is available in Docker container: `make shell`
 
 ## Output Structure
 
 ```
 output/
-├── cores/              # Fetched source code (git clones)
-├── logs/               # Build logs
-├── dist/               # Packaged zips
-├── cortex-a7/*.so      # ARM32 cores (26 cores)
-├── cortex-a53/*.so     # ARM64 baseline (30 cores)
-├── cortex-a55/*.so     # RK3566 optimized (30 cores)
-└── cortex-a76/*.so     # High-performance (31 cores)
+├── cores-arm32/    # Fetched sources for arm32
+├── cores-arm64/    # Fetched sources for arm64
+├── logs/           # Build logs
+├── dist/           # Packaged zips
+├── arm32/*.so      # ARM32 cores
+└── arm64/*.so      # ARM64 cores
 ```
 
 ## Development Workflow
@@ -280,15 +272,15 @@ output/
 ### Testing a New Core
 
 ```bash
-# 1. Add core to recipes/linux/cortex-a53.yml
+# 1. Add core to recipes/linux/arm64.yml under cores: section
 
 # 2. Build just that core
-make core-cortex-a53-{corename}
+make core-arm64-{corename}
 
-# 3. If successful, add to other CPU families
-# Edit recipes/linux/cortex-a7.yml, cortex-a55.yml, cortex-a76.yml
+# 3. If successful, add to arm32.yml and test
+make core-arm32-{corename}
 
-# 4. Build for all families
+# 4. Build for both architectures
 make build-all
 ```
 
@@ -333,13 +325,11 @@ The release script will:
 
 When a tag matching YYYYMMDD format is pushed to `main`:
 1. Builds Docker image
-2. Runs `make build-all` for all CPU families
+2. Runs `make build-all` for both architectures
 3. Packages builds using `make package-all`
 4. Creates GitHub Release with:
-   - `cortex-a7.zip` - ARM32 cores (26 cores)
-   - `cortex-a53.zip` - ARM64 baseline (30 cores)
-   - `cortex-a55.zip` - RK3566 optimized (30 cores)
-   - `cortex-a76.zip` - High-performance (31 cores)
+   - `linux-arm32.zip` - ARM32 cores
+   - `linux-arm64.zip` - ARM64 cores
 5. Updates `latest` tag to point to newest release
 
 ### Prerequisites for Deployment
@@ -354,6 +344,6 @@ When a tag matching YYYYMMDD format is pushed to `main`:
 - **Never commit `output/` directory** - It contains build artifacts and fetched sources
 - **Recipes are git-tracked** - Your edits to YAML files are preserved in version control
 - **Recipes are manually maintained** - No automatic generation; edit YAML files directly
-- **Each CPU family needs ~5GB disk space** - Plan accordingly
-- **Build times are 1-3 hours per CPU family** - Use `build-all` overnight
+- **Each architecture needs ~5GB disk space** - Plan accordingly
+- **Build times are 1-3 hours per architecture** - Use `build-all` overnight
 - **One release per day** - UTC date tags prevent multiple releases on the same day

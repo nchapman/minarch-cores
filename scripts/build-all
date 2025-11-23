@@ -56,7 +56,7 @@ cpu_family = ARGV[0]
 unless cpu_family
   puts "ERROR: CPU family required"
   puts "Usage: build-all <cpu-family>"
-  puts "Available: cortex-a53, cortex-a55, cortex-a7, cortex-a35, cortex-a76"
+  puts "Available: arm32, arm64"
   exit 1
 end
 

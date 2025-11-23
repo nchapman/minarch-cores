@@ -1,53 +1,48 @@
 # MinUI Device Compatibility
 
-Which CPU family to use for MinUI devices.
+Which architecture to use for MinUI devices.
 
-## Cortex-A7 (ARM32)
+## ARM32 Devices
 
-| Device | SoC |
-|--------|-----|
-| Miyoo Mini | Allwinner R16 (SSD202D) |
-| Miyoo Mini Plus | Allwinner R16 (SSD202D) |
-| Miyoo A30 | Allwinner A33 |
+Use **linux-arm32.zip**
 
-## Cortex-A53 (ARM64 Universal)
+| Device | SoC | Notes |
+|--------|-----|-------|
+| Miyoo Mini | Allwinner R16 (Cortex-A7) | Primary target |
+| Miyoo Mini Plus | Allwinner R16 (Cortex-A7) | Primary target |
+| Miyoo A30 | Allwinner A33 (Cortex-A7) | |
+| Trimui Smart | Allwinner F1C100s (ARM926) | |
+| Anbernic RG35XX | Allwinner H700 (Cortex-A53, 32-bit mode) | Can also use arm64 |
+| Anbernic RG35XX Plus | Allwinner H700 (Cortex-A53, 32-bit mode) | Can also use arm64 |
 
-### H700 Devices
+## ARM64 Devices
+
+Use **linux-arm64.zip**
+
+### H700/A133 Devices (Cortex-A53)
 
 | Device | SoC |
 |--------|-----|
 | Anbernic RG28xx | Allwinner H700 |
 | Anbernic RG34xx | Allwinner H700 |
-| Anbernic RG34xxSP | Allwinner H700 |
 | Anbernic RG35xx Plus | Allwinner H700 |
-| Anbernic RG35xxH | Allwinner H700 |
-| Anbernic RG35xxSP | Allwinner H700 |
-| Anbernic RG40xxH | Allwinner H700 |
-| Anbernic RG40xxV | Allwinner H700 |
-| Anbernic RG CubeXX | Allwinner H700 |
-
-### A133 Devices
-
-| Device | SoC |
-|--------|-----|
+| Anbernic RG40xxH/V | Allwinner H700 |
+| Anbernic CubeXX | Allwinner H700 |
 | Trimui Brick | Allwinner A133 Plus |
 | Trimui Smart Pro | Allwinner A133 Plus |
-| MagicX Mini Zero 28 | Allwinner A133 Plus |
 
-## Cortex-A55 (RK3566 Optimized)
+### RK3566 Devices (Cortex-A55, compatible with A53 baseline)
 
 | Device | SoC |
 |--------|-----|
 | Miyoo Flip | Rockchip RK3566 |
-| Miyoo Mini Flip | Rockchip RK3566 |
 | Powkiddy RGB30 | Rockchip RK3566 |
 | Anbernic RG353 series | Rockchip RK3566 |
 
-**Note:** Cortex-A53 binaries are compatible with these devices. Use Cortex-A55 for optimal performance.
+**Note:** arm64 uses Cortex-A53 baseline, fully compatible with all ARM64 devices.
 
 ## Summary
 
-- **Cortex-A7:** 3 ARM32 devices
-- **Cortex-A53:** 12 H700/A133 devices
-- **Cortex-A55:** 4+ RK3566 devices
-- **Total:** 19+ MinUI-compatible devices
+- **arm32:** ~6 ARM32 devices (Miyoo Mini family, RG35XX, Trimui)
+- **arm64:** 15+ ARM64 devices (H700, A133, RK3566 SoCs)
+- **Total:** 20+ MinUI-compatible devices

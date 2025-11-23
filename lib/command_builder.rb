@@ -61,13 +61,11 @@ class CommandBuilder
     ]
 
     # Only add CMAKE_BUILD_TYPE if recipe didn't specify it
-    # (Avoid duplicate -DCMAKE_BUILD_TYPE arguments)
     unless has_cmake_option?(cmake_opts, 'CMAKE_BUILD_TYPE')
       cmake_opts << "-DCMAKE_BUILD_TYPE=Release"
     end
 
     # For ARM32, force C99 standard to avoid glibc Float128 issues (GCC 8.3 limitation)
-    # These override any CMAKE_C_STANDARD/CMAKE_CXX_STANDARD in recipe
     if @cpu_config.arch == 'arm'
       cmake_opts += [
         "-DCMAKE_C_STANDARD=99",
@@ -98,7 +96,7 @@ class CommandBuilder
   end
 
   # Build CMake configuration command
-  def cmake_configure_command(metadata)
+  def cmake_configure_command(metadata, build_dir:)
     ["cmake", "..", *cmake_args(metadata)]
   end
 

@@ -2,19 +2,20 @@
 # frozen_string_literal: true
 
 require 'fileutils'
+require 'yaml'
 require_relative 'logger'
 
-# Parse CPU family configuration files
-# Loads config/{cpu-family}.config files with Make-style variable syntax
+# Parse CPU family configuration
+# Loads recipe YAML files and extracts config section
 class CpuConfig
   attr_reader :family, :arch, :target_cross, :gnu_target_name,
               :target_cpu, :target_arch, :target_optimization,
-              :target_cflags, :target_cxxflags, :target_ldflags,
+              :target_float, :target_cflags, :target_cxxflags, :target_ldflags,
               :br2_flags
 
-  def initialize(family, config_dir: 'config', logger: nil)
+  def initialize(family, recipe_file: nil, logger: nil)
     @family = family
-    @config_dir = config_dir
+    @recipe_file = recipe_file || "recipes/linux/#{family}.yml"
     @logger = logger || BuildLogger.new
     @variables = {}
     @br2_flags = {}
@@ -51,82 +52,66 @@ class CpuConfig
   private
 
   def load_config
-    config_file = File.join(@config_dir, "#{@family}.config")
-
-    unless File.exist?(config_file)
-      raise "Config file not found: #{config_file}"
+    unless File.exist?(@recipe_file)
+      raise "Recipe file not found: #{@recipe_file}"
     end
 
-    @logger.detail("Loading config: #{config_file}")
+    @logger.detail("Loading config from: #{@recipe_file}")
 
-    File.readlines(config_file).each do |line|
-      line = line.strip
-      next if line.empty? || line.start_with?('#')
+    # Load YAML recipe file
+    recipe_data = YAML.load_file(@recipe_file)
 
-      # Parse "VAR := value" or "VAR = value"
-      if line =~ /^([A-Z_]+)\s*:?=\s*(.+)$/
-        var = Regexp.last_match(1)
-        value = Regexp.last_match(2)
+    # Extract config section
+    config = recipe_data['config']
+    unless config
+      raise "No 'config' section found in #{@recipe_file}"
+    end
 
-        # Remove surrounding quotes (we'll handle quoting at use-time)
-        value = value.strip.gsub(/^["']|["']$/, '')
+    # Map YAML config to instance variables
+    @arch = config['arch']
+    @target_cross = config['target_cross']
+    @gnu_target_name = config['gnu_target_name']
+    @target_cpu = config['target_cpu']
+    @target_arch = config['target_arch']
+    @target_optimization = config['target_optimization'] || ''
+    @target_float = config['target_float'] || ''
 
-        # Expand variables in value
-        value = expand_variables(value)
+    # Build complete flags by combining base flags with optimization and float flags
+    base_cflags = config['target_cflags'] || ''
+    base_cxxflags = config['target_cxxflags'] || ''
+    base_ldflags = config['target_ldflags'] || ''
 
-        # Store variable
-        @variables[var] = value
+    @target_cflags = "#{base_cflags} #{@target_optimization} #{@target_float}".strip
+    @target_cxxflags = "#{base_cxxflags} #{@target_optimization} #{@target_float}".strip
+    @target_ldflags = "#{base_ldflags} #{@target_optimization} #{@target_float}".strip
 
-        # Map to instance variables
-        case var
-        when 'ARCH'
-          @arch = value
-        when 'TARGET_CROSS'
-          @target_cross = value
-        when 'GNU_TARGET_NAME'
-          @gnu_target_name = value
-        when 'TARGET_CPU'
-          @target_cpu = value
-        when 'TARGET_ARCH'
-          @target_arch = value
-        when 'TARGET_OPTIMIZATION'
-          @target_optimization = value
-        when 'TARGET_CFLAGS'
-          @target_cflags = value
-        when 'TARGET_CXXFLAGS'
-          @target_cxxflags = value
-        when 'TARGET_LDFLAGS'
-          @target_ldflags = value
-        when /^BR2_(.+)/
-          # Store BR2 flags for conditional evaluation
-          @br2_flags[var] = value
-        end
+    # Load buildroot variables
+    if config['buildroot']
+      config['buildroot'].each do |key, value|
+        @br2_flags[key] = value
       end
     end
+
+    # Store all variables for compatibility
+    @variables['ARCH'] = @arch
+    @variables['TARGET_CROSS'] = @target_cross
+    @variables['GNU_TARGET_NAME'] = @gnu_target_name
+    @variables['TARGET_CPU'] = @target_cpu
+    @variables['TARGET_ARCH'] = @target_arch
+    @variables['TARGET_OPTIMIZATION'] = @target_optimization
+    @variables['TARGET_CFLAGS'] = @target_cflags
+    @variables['TARGET_CXXFLAGS'] = @target_cxxflags
+    @variables['TARGET_LDFLAGS'] = @target_ldflags
 
     validate_config
   end
 
-
-  def expand_variables(value)
-    # Expand ${VAR} and $(VAR) references
-    result = value.dup
-
-    # Handle ${VAR} and $(VAR) syntax
-    result.gsub!(/\$\{([A-Z_]+)\}|\$\(([A-Z_]+)\)/) do
-      var_name = Regexp.last_match(1) || Regexp.last_match(2)
-      @variables[var_name] || ENV[var_name] || ''
-    end
-
-    result
-  end
-
   def validate_config
-    required = %w[ARCH TARGET_CROSS TARGET_CFLAGS TARGET_CXXFLAGS]
-    missing = required.reject { |var| @variables[var] }
+    required_fields = %w[arch target_cross target_cflags target_cxxflags]
+    missing = required_fields.reject { |field| instance_variable_get("@#{field}") }
 
     unless missing.empty?
-      raise "Missing required config variables: #{missing.join(', ')}"
+      raise "Missing required config fields: #{missing.join(', ')}"
     end
 
     @logger.detail("Config loaded: #{@arch} (#{@target_cpu})")

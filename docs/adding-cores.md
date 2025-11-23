@@ -14,22 +14,22 @@ git ls-remote --heads https://github.com/libretro/libretro-atari800.git | grep m
 # 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b	refs/heads/master
 ```
 
-**Or check Knulli's tested commits:**
-https://github.com/knulli-cfw/distribution/tree/main/packages/emulators/retroarch/libretro
+Or check the core's GitHub releases/tags for stable versions.
 
 ### 2. Add to Recipe (Alphabetically)
 
-Edit `recipes/linux/cortex-a53.yml` and add:
+Edit `recipes/linux/arm64.yml` and add under the `cores:` section:
 
 ```yaml
-atari800:
-  repo: libretro/libretro-atari800
-  commit: 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b
-  build_type: make
-  makefile: Makefile
-  build_dir: "."
-  platform: unix
-  so_file: atari800_libretro.so
+cores:
+  atari800:
+    repo: libretro/libretro-atari800
+    commit: 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b
+    build_type: make
+    makefile: Makefile
+    build_dir: "."
+    platform: unix
+    so_file: atari800_libretro.so
 ```
 
 **Required fields:**
@@ -47,16 +47,11 @@ atari800:
 ### 3. Test Build
 
 ```bash
-# Test on one CPU family first
-make core-cortex-a53-atari800
+# Test on one architecture first
+make core-arm64-atari800
 
-# If successful, copy to other families
-# (Edit cortex-a7.yml, cortex-a55.yml, cortex-a76.yml)
-
-# Test on all families
-make core-cortex-a7-atari800
-make core-cortex-a55-atari800
-make core-cortex-a76-atari800
+# If successful, copy to arm32.yml and test
+make core-arm32-atari800
 ```
 
 ## Helper Script: inspect-core
@@ -164,14 +159,14 @@ atari800:
 
 **Step 3: Test**
 ```bash
-make core-cortex-a53-atari800
+make core-arm64-atari800
 # ✓ atari800_libretro.so
 # Built successfully!
 ```
 
-**Step 4: Add to other CPU families**
-- Copy the same entry to cortex-a7.yml, cortex-a55.yml, cortex-a76.yml
-- Test each one
+**Step 4: Add to arm32**
+- Copy the same entry to arm32.yml
+- Test it
 
 ## Common Patterns
 
@@ -208,19 +203,20 @@ stella:
 
 After adding a new core:
 
-- [ ] Builds successfully on all CPU families
+- [ ] Builds successfully on all architectures
 - [ ] Uses Makefile.libretro if available
 - [ ] Uses actual .so output name (no renaming)
-- [ ] Alphabetically sorted in recipe
+- [ ] Alphabetically sorted in recipe under `cores:` section
 - [ ] All required fields present
-- [ ] Added to all 4 CPU family recipes (or just ARM64 if appropriate)
+- [ ] Added to both architecture recipes (arm32, arm64)
 
 ## Tips
 
 - **Copy from similar core** - Most cores follow the same pattern
-- **Test incrementally** - Build for one CPU family first
+- **Test incrementally** - Build for one architecture first
 - **Check actual output** - Don't guess the .so filename
 - **Use official repos** - Prefer upstream over forks when possible
 - **Keep it simple** - Only add fields that are needed
+- **YAML format** - Remember to add cores under the `cores:` section
 
-That's it! With explicit recipes, adding cores is now straightforward and error-free.
+That's it! With explicit YAML recipes, adding cores is straightforward and error-free.

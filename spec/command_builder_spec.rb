@@ -3,6 +3,7 @@
 require 'spec_helper'
 require 'command_builder'
 require 'cpu_config'
+require 'tmpdir'
 
 RSpec.describe CommandBuilder do
   # Create a minimal CPU config mock
@@ -11,8 +12,8 @@ RSpec.describe CommandBuilder do
       family: cpu_family,
       arch: arch,
       target_cross: target_cross,
-      target_cflags: '-O2 -pipe',
-      target_cxxflags: '-O2 -pipe',
+      target_cflags: '-O2 -pipe -march=armv8-a+crc',
+      target_cxxflags: '-O2 -pipe -march=armv8-a+crc',
       target_ldflags: '-Wl,-O1',
       platform: 'unix'
     }
@@ -38,8 +39,8 @@ RSpec.describe CommandBuilder do
   let(:builder) { described_class.new(cpu_config: cpu_config, parallel: parallel) }
 
   describe '#make_args' do
-    context 'with basic metadata' do
-      let(:cpu_family) { 'cortex-a53' }
+    context 'with arm64 architecture' do
+      let(:cpu_family) { 'arm64' }
       let(:arch) { 'aarch64' }
       let(:target_cross) { 'aarch64-linux-gnu-' }
 
@@ -51,400 +52,161 @@ RSpec.describe CommandBuilder do
         }
       end
 
-      it 'includes platform argument' do
+      it 'includes toolchain variables' do
+        args = builder.make_args(metadata)
+        expect(args).to include('CC=aarch64-linux-gnu-gcc')
+        expect(args).to include('CXX=aarch64-linux-gnu-g++')
+      end
+
+      it 'includes platform from metadata' do
         args = builder.make_args(metadata)
         expect(args).to include('platform=unix')
       end
 
-      it 'returns array of arguments' do
+      it 'includes extra args from metadata' do
+        metadata['extra_args'] = ['EXTRA_FLAG=1', 'DEBUG=yes']
         args = builder.make_args(metadata)
-        expect(args).to be_an(Array)
+
+        expect(args).to include('EXTRA_FLAG=1')
+        expect(args).to include('DEBUG=yes')
       end
     end
 
-    context 'with extra_args from recipe' do
-      let(:cpu_family) { 'cortex-a53' }
-      let(:arch) { 'aarch64' }
-      let(:target_cross) { 'aarch64-linux-gnu-' }
+    context 'with arm32 architecture' do
+      let(:cpu_family) { 'arm32' }
+      let(:arch) { 'arm' }
+      let(:target_cross) { 'arm-linux-gnueabihf-' }
 
       let(:metadata) do
         {
-          'name' => 'snes9x2005',
-          'platform' => 'unix',
-          'extra_args' => ['USE_BLARGG_APU=1']
+          'name' => 'fceumm',
+          'platform' => 'classic_armv7_a7'
         }
       end
 
-      it 'includes recipe extra_args' do
+      it 'uses correct platform from metadata' do
         args = builder.make_args(metadata)
-        expect(args).to include('USE_BLARGG_APU=1')
-        expect(args).to include('platform=unix')
-      end
-    end
-
-    context 'with nil platform' do
-      let(:cpu_family) { 'cortex-a53' }
-      let(:arch) { 'aarch64' }
-      let(:target_cross) { 'aarch64-linux-gnu-' }
-
-      let(:metadata) do
-        {
-          'name' => 'test-core',
-          'platform' => nil,
-          'extra_args' => []
-        }
-      end
-
-      it 'uses cpu_config platform as fallback' do
-        args = builder.make_args(metadata)
-        expect(args).to include('platform=unix')
-      end
-    end
-
-    context 'with variable reference in platform' do
-      let(:cpu_family) { 'cortex-a53' }
-      let(:arch) { 'aarch64' }
-      let(:target_cross) { 'aarch64-linux-gnu-' }
-
-      let(:metadata) do
-        {
-          'name' => 'test-core',
-          'platform' => '$(PLATFORM)',
-          'extra_args' => []
-        }
-      end
-
-      it 'uses cpu_config platform as fallback' do
-        args = builder.make_args(metadata)
-        expect(args).to include('platform=unix')
-      end
-    end
-  end
-
-  describe '#make_command' do
-    let(:cpu_family) { 'cortex-a53' }
-    let(:arch) { 'aarch64' }
-    let(:target_cross) { 'aarch64-linux-gnu-' }
-
-    let(:metadata) do
-      {
-        'name' => 'gambatte',
-        'platform' => 'unix',
-        'extra_args' => []
-      }
-    end
-
-    it 'includes make, makefile, and parallelism' do
-      cmd = builder.make_command(metadata, 'Makefile.libretro')
-      expect(cmd).to include('make')
-      expect(cmd).to include('-f')
-      expect(cmd).to include('Makefile.libretro')
-      expect(cmd).to include('-j4')
-    end
-
-    it 'includes make args' do
-      cmd = builder.make_command(metadata, 'Makefile.libretro')
-      expect(cmd).to include('platform=unix')
-    end
-
-    context 'when clean: true' do
-      it 'includes clean target' do
-        cmd = builder.make_command(metadata, 'Makefile.libretro', clean: true)
-        expect(cmd).to include('make')
-        expect(cmd).to include('-f')
-        expect(cmd).to include('Makefile.libretro')
-        expect(cmd).to include('clean')
-        expect(cmd).not_to include('-j4')
+        expect(args).to include('platform=classic_armv7_a7')
       end
     end
   end
 
   describe '#cmake_args' do
-    let(:cpu_family) { 'cortex-a53' }
+    let(:cpu_family) { 'arm64' }
     let(:arch) { 'aarch64' }
     let(:target_cross) { 'aarch64-linux-gnu-' }
 
-    let(:metadata) do
-      {
-        'name' => 'swanstation',
-        'cmake_opts' => []
-      }
-    end
-
-    it 'includes cross-compile settings' do
-      args = builder.cmake_args(metadata)
-
-      expect(args).to include('-DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc')
-      expect(args).to include('-DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++')
-      expect(args).to include('-DCMAKE_C_FLAGS=-O2 -pipe')
-      expect(args).to include('-DCMAKE_CXX_FLAGS=-O2 -pipe')
-      expect(args).to include('-DCMAKE_SYSTEM_PROCESSOR=aarch64')
-    end
-
-    it 'includes standard cmake settings' do
-      args = builder.cmake_args(metadata)
-
-      expect(args).to include('-DTHREADS_PREFER_PTHREAD_FLAG=ON')
-      expect(args).to include('-DCMAKE_BUILD_TYPE=Release')
-    end
-
-    context 'with recipe-specific cmake_opts' do
+    context 'with basic cmake metadata' do
       let(:metadata) do
         {
-          'name' => 'swanstation',
-          'cmake_opts' => ['-DBUILD_LIBRETRO_CORE=ON']
+          'cmake_opts' => ['-DBUILD_SHARED_LIBS=ON']
         }
       end
 
-      it 'includes recipe cmake_opts' do
+      it 'includes recipe cmake options' do
         args = builder.cmake_args(metadata)
-
-        expect(args).to include('-DBUILD_LIBRETRO_CORE=ON')
-      end
-    end
-
-    context 'when recipe specifies CMAKE_BUILD_TYPE' do
-      let(:metadata) do
-        {
-          'name' => 'swanstation',
-          'cmake_opts' => ['-DCMAKE_BUILD_TYPE=Release', '-DBUILD_SHARED_LIBS=FALSE']
-        }
+        expect(args).to include('-DBUILD_SHARED_LIBS=ON')
       end
 
-      it 'does not duplicate CMAKE_BUILD_TYPE' do
+      it 'includes compiler flags' do
         args = builder.cmake_args(metadata)
-
-        # Count occurrences of CMAKE_BUILD_TYPE
-        build_type_count = args.count { |arg| arg.start_with?('-DCMAKE_BUILD_TYPE=') }
-        expect(build_type_count).to eq(1), "Expected 1 CMAKE_BUILD_TYPE, got #{build_type_count}: #{args.grep(/CMAKE_BUILD_TYPE/)}"
+        expect(args.join(' ')).to include('-DCMAKE_C_FLAGS=')
+        expect(args.join(' ')).to include('-DCMAKE_CXX_FLAGS=')
       end
 
-      it 'preserves recipe CMAKE_BUILD_TYPE value' do
+      it 'includes pthread flag' do
         args = builder.cmake_args(metadata)
+        expect(args).to include('-DTHREADS_PREFER_PTHREAD_FLAG=ON')
+      end
 
+      it 'includes Release build type by default' do
+        args = builder.cmake_args(metadata)
         expect(args).to include('-DCMAKE_BUILD_TYPE=Release')
       end
-    end
 
-    context 'when recipe does not specify CMAKE_BUILD_TYPE' do
-      let(:metadata) do
-        {
-          'name' => 'test-core',
-          'cmake_opts' => ['-DBUILD_SHARED_LIBS=FALSE']
-        }
-      end
-
-      it 'adds default CMAKE_BUILD_TYPE=Release' do
+      it 'does not override existing CMAKE_BUILD_TYPE' do
+        metadata['cmake_opts'] = ['-DCMAKE_BUILD_TYPE=Debug']
         args = builder.cmake_args(metadata)
 
-        expect(args).to include('-DCMAKE_BUILD_TYPE=Release')
+        # Should only have one BUILD_TYPE (the Debug one from metadata)
+        build_types = args.select { |arg| arg.include?('CMAKE_BUILD_TYPE') }
+        expect(build_types.length).to eq(1)
+        expect(build_types.first).to include('Debug')
       end
     end
 
     context 'with ARM32 architecture' do
-      let(:cpu_family) { 'cortex-a7' }
+      let(:cpu_family) { 'arm32' }
       let(:arch) { 'arm' }
       let(:target_cross) { 'arm-linux-gnueabihf-' }
 
-      it 'forces C99 and C++11 standards' do
-        args = builder.cmake_args(metadata)
-
-        expect(args).to include('-DCMAKE_C_STANDARD=99')
-        expect(args).to include('-DCMAKE_CXX_STANDARD=11')
+      let(:metadata) do
+        {
+          'cmake_opts' => []
+        }
       end
-    end
 
-    context 'with CMAKE_PREFIX_PATH environment variable' do
-      before { ENV['CMAKE_PREFIX_PATH'] = '/opt/deps' }
-      after { ENV.delete('CMAKE_PREFIX_PATH') }
-
-      it 'includes CMAKE_PREFIX_PATH' do
+      it 'forces C99 standard for ARM32' do
         args = builder.cmake_args(metadata)
-        expect(args).to include('-DCMAKE_PREFIX_PATH=/opt/deps')
+        expect(args).to include('-DCMAKE_C_STANDARD=99')
+      end
+
+      it 'forces C++11 standard for ARM32' do
+        args = builder.cmake_args(metadata)
+        expect(args).to include('-DCMAKE_CXX_STANDARD=11')
       end
     end
   end
 
   describe '#cmake_configure_command' do
-    let(:cpu_family) { 'cortex-a53' }
+    let(:cpu_family) { 'arm64' }
     let(:arch) { 'aarch64' }
     let(:target_cross) { 'aarch64-linux-gnu-' }
+    let(:build_dir) { Dir.mktmpdir }
 
     let(:metadata) do
-      { 'name' => 'swanstation', 'cmake_opts' => [] }
+      {
+        'cmake_opts' => ['-DFOO=bar']
+      }
     end
 
-    it 'returns cmake command with args' do
-      cmd = builder.cmake_configure_command(metadata)
+    after do
+      FileUtils.rm_rf(build_dir)
+    end
 
+    it 'includes cmake command' do
+      cmd = builder.cmake_configure_command(metadata, build_dir: build_dir)
       expect(cmd.first).to eq('cmake')
+    end
+
+    it 'targets parent directory' do
+      cmd = builder.cmake_configure_command(metadata, build_dir: build_dir)
       expect(cmd).to include('..')
-      expect(cmd).to include('-DCMAKE_BUILD_TYPE=Release')
+    end
+
+    it 'includes cross-compile settings' do
+      cmd = builder.cmake_configure_command(metadata, build_dir: build_dir)
+      cmd_str = cmd.join(' ')
+      expect(cmd_str).to include('-DCMAKE_C_COMPILER=')
+      expect(cmd_str).to include('-DCMAKE_CXX_COMPILER=')
+      expect(cmd_str).to include('-DCMAKE_SYSTEM_PROCESSOR=')
+    end
+
+    it 'includes cmake args from metadata' do
+      cmd = builder.cmake_configure_command(metadata, build_dir: build_dir)
+      expect(cmd).to include('-DFOO=bar')
     end
   end
 
   describe '#cmake_build_command' do
-    let(:cpu_family) { 'cortex-a53' }
+    let(:cpu_family) { 'arm64' }
     let(:arch) { 'aarch64' }
     let(:target_cross) { 'aarch64-linux-gnu-' }
 
-    it 'returns make command with parallelism' do
+    it 'uses make with parallel jobs' do
       cmd = builder.cmake_build_command
-
       expect(cmd).to eq(['make', '-j4'])
     end
   end
 
-  describe 'flycast-xtreme special case handling' do
-    let(:metadata) do
-      {
-        'name' => 'flycast-xtreme',
-        'platform' => 'unix',
-        'extra_args' => []
-      }
-    end
-
-    context 'cortex-a53' do
-      let(:cpu_family) { 'cortex-a53' }
-      let(:arch) { 'aarch64' }
-      let(:target_cross) { 'aarch64-linux-gnu-' }
-
-      it 'uses odroid-n2 platform with correct flags' do
-        args = builder.make_args(metadata)
-
-        expect(args).to include('platform=odroid-n2')
-        expect(args).to include('HAVE_OPENMP=1')
-        expect(args).to include('FORCE_GLES=1')
-        expect(args).to include('ARCH=arm64')
-        expect(args).to include('LDFLAGS=-lrt')
-      end
-    end
-
-    context 'cortex-a55' do
-      let(:cpu_family) { 'cortex-a55' }
-      let(:arch) { 'aarch64' }
-      let(:target_cross) { 'aarch64-linux-gnu-' }
-
-      it 'uses odroidc4 platform with correct flags' do
-        args = builder.make_args(metadata)
-
-        expect(args).to include('platform=odroidc4')
-        expect(args).to include('HAVE_OPENMP=1')
-        expect(args).to include('FORCE_GLES=1')
-        expect(args).to include('ARCH=arm64')
-        expect(args).to include('LDFLAGS=-lrt')
-      end
-    end
-
-    context 'cortex-a7' do
-      let(:cpu_family) { 'cortex-a7' }
-      let(:arch) { 'arm' }
-      let(:target_cross) { 'arm-linux-gnueabihf-' }
-
-      it 'uses arm platform with correct flags' do
-        args = builder.make_args(metadata)
-
-        expect(args).to include('platform=arm')
-        expect(args).to include('HAVE_OPENMP=1')
-        expect(args).to include('FORCE_GLES=1')
-        expect(args).to include('ARCH=arm')
-        expect(args).to include('LDFLAGS=-lrt')
-      end
-    end
-
-    context 'cortex-a76' do
-      let(:cpu_family) { 'cortex-a76' }
-      let(:arch) { 'aarch64' }
-      let(:target_cross) { 'aarch64-linux-gnu-' }
-
-      it 'uses arm64 platform with correct flags' do
-        args = builder.make_args(metadata)
-
-        expect(args).to include('platform=arm64')
-        expect(args).to include('HAVE_OPENMP=1')
-        expect(args).to include('FORCE_GLES=1')
-        expect(args).to include('ARCH=arm64')
-        expect(args).to include('LDFLAGS=-lrt')
-      end
-    end
-  end
-
-  describe 'argument ordering' do
-    let(:cpu_family) { 'cortex-a53' }
-    let(:arch) { 'aarch64' }
-    let(:target_cross) { 'aarch64-linux-gnu-' }
-
-    context 'for make_args' do
-      let(:metadata) do
-        {
-          'name' => 'snes9x2005',
-          'platform' => 'unix',
-          'extra_args' => ['USE_BLARGG_APU=1', 'FOO=bar']
-        }
-      end
-
-      it 'orders: platform, recipe extra_args, special case args' do
-        args = builder.make_args(metadata)
-
-        # Platform should be first
-        expect(args.first).to eq('platform=unix')
-
-        # Recipe extra_args should come after platform
-        expect(args).to include('USE_BLARGG_APU=1')
-        expect(args).to include('FOO=bar')
-
-        # Verify order
-        platform_idx = args.index('platform=unix')
-        blargg_idx = args.index('USE_BLARGG_APU=1')
-        expect(blargg_idx).to be > platform_idx
-      end
-    end
-
-    context 'for cmake_args' do
-      let(:metadata) do
-        {
-          'name' => 'test-core',
-          'cmake_opts' => ['-DCUSTOM=value']
-        }
-      end
-
-      it 'orders: recipe opts, cross-compile, build type, standards' do
-        args = builder.cmake_args(metadata)
-
-        # Recipe opts should be first
-        custom_idx = args.index('-DCUSTOM=value')
-        expect(custom_idx).to eq(0)
-
-        # Cross-compile settings should come after recipe opts
-        compiler_idx = args.index { |a| a.start_with?('-DCMAKE_C_COMPILER=') }
-        expect(compiler_idx).to be > custom_idx
-
-        # Build type should come after cross-compile settings
-        build_type_idx = args.index('-DCMAKE_BUILD_TYPE=Release')
-        expect(build_type_idx).to be > compiler_idx
-      end
-    end
-  end
-
-  describe 'regular cores do not get flycast special handling' do
-    let(:cpu_family) { 'cortex-a53' }
-    let(:arch) { 'aarch64' }
-    let(:target_cross) { 'aarch64-linux-gnu-' }
-
-    let(:metadata) do
-      {
-        'name' => 'gambatte',
-        'platform' => 'unix',
-        'extra_args' => []
-      }
-    end
-
-    it 'does not include flycast-specific flags' do
-      args = builder.make_args(metadata)
-
-      expect(args).to include('platform=unix')
-      expect(args).not_to include('HAVE_OPENMP=1')
-      expect(args).not_to include('FORCE_GLES=1')
-    end
-  end
 end

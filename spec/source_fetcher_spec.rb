@@ -3,86 +3,144 @@
 require 'spec_helper'
 require 'source_fetcher'
 require 'logger'
-require 'tempfile'
-require 'fileutils'
+require 'tmpdir'
 
 RSpec.describe SourceFetcher do
   let(:cores_dir) { Dir.mktmpdir('cores_spec') }
-  let(:logger) { instance_double('BuildLogger', section: nil, info: nil, step: nil, error: nil, success: nil) }
-  let(:parallel) { 2 }
-
-  subject(:fetcher) { described_class.new(cores_dir: cores_dir, logger: logger, parallel: parallel) }
+  let(:cache_dir) { Dir.mktmpdir('cache_spec') }
+  let(:logger) { instance_double('BuildLogger', section: nil, info: nil, success: nil, warn: nil, error: nil, step: nil, detail: nil) }
+  let(:fetcher) { described_class.new(cores_dir: cores_dir, cache_dir: cache_dir, logger: logger, parallel: 2) }
 
   after do
     FileUtils.rm_rf(cores_dir)
+    FileUtils.rm_rf(cache_dir)
   end
 
   describe '#fetch_one' do
-    let(:metadata) do
-      {
-        'name' => 'test-core',
-        'repo' => 'libretro-test',
-        'url' => url,
-        'commit' => commit,
-        'submodules' => false
-      }
-    end
-
     context 'when core directory already exists' do
-      let(:url) { 'https://github.com/test/repo/archive/abc123.tar.gz' }
-      let(:commit) { 'abc123' }
+      let(:metadata) do
+        {
+          'repo' => 'libretro/test-core',
+          'commit' => 'abc123'
+        }
+      end
 
       before do
-        FileUtils.mkdir_p(File.join(cores_dir, 'libretro-test'))
+        # Create existing directory
+        FileUtils.mkdir_p(File.join(cores_dir, 'libretro-test-core'))
       end
 
-      it 'skips fetching' do
-        expect(logger).to receive(:step).with(/Skipping/)
+      it 'skips fetching and increments skipped counter' do
+        allow(fetcher).to receive(:log_thread)
 
         fetcher.fetch_one('test-core', metadata)
-      end
 
-      it 'increments skipped counter' do
-        fetcher.fetch_one('test-core', metadata)
-
-        # Access the internal counter via instance variable
-        skipped = fetcher.instance_variable_get(:@skipped)
-        expect(skipped).to eq(1)
+        expect(fetcher.instance_variable_get(:@skipped)).to eq(1)
+        expect(fetcher.instance_variable_get(:@fetched)).to eq(0)
       end
     end
 
-    context 'with tarball URL' do
-      let(:url) { 'https://github.com/test/repo/archive/abc123.tar.gz' }
-      let(:commit) { 'abc123' }
+    context 'with commit SHA (uses tarball)' do
+      let(:metadata) do
+        {
+          'repo' => 'libretro/gambatte-libretro',
+          'commit' => '47c5a2feaa9c253efc407283d9247a3c055f9efb'
+        }
+      end
 
-      it 'attempts to fetch tarball' do
-        allow(fetcher).to receive(:run_command)
-
+      it 'uses tarball fetch method' do
+        allow(fetcher).to receive(:log_thread)
         expect(fetcher).to receive(:fetch_tarball).with(
-          url,
-          File.join(cores_dir, 'libretro-test'),
-          'libretro-test'
+          "https://github.com/libretro/gambatte-libretro/archive/47c5a2feaa9c253efc407283d9247a3c055f9efb.tar.gz",
+          File.join(cores_dir, 'libretro-gambatte'),
+          'libretro-gambatte',
+          'libretro/gambatte-libretro',
+          '47c5a2feaa9c253efc407283d9247a3c055f9efb'
         )
 
-        fetcher.fetch_one('test-core', metadata)
+        fetcher.fetch_one('gambatte', metadata)
+      end
+
+      it 'increments fetched counter on success' do
+        allow(fetcher).to receive(:log_thread)
+        allow(fetcher).to receive(:fetch_tarball)
+
+        fetcher.fetch_one('gambatte', metadata)
+
+        expect(fetcher.instance_variable_get(:@fetched)).to eq(1)
       end
     end
 
-    context 'with git URL' do
-      let(:url) { 'https://github.com/test/repo.git' }
-      let(:commit) { 'abc123' * 2 }  # 40 char SHA
+    context 'with version tag (uses git)' do
+      let(:metadata) do
+        {
+          'repo' => 'libretro/test-core',
+          'tag' => 'v1.2.3'
+        }
+      end
 
-      it 'attempts to fetch via git' do
-        allow(fetcher).to receive(:run_command)
-
+      it 'uses git fetch method for version tags' do
+        allow(fetcher).to receive(:log_thread)
         expect(fetcher).to receive(:fetch_git).with(
-          url,
-          File.join(cores_dir, 'libretro-test'),
-          commit,
+          'https://github.com/libretro/test-core.git',
+          File.join(cores_dir, 'libretro-test-core'),
+          'v1.2.3',
           false
         )
 
         fetcher.fetch_one('test-core', metadata)
+      end
+    end
+
+    context 'with submodules enabled' do
+      let(:metadata) do
+        {
+          'repo' => 'libretro/test-core',
+          'commit' => 'abc123def456',
+          'submodules' => true
+        }
+      end
+
+      it 'uses git fetch method for cores with submodules' do
+        allow(fetcher).to receive(:log_thread)
+        expect(fetcher).to receive(:fetch_git).with(
+          'https://github.com/libretro/test-core.git',
+          File.join(cores_dir, 'libretro-test-core'),
+          'abc123def456',
+          true
+        )
+
+        fetcher.fetch_one('test-core', metadata)
+      end
+    end
+
+    context 'with missing required fields' do
+      it 'handles errors gracefully' do
+        metadata = { 'commit' => 'abc123' }  # Missing repo
+
+        # Should not raise, but should log error and increment failed counter
+        fetcher.fetch_one('test', metadata)
+
+        expect(fetcher.instance_variable_get(:@failed)).to eq(1)
+      end
+    end
+
+    context 'when fetch fails' do
+      let(:metadata) do
+        {
+          'repo' => 'libretro/test-core',
+          'commit' => 'abc123'
+        }
+      end
+
+      it 'increments failed counter and logs error' do
+        allow(fetcher).to receive(:fetch_tarball).and_raise(StandardError, 'Network error')
+        allow(fetcher).to receive(:log_thread)
+
+        fetcher.fetch_one('test-core', metadata)
+
+        expect(fetcher.instance_variable_get(:@failed)).to eq(1)
+        expect(fetcher.instance_variable_get(:@fetched)).to eq(0)
       end
     end
   end
@@ -90,61 +148,83 @@ RSpec.describe SourceFetcher do
   describe '#fetch_all' do
     let(:recipes) do
       {
-        'core1' => {
-          'name' => 'core1',
-          'repo' => 'libretro-core1',
-          'url' => 'https://github.com/test/core1/archive/abc.tar.gz',
-          'commit' => 'abc123',
-          'submodules' => false
+        'gambatte' => {
+          'repo' => 'libretro/gambatte-libretro',
+          'commit' => 'abc123'
         },
-        'core2' => {
-          'name' => 'core2',
-          'repo' => 'libretro-core2',
-          'url' => 'https://github.com/test/core2/archive/def.tar.gz',
-          'commit' => 'def456',
-          'submodules' => false
+        'fceumm' => {
+          'repo' => 'libretro/libretro-fceumm',
+          'commit' => 'def456'
         }
       }
     end
 
     it 'processes all recipes' do
-      allow(fetcher).to receive(:fetch_one)
+      allow(fetcher).to receive(:fetch_tarball)
+      allow(fetcher).to receive(:log_thread)
 
-      expect(fetcher).to receive(:fetch_one).with('core1', recipes['core1'])
-      expect(fetcher).to receive(:fetch_one).with('core2', recipes['core2'])
+      fetcher.fetch_all(recipes)
+
+      expect(fetcher.instance_variable_get(:@fetched)).to eq(2)
+    end
+
+    it 'logs summary with counts' do
+      allow(fetcher).to receive(:fetch_tarball)
+      allow(fetcher).to receive(:log_thread)
+
+      expect(logger).to receive(:success).with(/Fetched: 2, Skipped: 0, Failed: 0/)
 
       fetcher.fetch_all(recipes)
     end
 
-    it 'logs summary' do
-      allow(fetcher).to receive(:fetch_one)
-
-      expect(logger).to receive(:success).with(/Fetched/)
+    it 'creates cores and cache directories' do
+      allow(fetcher).to receive(:fetch_tarball)
+      allow(fetcher).to receive(:log_thread)
 
       fetcher.fetch_all(recipes)
+
+      expect(Dir.exist?(cores_dir)).to be true
+      expect(Dir.exist?(cache_dir)).to be true
     end
   end
 
-  describe 'error handling' do
+  describe 'parallel processing' do
+    let(:recipes) do
+      (1..10).map do |i|
+        ["core#{i}", {
+          'repo' => "libretro/core#{i}",
+          'commit' => "commit#{i}"
+        }]
+      end.to_h
+    end
+
+    it 'processes cores in parallel' do
+      allow(fetcher).to receive(:fetch_tarball)
+      allow(fetcher).to receive(:log_thread)
+
+      fetcher.fetch_all(recipes)
+
+      # With 10 cores and parallel: 2, should be faster than sequential
+      # Just verify it completes successfully
+      expect(fetcher.instance_variable_get(:@fetched)).to eq(10)
+    end
+  end
+
+  describe 'naming convention' do
     let(:metadata) do
       {
-        'name' => 'test-core',
-        'repo' => 'libretro-test',
-        'url' => 'https://invalid-url.com/archive.tar.gz',
-        'commit' => 'abc123',
-        'submodules' => false
+        'repo' => 'libretro/gambatte-libretro',
+        'commit' => 'abc123'
       }
     end
 
-    it 'catches and logs fetch errors' do
-      allow(fetcher).to receive(:run_command).and_raise(StandardError.new('Network error'))
-      allow(logger).to receive(:step) # Allow any logging
+    it 'constructs directory name as libretro-{corename}' do
+      allow(fetcher).to receive(:log_thread)
+      allow(fetcher).to receive(:fetch_tarball) do |_url, target_dir, _repo_name, _repo, _ref|
+        expect(target_dir).to eq(File.join(cores_dir, 'libretro-gambatte'))
+      end
 
-      # Should not raise, just increment failed counter
-      expect { fetcher.fetch_one('test-core', metadata) }.not_to raise_error
-
-      failed = fetcher.instance_variable_get(:@failed)
-      expect(failed).to eq(1)
+      fetcher.fetch_one('gambatte', metadata)
     end
   end
 end

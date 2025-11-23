@@ -56,6 +56,11 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 	g++-aarch64-linux-gnu \
 	libgl1-mesa-dev:armhf \
 	libgl1-mesa-dev:arm64 \
+	libgles2-mesa-dev:armhf \
+	libgles2-mesa-dev:arm64 \
+	libattr1-dev \
+	libattr1-dev:armhf \
+	libattr1-dev:arm64 \
 	libexpat1-dev \
 	libicu-dev \
 	libsdl2-dev \

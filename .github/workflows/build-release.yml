@@ -11,10 +11,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 120  # 2 hours max per CPU family
+    timeout-minutes: 120  # 2 hours max per architecture
     strategy:
       matrix:
-        cpu: [cortex-a7, cortex-a53]
+        cpu: [arm32, arm64]
       fail-fast: false  # Continue other builds even if one fails
 
     steps:
@@ -101,49 +101,28 @@ jobs:
       - name: Organize artifacts
         run: |
           mkdir -p release-packages
-          mv artifacts/linux-cortex-a7/linux-cortex-a7.zip release-packages/
-          mv artifacts/linux-cortex-a53/linux-cortex-a53.zip release-packages/
+          mv artifacts/linux-arm32/linux-arm32.zip release-packages/
+          mv artifacts/linux-arm64/linux-arm64.zip release-packages/
           ls -lh release-packages/
 
       - name: Generate release notes
         id: release_notes
         run: |
           # Get core counts
-          a7_count=$(cat artifacts/build-info-cortex-a7/core-count-cortex-a7.txt)
-          a53_count=$(cat artifacts/build-info-cortex-a53/core-count-cortex-a53.txt)
+          arm32_count=$(cat artifacts/build-info-arm32/core-count-arm32.txt)
+          arm64_count=$(cat artifacts/build-info-arm64/core-count-arm64.txt)
 
           cat << EOF > release_notes.md
-          # LessUI-Cores Build ${GITHUB_REF_NAME}
+          # LessUI-Cores ${GITHUB_REF_NAME}
 
-          Automated build of libretro cores for ARM-based retro handhelds running MinUI.
+          Libretro cores for ARM-based retro handhelds running MinUI.
 
-          ## Build Information
-          - Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          - Tag: ${GITHUB_REF_NAME}
-          - Commit: ${GITHUB_SHA:0:8}
+          | Package | Cores | Devices |
+          |---------|-------|---------|
+          | **linux-arm32.zip** | ${arm32_count} | Miyoo Mini, RG35XX, Trimui Smart |
+          | **linux-arm64.zip** | ${arm64_count} | RG28xx/40xx, CubeXX, Trimui |
 
-          ## CPU Family Packages
-
-          Download the package for your device's CPU family:
-
-          | CPU Family | Architecture | Cores | Devices |
-          |------------|--------------|-------|---------|
-          | **cortex-a7** | ARM32 (ARMv7) | ${a7_count} | Miyoo Mini, A30 |
-          | **cortex-a53** | ARM64 (ARMv8-a) | ${a53_count} | RG28xx/35xx/40xx, Trimui |
-
-          ## Installation
-
-          1. Download the appropriate .zip file for your device
-          2. Extract the .so files to your MinUI cores directory
-          3. Restart your device
-
-          ## Systems Supported
-
-          This build includes cores for ~35 retro gaming systems. See \`config/systems.yml\` for the complete list.
-
-          ## Source
-
-          All cores built from production-tested commits sourced from [Knulli](https://github.com/knulli-cfw/distribution).
+          Built $(date -u '+%Y-%m-%d') from commit ${GITHUB_SHA:0:8}
           EOF
 
           echo "notes_file=release_notes.md" >> $GITHUB_OUTPUT

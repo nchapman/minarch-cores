@@ -14,8 +14,6 @@ require_relative 'core_builder'
 class CoresBuilder
   def initialize(
     cpu_family:,
-    package_dir: File.expand_path('../knulli/package/batocera/emulators/retroarch/libretro', __dir__),
-    config_dir: 'config',
     cores_dir: nil,
     cache_dir: 'output/cache',
     output_dir: nil,
@@ -28,8 +26,6 @@ class CoresBuilder
     skip_build: false
   )
     @cpu_family = cpu_family
-    @package_dir = package_dir
-    @config_dir = config_dir
     # CPU-specific cores directory to prevent contamination across builds
     @cores_dir = File.expand_path(cores_dir || "output/cores-#{cpu_family}")
     # Shared cache directory for downloaded tarballs
@@ -46,7 +42,7 @@ class CoresBuilder
     @logger = BuildLogger.new(log_file: log_file)
 
     # Load CPU configuration
-    @cpu_config = CpuConfig.new(@cpu_family, config_dir: @config_dir, logger: @logger)
+    @cpu_config = CpuConfig.new(@cpu_family, recipe_file: @recipe_file, logger: @logger)
   end
 
   def run
@@ -111,27 +107,11 @@ class CoresBuilder
   end
 
   def load_recipes
-    # Support both YAML (.yml) and legacy JSON (.json) recipes
-    if @recipe_file.end_with?('.yml')
-      # YAML recipes have a header comment block before the YAML content
-      file_content = File.read(@recipe_file)
-      yaml_content = file_content.split('---', 2)[1]
-      YAML.load(yaml_content)
-    else
-      # Legacy JSON support
-      JSON.parse(File.read(@recipe_file))
-    end
-  end
-
-  def generate_recipes
-    generator = RecipeGenerator.new(
-      package_dir: @package_dir,
-      cpu_config: @cpu_config,
-      logger: @logger
-    )
-
-    recipes = generator.generate
-    generator.save(@recipe_file)
-    recipes
+    # YAML recipes have a header comment block before the YAML content
+    file_content = File.read(@recipe_file)
+    yaml_content = file_content.split('---', 2)[1]
+    data = YAML.load(yaml_content)
+    # Extract just the cores section (config section is loaded separately by CpuConfig)
+    data['cores'] || data
   end
 end

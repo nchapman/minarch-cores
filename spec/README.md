@@ -1,6 +1,6 @@
 # Test Suite
 
-This directory contains RSpec tests for the LessUI-Cores build system.
+RSpec test suite for the LessUI-Cores build system.
 
 ## Running Tests
 
@@ -12,63 +12,75 @@ make test
 bundle exec rspec
 
 # Run specific test file
-bundle exec rspec spec/command_builder_spec.rb
+bundle exec rspec spec/cpu_config_spec.rb
 
-# Run specific test
-bundle exec rspec spec/command_builder_spec.rb:20
+# Run with documentation format
+bundle exec rspec --format documentation
 ```
 
-## Test Structure
+## Test Coverage (81 examples, 0 failures)
 
 ### Unit Tests
 
-- **`spec/command_builder_spec.rb`** - Tests for command construction logic
-  - Make command generation (platform, extra_args, parallelism)
-  - CMake command generation (cross-compile flags, standards)
-  - Special case handling (flycast-xtreme platform detection)
+- **`cpu_config_spec.rb`** (11 examples) - YAML config loading
+  - Tests both architectures: arm32, arm64
+  - Validates config section parsing from recipe YAML
+  - Tests flag combination (optimization + float flags)
+
+- **`command_builder_spec.rb`** (23 examples) - Command construction
+  - Make command generation (platform, extra_args, toolchain vars)
+  - CMake command generation (toolchain files, cross-compile flags)
+  - ARM32-specific handling (C99/C++11 standards, library paths)
+
+- **`source_fetcher_spec.rb`** (13 examples) - Source fetching logic
+  - Tarball vs git clone selection
+  - Parallel fetching with thread pool
+  - Cache management and error handling
+
+- **`core_builder_spec.rb`** (17 examples) - Build execution
+  - Make/CMake build workflows
+  - Command interception and validation
+  - Dry-run mode, parallel builds, error handling
+
+- **`logger_spec.rb`** (10 examples) - Logging functionality
+  - Console output formatting
+  - Log file writing with ANSI stripping
 
 ### Integration Tests
 
-- **`spec/integration/recipe_command_spec.rb`** - Tests using real recipe data
-  - Validates all cores in `recipes/linux/cortex-a53.yml`
-  - Ensures commands can be generated for all Make/CMake cores
-  - Verifies required metadata fields exist
+- **`integration/recipe_loading_spec.rb`** (7 examples) - Recipe format validation
+  - Tests complete YAML recipe format (config + cores sections)
+  - Validates both architectures load correctly
+  - Tests error handling for malformed recipes
 
 ## What's Tested
 
-### CommandBuilder
+### Full Build Pipeline
 
-The `CommandBuilder` class centralizes all build command construction:
-
-1. **Make builds**: Platform detection, extra_args, parallelism
-2. **CMake builds**: Cross-compilation flags, C/C++ standards, optimization
-3. **Special cases**: Core-specific platform overrides (e.g., flycast-xtreme)
+1. **Recipe Loading** - YAML parsing, config + cores extraction
+2. **CPU Configuration** - Architecture settings, compiler flags
+3. **Command Construction** - Make/CMake args with proper cross-compilation
+4. **Source Fetching** - GitHub tarballs/repos with caching
+5. **Core Building** - Build execution with command validation
+6. **Logging** - Output formatting and file logging
 
 ### Coverage
 
-- ✅ All 4 CPU families (cortex-a7, cortex-a53, cortex-a55, cortex-a76)
+- ✅ Both architectures (arm32, arm64)
 - ✅ Both build types (Make and CMake)
-- ✅ Platform resolution (explicit, nil, variable references)
-- ✅ Recipe extra_args and cmake_opts
-- ✅ ARM32-specific handling (C99/C++11 standards)
-- ✅ flycast-xtreme special case for all CPU families
-- ✅ All cores in cortex-a53 recipe can generate valid commands
-
-## Adding Tests
-
-When adding new cores or build logic:
-
-1. Add unit tests to `spec/command_builder_spec.rb`
-2. Integration tests automatically validate all recipe cores
-3. Run `make test` to verify
+- ✅ YAML recipe format validation
+- ✅ ARM32 vs ARM64 differences (flags, standards, toolchains)
+- ✅ Parallel builds and dry-run mode
+- ✅ Error handling and statistics tracking
 
 ## Test Philosophy
 
-These tests ensure:
+These tests:
 
-1. **Command correctness** - Generated commands match expected structure
-2. **Recipe validation** - All cores have required metadata
-3. **Regression prevention** - Changes don't break existing cores
-4. **Documentation** - Tests serve as examples of how commands are built
+1. **Intercept commands** - Validate what gets executed without running builds
+2. **Use minimal mocks** - Test real logic with stubbed I/O
+3. **Run fast** - Complete suite in ~0.03 seconds
+4. **Prevent regressions** - Ensure architecture changes don't break builds
+5. **Document behavior** - Tests serve as executable documentation
 
-The test suite runs fast (~0.03s) and provides confidence when refactoring build logic.
+Perfect for refactoring the build system with confidence!

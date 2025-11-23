@@ -161,7 +161,7 @@ class CoreBuilder
 
     # Run CMake
     Dir.chdir(build_dir) do
-      run_command(env, *@command_builder.cmake_configure_command(metadata))
+      run_command(env, *@command_builder.cmake_configure_command(metadata, build_dir: build_dir))
       run_command(env, *@command_builder.cmake_build_command)
     end
 
@@ -189,6 +189,24 @@ class CoreBuilder
     makefile_path = File.join(work_dir, makefile)
     unless File.exist?(makefile_path)
       raise "Makefile not found: #{makefile_path}"
+    end
+
+    # Verbose logging for debugging
+    if ENV['VERBOSE'] == '1'
+      puts "\n" + "="*60
+      puts "VERBOSE: Building #{name}"
+      puts "="*60
+      puts "Recipe metadata:"
+      metadata.each { |k, v| puts "  #{k}: #{v.inspect}" }
+      puts "\nConfig file: config/#{@cpu_config.family}.config"
+      puts "CPU Config values:"
+      puts "  family: #{@cpu_config.family}"
+      puts "  arch: #{@cpu_config.arch}"
+      puts "  target_cpu: #{@cpu_config.target_cpu}"
+      puts "  target_cross: #{@cpu_config.target_cross}"
+      puts "  target_cflags: #{@cpu_config.target_cflags}"
+      puts "  target_ldflags: #{@cpu_config.target_ldflags}"
+      puts "="*60 + "\n"
     end
 
     # Run make
@@ -223,6 +241,24 @@ class CoreBuilder
   end
 
   def run_command(env, *args)
+    # Verbose logging: show exact command and environment
+    if ENV['VERBOSE'] == '1'
+      puts "\n" + "="*60
+      puts "VERBOSE: Executing Make Command"
+      puts "="*60
+      puts "Working directory: #{Dir.pwd}"
+      puts "\nCommand line:"
+      puts "  #{args.join(' ')}"
+      puts "\nMake arguments breakdown:"
+      args.each_with_index do |arg, i|
+        next if i < 3  # Skip 'make', '-f', 'Makefile'
+        puts "  [#{i-2}] #{arg}"
+      end
+      puts "\nEnvironment variables being exported:"
+      env.sort.each { |k, v| puts "  #{k}=#{v}" }
+      puts "="*60 + "\n"
+    end
+
     # Filter output to reduce noise
     stdout, stderr, status = Open3.capture3(env, *args)
 
