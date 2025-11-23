@@ -1,4 +1,4 @@
-# LessUI-Cores
+# minarch-cores
 
 Build libretro emulator cores for ARM-based retro handhelds running MinUI.
 
@@ -158,7 +158,7 @@ Check the core's GitHub repository for stable releases and commits.
 ## Project Structure
 
 ```
-LessUI-Cores/
+minarch-cores/
 ├── recipes/linux/               # Manual YAML recipes (source of truth)
 │   ├── arm32.yml                # ARM32 config + cores
 │   └── arm64.yml                # ARM64 config + cores

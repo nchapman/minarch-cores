@@ -1,6 +1,6 @@
 # Test Suite
 
-RSpec test suite for the LessUI-Cores build system.
+RSpec test suite for the minarch-cores build system.
 
 ## Running Tests
 

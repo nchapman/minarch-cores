@@ -113,7 +113,7 @@ jobs:
           arm64_count=$(cat artifacts/build-info-arm64/core-count-arm64.txt)
 
           cat << EOF > release_notes.md
-          # LessUI-Cores ${GITHUB_REF_NAME}
+          # minarch-cores ${GITHUB_REF_NAME}
 
           Libretro cores for ARM-based retro handhelds running MinUI.
 

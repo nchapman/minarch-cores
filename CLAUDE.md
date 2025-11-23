@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LessUI-Cores is a build system for creating CPU-optimized libretro emulator cores for ARM-based retro handhelds running MinUI. It builds 26-31 cores per CPU family, supporting all MinUI required cores plus additional systems.
+minarch-cores is a build system for creating architecture-optimized libretro emulator cores for ARM-based retro handhelds running MinUI. It builds ~30 cores per architecture, supporting all MinUI required cores plus additional systems.
 
 **Key Architecture:** Manual YAML recipes define which cores to build for each CPU family. Recipes are the single source of truth - edit them directly to add/update/remove cores.
 

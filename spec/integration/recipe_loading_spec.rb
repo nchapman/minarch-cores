@@ -13,7 +13,7 @@ RSpec.describe 'Recipe Loading Integration' do
   before do
     FileUtils.mkdir_p(fixtures_dir)
     File.write(recipe_file, <<~YAML)
-      # LessUI-Cores Recipe: arm64
+      # minarch-cores Recipe: arm64
       # Architecture: ARMv8-A+CRC with NEON (64-bit)
       # Target Devices: RG28xx/40xx, Trimui, CubeXX
       ---

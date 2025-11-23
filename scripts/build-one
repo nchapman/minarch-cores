@@ -5,7 +5,6 @@
 # Usage: build-one <cpu-family> <core-name> [options]
 
 require 'optparse'
-require 'json'
 require 'yaml'
 require 'fileutils'
 require_relative '../lib/logger'

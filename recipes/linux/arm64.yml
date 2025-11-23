@@ -1,4 +1,4 @@
-# LessUI-Cores Recipe: arm64
+# minarch-cores Recipe: arm64
 # Architecture: ARMv8-A+CRC with NEON (64-bit)
 # Target Devices: Anbernic RG28xx/35xx/40xx, Trimui, CubeXX
 #

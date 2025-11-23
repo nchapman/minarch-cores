@@ -130,17 +130,13 @@ class CommandBuilder
 
   def resolve_flycast_platform
     case @cpu_config.family
-    when 'cortex-a53'
-      'odroid-n2'  # H700/A133 devices (RG28xx/35xx/40xx, Trimui)
-    when 'cortex-a35'
-      'odroid-n2'  # RG351 series (legacy 64-bit ARM)
-    when 'cortex-a55'
-      'odroidc4'   # RK3566 devices (Miyoo Flip, etc.)
-    when 'cortex-a7'
-      'arm'        # ARM32
+    when 'arm64'
+      'odroid-n2'  # ARM64 devices (RG28xx/40xx, Trimui, etc.)
+    when 'arm32'
+      'arm'        # ARM32 devices
     else
-      # Generic ARM64 fallback
-      @cpu_config.arch == 'aarch64' ? 'arm64' : 'unix'
+      # Generic fallback
+      @cpu_config.arch == 'aarch64' ? 'arm64' : 'arm'
     end
   end
 
@@ -154,17 +150,12 @@ class CommandBuilder
   end
 
   def flycast_xtreme_args
-    args = ['HAVE_OPENMP=1']
+    args = ['HAVE_OPENMP=1', 'FORCE_GLES=1']
 
-    case @cpu_config.family
-    when 'cortex-a53', 'cortex-a35', 'cortex-a55'
-      args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
-    when 'cortex-a7'
-      args += ['FORCE_GLES=1', 'ARCH=arm', 'LDFLAGS=-lrt']
+    if @cpu_config.arch == 'aarch64'
+      args += ['ARCH=arm64', 'LDFLAGS=-lrt']
     else
-      if @cpu_config.arch == 'aarch64'
-        args += ['FORCE_GLES=1', 'ARCH=arm64', 'LDFLAGS=-lrt']
-      end
+      args += ['ARCH=arm', 'LDFLAGS=-lrt']
     end
 
     args

@@ -1,6 +1,6 @@
 # Adding New Cores
 
-This guide shows how to add a new core to LessUI-Cores. The process is straightforward with our explicit recipe system.
+This guide shows how to add a new core to minarch-cores. The process is straightforward with our explicit recipe system.
 
 ## Quick Process (3 Steps)
 

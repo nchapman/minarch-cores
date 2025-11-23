@@ -1,4 +1,4 @@
-# LessUI-Cores Recipe: arm32-neon-vfp4
+# minarch-cores Recipe: arm32
 # Architecture: ARMv7VE with NEON-VFPv4
 # Target Devices: Miyoo Mini, Miyoo Mini Plus, A30, Trimui Smart
 #
