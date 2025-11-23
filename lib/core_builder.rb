@@ -196,16 +196,9 @@ class CoreBuilder
       puts "\n" + "="*60
       puts "VERBOSE: Building #{name}"
       puts "="*60
-      puts "Recipe metadata:"
-      metadata.each { |k, v| puts "  #{k}: #{v.inspect}" }
-      puts "\nConfig file: config/#{@cpu_config.family}.config"
-      puts "CPU Config values:"
-      puts "  family: #{@cpu_config.family}"
-      puts "  arch: #{@cpu_config.arch}"
-      puts "  target_cpu: #{@cpu_config.target_cpu}"
-      puts "  target_cross: #{@cpu_config.target_cross}"
-      puts "  target_cflags: #{@cpu_config.target_cflags}"
-      puts "  target_ldflags: #{@cpu_config.target_ldflags}"
+      puts "Recipe: recipes/linux/#{@cpu_config.family}.yml"
+      puts "Arch: #{@cpu_config.arch} (#{@cpu_config.target_cpu})"
+      puts "Flags: #{@cpu_config.target_cflags}"
       puts "="*60 + "\n"
     end
 

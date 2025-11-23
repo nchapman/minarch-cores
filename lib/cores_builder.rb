@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'json'
 require 'yaml'
 require 'fileutils'
 require_relative 'logger'
@@ -10,7 +9,7 @@ require_relative 'source_fetcher'
 require_relative 'core_builder'
 
 # Main orchestrator for the build system
-# Coordinates recipe generation, source fetching, and building
+# Coordinates recipe loading, source fetching, and building
 class CoresBuilder
   def initialize(
     cpu_family:,
@@ -50,10 +49,10 @@ class CoresBuilder
     @logger.info("CPU Family: #{@cpu_family}")
     @logger.info("Architecture: #{@cpu_config.arch}")
 
-    # Phase 1: Generate or load recipes
-    recipes = load_or_generate_recipes
+    # Load recipes from YAML file
+    recipes = load_recipes_from_yaml
 
-    # Phase 2: Fetch sources
+    # Fetch sources
     unless @skip_fetch
       fetcher = SourceFetcher.new(
         cores_dir: @cores_dir,
@@ -64,7 +63,7 @@ class CoresBuilder
       fetcher.fetch_all(recipes)
     end
 
-    # Phase 3: Build cores
+    # Build cores
     unless @skip_build
       builder = CoreBuilder.new(
         cores_dir: @cores_dir,
@@ -85,33 +84,19 @@ class CoresBuilder
 
   private
 
-  def load_or_generate_recipes
-    # Use existing recipe if available and fresh
-    if File.exist?(@recipe_file) && !should_regenerate?
-      @logger.info("Loading existing recipes from #{@recipe_file}")
-      return load_recipes
+  def load_recipes_from_yaml
+    unless File.exist?(@recipe_file)
+      raise "Recipe file not found: #{@recipe_file}"
     end
 
-    # Generate new recipes
-    generate_recipes
-  end
+    @logger.info("Loading recipes from #{@recipe_file}")
 
-  def should_regenerate?
-    # Regenerate if recipe is older than any .mk file
-    return true unless File.exist?(@recipe_file)
-
-    recipe_mtime = File.mtime(@recipe_file)
-    mk_files = Dir.glob(File.join(@package_dir, '**/libretro-*.mk'))
-
-    mk_files.any? { |mk| File.mtime(mk) > recipe_mtime }
-  end
-
-  def load_recipes
-    # YAML recipes have a header comment block before the YAML content
+    # Parse YAML (skip header comments before ---)
     file_content = File.read(@recipe_file)
     yaml_content = file_content.split('---', 2)[1]
     data = YAML.load(yaml_content)
-    # Extract just the cores section (config section is loaded separately by CpuConfig)
-    data['cores'] || data
+
+    # Extract cores section (config section loaded separately by CpuConfig)
+    data['cores'] || raise("No 'cores' section in #{@recipe_file}")
   end
 end

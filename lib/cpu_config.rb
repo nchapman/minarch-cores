@@ -17,7 +17,6 @@ class CpuConfig
     @family = family
     @recipe_file = recipe_file || "recipes/linux/#{family}.yml"
     @logger = logger || BuildLogger.new
-    @variables = {}
     @br2_flags = {}
 
     load_config
@@ -91,17 +90,6 @@ class CpuConfig
         @br2_flags[key] = value
       end
     end
-
-    # Store all variables for compatibility
-    @variables['ARCH'] = @arch
-    @variables['TARGET_CROSS'] = @target_cross
-    @variables['GNU_TARGET_NAME'] = @gnu_target_name
-    @variables['TARGET_CPU'] = @target_cpu
-    @variables['TARGET_ARCH'] = @target_arch
-    @variables['TARGET_OPTIMIZATION'] = @target_optimization
-    @variables['TARGET_CFLAGS'] = @target_cflags
-    @variables['TARGET_CXXFLAGS'] = @target_cxxflags
-    @variables['TARGET_LDFLAGS'] = @target_ldflags
 
     validate_config
   end

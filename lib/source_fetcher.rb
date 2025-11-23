@@ -53,7 +53,7 @@ class SourceFetcher
   def fetch_one(name, metadata)
     repo = metadata['repo'] || raise("Missing 'repo' for #{name}")
 
-    # Support both 'tag' (preferred) and 'commit' (legacy)
+    # Support both 'tag' (preferred) and 'commit'
     ref = metadata['tag'] || metadata['commit']
     raise("Missing 'tag' or 'commit' for #{name}") unless ref
 
