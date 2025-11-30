@@ -302,28 +302,30 @@ make -f Makefile.libretro platform=unix CC=gcc V=1
 
 ### Creating a Release
 
-The project uses git flow with automated releases triggered by UTC date-based tags (YYYYMMDD format):
+The project uses git flow with automated releases triggered by UTC date-based tags (YYYYMMDD-N format):
 
 ```bash
 # Create a new release (must be on develop branch)
 ./scripts/release
 
-# Force re-release (overwrites existing tag/release for today)
+# Force re-release (deletes ALL releases from today and recreates as -0)
 ./scripts/release --force
 ```
 
 The release script will:
 1. Validate you're on the `develop` branch with no uncommitted changes
-2. Generate a UTC date-based tag (e.g., `20251115`)
-3. If tag exists and `--force` flag used, delete local/remote tag and GitHub release
+2. Generate a UTC date-based tag with auto-incrementing build number (e.g., `20251115-0`, `20251115-1`, etc.)
+3. If any tags exist for today and `--force` flag used, delete all tags/releases for today and restart at `-0`
 4. Execute git flow release start/finish
 5. Push branches and tag to trigger GitHub Actions
 
-**Force Mode:** Use `--force` to redeploy on the same day (e.g., after fixing a bad build). This deletes the existing tag and GitHub release (requires `gh` CLI for release deletion).
+**Multiple builds per day:** Simply run `./scripts/release` again - it automatically increments the build number (e.g., `-0` → `-1` → `-2`).
+
+**Force Mode:** Use `--force` to delete ALL releases from today and restart at `-0` (e.g., after a bad build early in the day). Requires `gh` CLI for release deletion.
 
 ### GitHub Actions Workflow
 
-When a tag matching YYYYMMDD format is pushed to `main`:
+When a tag matching YYYYMMDD-N format is pushed to `main`:
 1. Builds Docker image
 2. Runs `make build-all` for both architectures
 3. Packages builds using `make package-all`
@@ -346,4 +348,4 @@ When a tag matching YYYYMMDD format is pushed to `main`:
 - **Recipes are manually maintained** - No automatic generation; edit YAML files directly
 - **Each architecture needs ~5GB disk space** - Plan accordingly
 - **Build times are 1-3 hours per architecture** - Use `build-all` overnight
-- **One release per day** - UTC date tags prevent multiple releases on the same day
+- **Multiple releases per day supported** - Auto-incrementing build numbers (YYYYMMDD-0, -1, -2, etc.)

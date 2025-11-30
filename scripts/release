@@ -1,13 +1,15 @@
 #!/bin/bash
 #
-# release - Automated git flow release script
+# release - Automated git flow release script with build numbering
 #
-# Creates a new release with a UTC date-based tag (YYYYMMDD format)
+# Creates a new release with a UTC date-based tag (YYYYMMDD-N format)
 # and pushes to trigger GitHub Actions build workflow.
 #
+# Multiple releases per day are supported via auto-incrementing build numbers (starting from 0).
+#
 # Usage:
-#   ./scripts/release         # Normal release
-#   ./scripts/release --force # Force re-release (deletes existing tag)
+#   ./scripts/release         # Normal release (auto-increments if tag exists)
+#   ./scripts/release --force # Delete ALL releases from today and restart at -0
 
 set -e  # Exit on error
 
@@ -74,36 +76,53 @@ fi
 info "Pulling latest changes from develop..."
 git pull origin develop || error "Failed to pull from develop"
 
-# Generate UTC date-based tag (YYYYMMDD format)
-RELEASE_TAG=$(date -u '+%Y%m%d')
-info "Release tag: $RELEASE_TAG"
+# Generate UTC date-based tag (YYYYMMDD-N format)
+DATE_PREFIX=$(date -u '+%Y%m%d')
 
-# Check if tag already exists
-if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
-    if [ "$FORCE" = false ]; then
-        error "Tag '$RELEASE_TAG' already exists. A release has already been created today.\nUse --force to delete and recreate the release."
-    else
-        warning "Tag '$RELEASE_TAG' already exists. Force mode enabled - will delete and recreate."
+# Find the next available build number for today (starting from 0)
+BUILD_NUM=0
+RELEASE_TAG="${DATE_PREFIX}-${BUILD_NUM}"
 
-        # Delete local tag
-        info "Deleting local tag..."
-        git tag -d "$RELEASE_TAG" 2>/dev/null || true
+# Fetch all tags to check for existing tags with this date prefix
+git fetch --tags 2>/dev/null || true
 
-        # Delete remote tag
-        info "Deleting remote tag..."
-        git push origin ":refs/tags/$RELEASE_TAG" 2>/dev/null || true
+# Find existing tags for today and determine next build number
+while git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; do
+    if [ "$FORCE" = true ] && [ $BUILD_NUM -eq 0 ]; then
+        # Force mode: delete all tags for today and use -0
+        warning "Force mode enabled - deleting all releases from today (${DATE_PREFIX}-*)"
 
-        # Delete GitHub release if it exists (requires gh CLI)
-        if command -v gh &> /dev/null; then
-            info "Deleting GitHub release..."
-            gh release delete "$RELEASE_TAG" --yes 2>/dev/null || warning "Release not found or could not be deleted"
-        else
-            warning "GitHub CLI (gh) not found. You may need to manually delete the GitHub release."
+        # Get all tags matching today's date
+        EXISTING_TAGS=$(git tag -l "${DATE_PREFIX}-*" 2>/dev/null || echo "")
+
+        if [ -n "$EXISTING_TAGS" ]; then
+            for tag in $EXISTING_TAGS; do
+                info "Deleting local tag $tag..."
+                git tag -d "$tag" 2>/dev/null || true
+
+                info "Deleting remote tag $tag..."
+                git push origin ":refs/tags/$tag" 2>/dev/null || true
+
+                # Delete GitHub release if it exists (requires gh CLI)
+                if command -v gh &> /dev/null; then
+                    info "Deleting GitHub release $tag..."
+                    gh release delete "$tag" --yes 2>/dev/null || warning "Release $tag not found or could not be deleted"
+                fi
+            done
+            success "Existing tags and releases deleted"
         fi
-
-        success "Existing tag and release deleted"
+        break
+    else
+        # Normal mode: increment build number
+        BUILD_NUM=$((BUILD_NUM + 1))
+        RELEASE_TAG="${DATE_PREFIX}-${BUILD_NUM}"
     fi
+done
+
+if [ $BUILD_NUM -gt 0 ]; then
+    info "Found existing release(s) for today. Using build number: $BUILD_NUM"
 fi
+info "Release tag: $RELEASE_TAG"
 
 # Get the main branch name (could be 'main' or 'master')
 MAIN_BRANCH=$(git config --get gitflow.branch.master || echo "main")

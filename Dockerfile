@@ -17,10 +17,11 @@ RUN apt-get update && apt-get install -y \
 	libgcc1:armhf \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Verify ARM32 runtime is available
+# Verify ARM32 runtime is available (will show during first build only, cached after)
 RUN echo "=== ARM32 Runtime Check ===" \
 	&& ls -la /lib/ld-linux-armhf.so.3 \
-	&& (cat /proc/sys/abi/cp15_barrier 2>/dev/null && echo "  Kernel has ARM32 support" || echo "  Kernel ARM32 support: UNKNOWN (may not work on this host)")
+	&& echo "Dynamic linker exists. Testing kernel ARM32 support..." \
+	&& (cat /proc/sys/abi/cp15_barrier 2>/dev/null && echo "  ✓ Kernel has ARM32 support enabled" || echo "  ⚠ Kernel ARM32 support unknown - ARM32 binaries may fail to execute")
 
 # Install build tools and libretro core dependencies
 # Better to include extras than miss something a core needs
@@ -126,7 +127,13 @@ RUN echo "=== Build Environment ===" && \
     echo "" && \
     echo "=== ARM Cross-Compilers ===" && \
     arm-linux-gnueabihf-gcc --version | head -1 && \
-    aarch64-linux-gnu-gcc --version | head -1
+    aarch64-linux-gnu-gcc --version | head -1 && \
+    echo "" && \
+    echo "=== Testing ARM32 Execution ===" && \
+    echo 'int main() { return 42; }' > /tmp/test.c && \
+    arm-linux-gnueabihf-gcc /tmp/test.c -o /tmp/test_arm32 && \
+    (/tmp/test_arm32 && echo "  ✓ ARM32 binaries CAN execute on this host" || echo "  ✗ ARM32 binaries CANNOT execute (exit code: $?)") && \
+    rm -f /tmp/test.c /tmp/test_arm32
 
 WORKDIR /workspace
 
