@@ -15,11 +15,12 @@ RUN apt-get update && apt-get install -y \
 	libc6:armhf \
 	libstdc++6:armhf \
 	libgcc1:armhf \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& echo "=== Testing ARM32 Binary Execution ===" \
-	&& file /lib/ld-linux-armhf.so.3 \
-	&& echo "Kernel ARM32 support:" \
-	&& (cat /proc/sys/abi/cp15_barrier 2>/dev/null || echo "  ABI support status unknown")
+	&& rm -rf /var/lib/apt/lists/*
+
+# Verify ARM32 runtime is available
+RUN echo "=== ARM32 Runtime Check ===" \
+	&& ls -la /lib/ld-linux-armhf.so.3 \
+	&& (cat /proc/sys/abi/cp15_barrier 2>/dev/null && echo "  Kernel has ARM32 support" || echo "  Kernel ARM32 support: UNKNOWN (may not work on this host)")
 
 # Install build tools and libretro core dependencies
 # Better to include extras than miss something a core needs
