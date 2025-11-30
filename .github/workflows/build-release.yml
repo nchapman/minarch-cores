@@ -3,19 +3,19 @@ name: Build and Release Cores
 on:
   push:
     tags:
-      - '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'  # Match YYYYMMDD format (e.g., 20251115)
+      - "[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]" # Match YYYYMMDD format (e.g., 20251115)
 
 permissions:
-  contents: write  # Required for creating releases and pushing tags
+  contents: write # Required for creating releases and pushing tags
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 120  # 2 hours max per architecture
+    runs-on: sprinters:aws:ubuntu-24.04-arm
+    timeout-minutes: 120 # 2 hours max per architecture
     strategy:
       matrix:
         cpu: [arm32, arm64]
-      fail-fast: false  # Continue other builds even if one fails
+      fail-fast: false # Continue other builds even if one fails
 
     steps:
       - name: Checkout code
