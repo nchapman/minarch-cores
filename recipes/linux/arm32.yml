@@ -282,8 +282,8 @@ cores:
 
   stella:
     repo: stella-emu/stella
-    target: master
-    commit: 6.7.1
+    target: 6.7.1
+    commit: bbef85b3da5ea0f0b6a8d06df5eea7b603bbec94
     build_type: make
     makefile: Makefile
     build_dir: src/libretro
