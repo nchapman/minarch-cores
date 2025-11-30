@@ -75,7 +75,7 @@ RSpec.describe SourceFetcher do
       let(:metadata) do
         {
           'repo' => 'libretro/test-core',
-          'tag' => 'v1.2.3'
+          'commit' => 'v1.2.3'
         }
       end
 

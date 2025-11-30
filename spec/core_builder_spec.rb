@@ -69,8 +69,16 @@ RSpec.describe CoreBuilder do
       end
 
       it 'builds successfully and returns .so path' do
+        # Stub prebuild and patch methods
+        allow(builder).to receive(:run_prebuild_steps)
+        allow(builder).to receive(:apply_patches)
+
         # Mock Dir.chdir to yield
         allow(Dir).to receive(:chdir).and_yield
+
+        # Mock Dir.exist? for work_dir check
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(core_dir).and_return(true)
 
         # Expect make build command (no clean anymore based on code comment)
         expect(builder).to receive(:run_command).with(
@@ -88,6 +96,7 @@ RSpec.describe CoreBuilder do
         # Mock the .so file being created after build
         so_file = File.join(core_dir, 'gambatte_libretro.so')
         allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(File.join(core_dir, 'Makefile')).and_return(true)
         allow(File).to receive(:exist?).with(so_file).and_return(true)
         allow(FileUtils).to receive(:cp)
 
@@ -99,13 +108,21 @@ RSpec.describe CoreBuilder do
       it 'constructs correct Make arguments' do
         captured_args = nil
 
+        # Stub prebuild and patch methods
+        allow(builder).to receive(:run_prebuild_steps)
+        allow(builder).to receive(:apply_patches)
+
         allow(Dir).to receive(:chdir).and_yield
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(core_dir).and_return(true)
+
         allow(builder).to receive(:run_command) do |env, *args|
-          captured_args = args if args.first == 'make' && args.include?('-j4')
+          captured_args = args
         end
 
-        # Mock file existence
+        # Mock file existence - need Makefile to exist
         allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(File.join(core_dir, 'Makefile')).and_return(true)
         allow(File).to receive(:exist?).with(File.join(core_dir, 'gambatte_libretro.so')).and_return(true)
         allow(FileUtils).to receive(:cp)
 
@@ -123,12 +140,21 @@ RSpec.describe CoreBuilder do
         metadata['extra_args'] = ['USE_BLARGG_APU=1', 'DEBUG=0']
 
         captured_args = nil
+
+        # Stub prebuild and patch methods
+        allow(builder).to receive(:run_prebuild_steps)
+        allow(builder).to receive(:apply_patches)
+
         allow(Dir).to receive(:chdir).and_yield
+        allow(Dir).to receive(:exist?).and_call_original
+        allow(Dir).to receive(:exist?).with(core_dir).and_return(true)
+
         allow(builder).to receive(:run_command) do |env, *args|
-          captured_args = args if args.first == 'make' && args.include?('-j4')
+          captured_args = args
         end
 
         allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(File.join(core_dir, 'Makefile')).and_return(true)
         allow(File).to receive(:exist?).with(File.join(core_dir, 'gambatte_libretro.so')).and_return(true)
         allow(FileUtils).to receive(:cp)
 
@@ -275,9 +301,18 @@ RSpec.describe CoreBuilder do
     end
 
     it 'builds all cores and returns success exit code' do
+      # Stub prebuild and patch methods
+      allow(builder).to receive(:run_prebuild_steps)
+      allow(builder).to receive(:apply_patches)
+
       allow(Dir).to receive(:chdir).and_yield
+      allow(Dir).to receive(:exist?).and_call_original
+      allow(Dir).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte')).and_return(true)
+      allow(Dir).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm')).and_return(true)
       allow(builder).to receive(:run_command)
       allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte', 'Makefile')).and_return(true)
+      allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm', 'Makefile.libretro')).and_return(true)
       allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte', 'gambatte_libretro.so')).and_return(true)
       allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm', 'fceumm_libretro.so')).and_return(true)
       allow(FileUtils).to receive(:cp)
@@ -288,9 +323,18 @@ RSpec.describe CoreBuilder do
     end
 
     it 'tracks build statistics' do
+      # Stub prebuild and patch methods
+      allow(builder).to receive(:run_prebuild_steps)
+      allow(builder).to receive(:apply_patches)
+
       allow(Dir).to receive(:chdir).and_yield
+      allow(Dir).to receive(:exist?).and_call_original
+      allow(Dir).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte')).and_return(true)
+      allow(Dir).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm')).and_return(true)
       allow(builder).to receive(:run_command)
       allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte', 'Makefile')).and_return(true)
+      allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm', 'Makefile.libretro')).and_return(true)
       allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte', 'gambatte_libretro.so')).and_return(true)
       allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm', 'fceumm_libretro.so')).and_return(true)
       allow(FileUtils).to receive(:cp)
@@ -307,9 +351,18 @@ RSpec.describe CoreBuilder do
       FileUtils.touch(File.join(cores_dir, 'libretro-gambatte', 'Makefile'))
       FileUtils.touch(File.join(cores_dir, 'libretro-fceumm', 'Makefile.libretro'))
 
+      # Stub prebuild and patch methods
+      allow(builder).to receive(:run_prebuild_steps)
+      allow(builder).to receive(:apply_patches)
+
       allow(Dir).to receive(:chdir).and_yield
+      allow(Dir).to receive(:exist?).and_call_original
+      allow(Dir).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte')).and_return(true)
+      allow(Dir).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm')).and_return(true)
       allow(builder).to receive(:run_command)
       allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte', 'Makefile')).and_return(true)
+      allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm', 'Makefile.libretro')).and_return(true)
       allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-gambatte', 'gambatte_libretro.so')).and_return(true)
       allow(File).to receive(:exist?).with(File.join(cores_dir, 'libretro-fceumm', 'fceumm_libretro.so')).and_return(true)
       allow(FileUtils).to receive(:cp)
