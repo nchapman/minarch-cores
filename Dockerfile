@@ -127,13 +127,7 @@ RUN echo "=== Build Environment ===" && \
     echo "" && \
     echo "=== ARM Cross-Compilers ===" && \
     arm-linux-gnueabihf-gcc --version | head -1 && \
-    aarch64-linux-gnu-gcc --version | head -1 && \
-    echo "" && \
-    echo "=== Testing ARM32 Execution ===" && \
-    echo 'int main() { return 42; }' > /tmp/test.c && \
-    arm-linux-gnueabihf-gcc /tmp/test.c -o /tmp/test_arm32 && \
-    (/tmp/test_arm32 && echo "  ✓ ARM32 binaries CAN execute on this host" || echo "  ✗ ARM32 binaries CANNOT execute (exit code: $?)") && \
-    rm -f /tmp/test.c /tmp/test_arm32
+    aarch64-linux-gnu-gcc --version | head -1
 
 WORKDIR /workspace
 
