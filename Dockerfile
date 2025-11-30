@@ -9,6 +9,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN dpkg --add-architecture armhf && \
     dpkg --add-architecture arm64
 
+# Install ARM32 runtime libraries (needed to run 32-bit binaries on ARM64 hosts)
+# This allows build tools like picodrive's cyclone_gen to execute during compilation
+RUN apt-get update && apt-get install -y \
+	libc6:armhf \
+	libstdc++6:armhf \
+	libgcc1:armhf \
+	&& rm -rf /var/lib/apt/lists/*
+
 # Install build tools and libretro core dependencies
 # Better to include extras than miss something a core needs
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \

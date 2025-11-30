@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: sprinters:aws:ubuntu-24.04-arm-minimal:t4g.xlarge
+    runs-on: sprinters:aws:ubuntu-24.04-arm:t4g.xlarge
     timeout-minutes: 120 # 2 hours max per architecture
     strategy:
       matrix:
