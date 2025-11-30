@@ -1,0 +1,15 @@
+--- a/platform/common/common.mak
++++ b/platform/common/common.mak
+@@ -201,8 +201,10 @@
+ 
+ $(FR)cpu/cyclone/Cyclone.s: $(FR)cpu/$(CYCLONE_CONFIG)
+ 	@echo building Cyclone...
+-	@export CC=$(CYCLONE_CC) CXX=$(CYCLONE_CXX) CFLAGS=-O2 CXXFLAGS=-O2 CPPFLAGS="" LDFLAGS="" && \
+-		make -C $(R)cpu/cyclone/ CONFIG_FILE=../$(CYCLONE_CONFIG) HAVE_ARMv6=$(HAVE_ARMv6)
++	@echo "Building cyclone_gen for host (uses CYCLONE_CC/CYCLONE_CXX, not target cross-compiler)"
++	@unset MAKEFLAGS MAKELEVEL MFLAGS CFLAGS CXXFLAGS CPPFLAGS LDFLAGS ASFLAGS; \
++		CC=$(CYCLONE_CC) CXX=$(CYCLONE_CXX) \
++		make -C $(R)cpu/cyclone/ CONFIG_FILE=../$(CYCLONE_CONFIG) HAVE_ARMv6=$(HAVE_ARMv6)
+ 
+ $(FR)cpu/cyclone/Cyclone.s: $(FR)cpu/cyclone/*.cpp $(FR)cpu/cyclone/*.h
+ 

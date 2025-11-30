@@ -26,7 +26,18 @@ Patches should be in unified diff format (`git diff` or `diff -u`), suitable for
 
 ## Current Patches
 
-No patches currently applied. The system is ready for core-specific fixes as needed.
+### gambatte (Game Boy / Game Boy Color)
+
+**`01-export-dmg-grid-color-on-change.patch`**
+- **Purpose:** Export DMG grid color to `/tmp/dmg_grid_color` when palette changes
+- **Reason:** MinUI compatibility - allows MinUI frontend to read the current GB palette color for UI customization
+- **Source:** Adapted from MinUI workspace/all/cores/patches/gambatte/001-export-dmg-grid-color-on-change.patch
+
+### picodrive (Sega Genesis / Mega Drive / 32X)
+
+**`fix-cyclone-cross-compile.patch`**
+- **Purpose:** Fix Cyclone ARM assembly compilation for cross-compilation
+- **Reason:** Ensures proper build when cross-compiling for ARM targets
 
 ## Creating New Patches
 

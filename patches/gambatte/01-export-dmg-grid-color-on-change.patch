@@ -1,0 +1,15 @@
+--- a/libgambatte/libretro/libretro.cpp
++++ b/libgambatte/libretro/libretro.cpp
+@@ -2428,6 +2428,12 @@
+          {
+             rgb32 = gb.gbcToRgb32(gbc_bios_palette[palnum * 4 + colornum]);
+             gb.setDmgPaletteColor(palnum, colornum, rgb32);
++
++            if (palnum==0 && colornum==0) {
++                char cmd[32];
++                sprintf(cmd, "echo %i > /tmp/dmg_grid_color", rgb32);
++                system(cmd);
++            }
+          }
+       }
+    }
