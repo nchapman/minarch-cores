@@ -32,6 +32,7 @@ config:
 cores:
   a5200:
     repo: libretro/a5200
+    target: master
     commit: 526404072821bb2021fab16f8c5dbbca300512c8
     build_type: make
     makefile: Makefile
@@ -41,6 +42,7 @@ cores:
 
   atari800:
     repo: libretro/libretro-atari800
+    target: master
     commit: 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b
     build_type: make
     makefile: Makefile
@@ -50,6 +52,7 @@ cores:
 
   beetle-lynx:
     repo: libretro/beetle-lynx-libretro
+    target: master
     commit: efd1797c7aa5a83c354507b1b61ac24222ebaa58
     build_type: make
     makefile: Makefile
@@ -61,6 +64,7 @@ cores:
 
   beetle-pce-fast:
     repo: libretro/beetle-pce-fast-libretro
+    target: master
     commit: 7e9b257b8a591cb7e00f9e55371edba19db9799c
     build_type: make
     makefile: Makefile
@@ -72,6 +76,7 @@ cores:
 
   beetle-supergrafx:
     repo: libretro/beetle-supergrafx-libretro
+    target: master
     commit: a776133c34ae8da5daf7d9ccb43e3e292e2b07b0
     build_type: make
     makefile: Makefile
@@ -81,6 +86,7 @@ cores:
 
   beetle-vb:
     repo: libretro/beetle-vb-libretro
+    target: master
     commit: 8f837ebc077afdd6652efb2827fd8308a07113ca
     build_type: make
     makefile: Makefile
@@ -92,6 +98,7 @@ cores:
 
   bluemsx:
     repo: libretro/blueMSX-libretro
+    target: master
     commit: 036376d6679c9e153712dbbb3fdca774afc49706
     build_type: make
     makefile: Makefile.libretro
@@ -103,6 +110,7 @@ cores:
 
   fake08:
     repo: jtothebell/fake-08
+    target: master
     commit: 0d26fd59103941e5f95e0ee665c6e0fb8c6b6f03
     build_type: make
     makefile: Makefile
@@ -114,6 +122,7 @@ cores:
 
   fbneo:
     repo: libretro/FBNeo
+    target: master
     commit: 2f41022002337ed20186144bbddb2d53392fab85
     build_type: make
     makefile: Makefile
@@ -125,6 +134,7 @@ cores:
 
   fceumm:
     repo: libretro/libretro-fceumm
+    target: master
     commit: 5cd4a43e16a7f3cd35628d481c347a0a98cfdfa2
     build_type: make
     makefile: Makefile.libretro
@@ -136,6 +146,7 @@ cores:
 
   fuse:
     repo: libretro/fuse-libretro
+    target: master
     commit: cad85b7b1b864c65734f71aa4a510b6f6536881c
     build_type: make
     makefile: Makefile.libretro
@@ -145,6 +156,7 @@ cores:
 
   gambatte:
     repo: libretro/gambatte-libretro
+    target: master
     commit: 6924c76ba03dadddc6e97fa3660f3d3bc08faa94
     build_type: make
     makefile: Makefile.libretro
@@ -156,6 +168,7 @@ cores:
 
   gpsp:
     repo: libretro/gpsp
+    target: master
     commit: 74db5e5c73020626a1118b97d3735b5636d65d9d
     build_type: make
     makefile: Makefile
@@ -165,6 +178,7 @@ cores:
 
   melonds:
     repo: libretro/melonds
+    target: master
     commit: 7a3c11ff970cd36ca806961fae6db94b30dd5401
     build_type: make
     makefile: Makefile
@@ -174,6 +188,7 @@ cores:
 
   mgba:
     repo: libretro/mgba
+    target: master
     commit: c758314a639aa0066e7b65a8341448181b73c804
     build_type: make
     makefile: Makefile.libretro
@@ -183,6 +198,7 @@ cores:
 
   mame2003-plus:
     repo: libretro/mame2003-plus-libretro
+    target: master
     commit: 62c7089644966f6ac5fc79fe03592603579a409d
     build_type: make
     makefile: Makefile
@@ -192,6 +208,7 @@ cores:
 
   pcsx:
     repo: libretro/pcsx_rearmed
+    target: master
     commit: 228c14e10e9a8fae0ead8adf30daad2cdd8655b9
     build_type: make
     makefile: Makefile.libretro
@@ -201,6 +218,7 @@ cores:
 
   picodrive:
     repo: libretro/picodrive
+    target: master
     commit: 5b8cdea5cb06fb8d3d8ce7b88695f8dd00b4ac12
     build_type: make
     makefile: Makefile.libretro
@@ -211,6 +229,7 @@ cores:
 
   pokemini:
     repo: libretro/PokeMini
+    target: master
     commit: 19095803f1434eb980db6e4004187a4b786e20b6
     build_type: make
     makefile: Makefile.libretro
@@ -220,6 +239,7 @@ cores:
 
   prosystem:
     repo: libretro/prosystem-libretro
+    target: master
     commit: acae250da8d98b8b9707cd499e2a0bf6d8500652
     build_type: make
     makefile: Makefile
@@ -229,6 +249,7 @@ cores:
 
   race:
     repo: libretro/RACE
+    target: master
     commit: 171950ea64c96ead503340ed60fa7ba18f56325c
     build_type: make
     makefile: Makefile
@@ -238,6 +259,7 @@ cores:
 
   scummvm:
     repo: libretro/scummvm
+    target: master
     commit: 686cdd13719b92554fa46b264c512ca7deec7a96
     build_type: make
     makefile: Makefile
@@ -247,6 +269,7 @@ cores:
 
   snes9x2005:
     repo: libretro/snes9x2005
+    target: master
     commit: 74d871db9b4dba6dbe6c5ecebc88cbf255be5349
     build_type: make
     makefile: Makefile
@@ -259,6 +282,7 @@ cores:
 
   stella:
     repo: stella-emu/stella
+    target: master
     commit: 6.7.1
     build_type: make
     makefile: Makefile
@@ -270,6 +294,7 @@ cores:
 
   supafaust:
     repo: libretro/supafaust
+    target: master
     commit: e25f66765938d33f9ad5850e8d6cd597e55b7299
     build_type: make
     makefile: Makefile
@@ -279,6 +304,7 @@ cores:
 
   vecx:
     repo: libretro/libretro-vecx
+    target: master
     commit: 841229a6a81a0461d08af6488f252dcec5266c6a
     build_type: make
     makefile: Makefile.libretro
@@ -290,6 +316,7 @@ cores:
 
   vice:
     repo: libretro/vice-libretro
+    target: master
     commit: e9f8ac034ddef3025f0567768f7af8219f7cfdb8
     build_type: make
     makefile: Makefile

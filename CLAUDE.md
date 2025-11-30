@@ -75,9 +75,21 @@ These are **manually maintained YAML files** that define which cores to build fo
 
 **Recipe Entry Format (Explicit & Minimal):**
 ```yaml
+# Updateable core - tracks upstream branch/tag
+gambatte:
+  repo: libretro/gambatte-libretro
+  target: master                                    # Branch or tag to track
+  commit: 6924c76ba03dadddc6e97fa3660f3d3bc08faa94  # Resolved SHA (auto-updated)
+  build_type: make
+  makefile: Makefile.libretro
+  build_dir: "."
+  platform: unix
+  so_file: gambatte_libretro.so
+
+# Pinned core - no auto-updates
 atari800:
   repo: libretro/libretro-atari800
-  commit: 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b
+  commit: 6a18cb23cc4a7cecabd9b16143d2d7332ae8d44b  # Fixed SHA (manually updated)
   build_type: make
   makefile: Makefile
   build_dir: "."
@@ -87,12 +99,13 @@ atari800:
 
 **Required fields:**
 - `repo` - GitHub org/repo (URL auto-constructed)
-- `commit` - Git SHA or tag
+- `commit` - Git SHA (always required, used for fetching)
 - `build_type` - `make` or `cmake`
 - For make: `makefile`, `build_dir`, `platform`, `so_file`
 - For cmake: `cmake_opts`, `so_file`
 
 **Optional fields:**
+- `target` - Branch name (e.g., `master`, `main`) or version tag (e.g., `v1.18.1`) to track for updates
 - `submodules: true` - Only include if needed
 - `extra_args: [...]` - Only for special cases
 - `clean_extra: "rm -f file.o"` - Only if make clean is broken
@@ -164,38 +177,65 @@ See `docs/adding-cores.md` for detailed guide with examples.
 
 ## Updating Cores
 
-To update a core to a newer version:
+The recipe system supports package-manager-style updates using the `target` field.
 
-1. **Find the latest commit:**
+### Automatic Updates (Recommended)
+
+**For cores with `target` field:**
+```bash
+# Update all cores with target field for arm64
+make update-recipes-arm64
+
+# Update specific core
+make update-core-arm64-gambatte
+
+# Dry-run (check without updating)
+make update-recipes-arm64 DRY=1
+
+# Update all architectures
+make update-recipes-all
+```
+
+The update command:
+- Only updates cores that have a `target` field (opt-in)
+- Resolves the target (branch/tag) to latest commit SHA
+- Updates the `commit` field in-place while preserving formatting
+- Skips cores without `target` field (pinned cores)
+
+### Manual Updates (For Pinned Cores)
+
+For cores without `target` field:
+
+1. **Find the commit:**
    ```bash
    git ls-remote --heads https://github.com/libretro/libretro-atari800.git | grep master
    ```
 
-   Or check the core's GitHub releases for stable commits.
-
-2. **Update the commit hash in recipes:**
+2. **Update the commit hash:**
    ```bash
-   # Edit each architecture recipe
    vim recipes/linux/arm64.yml
-
-   # Change only the commit field in the cores section:
-   cores:
-     atari800:
-       commit: <new-commit-hash>  # ← Update this line
+   # Change the commit field for the core
    ```
 
 3. **Clean and rebuild:**
    ```bash
-   # Delete fetched source to force re-download
    rm -rf output/cores-arm64/libretro-atari800
-
-   # Test build
    make core-arm64-atari800
-
-   # Update other architectures and test
    ```
 
-**Note:** URLs are auto-constructed from repo + commit, so you only need to update the commit field.
+### Making a Core Updateable
+
+Add a `target` field to enable automatic updates:
+```yaml
+gambatte:
+  target: master  # Track master branch
+  commit: <sha>   # Will be auto-updated
+  # ... rest of config
+```
+
+Supported targets:
+- Branch names: `master`, `main`, `develop`
+- Version tags: `v1.18.1`, `v2.0`
 
 ## MinUI Required Cores
 

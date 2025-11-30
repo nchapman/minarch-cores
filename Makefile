@@ -1,7 +1,7 @@
 # minarch-cores - Build libretro cores for ARM devices
 # Architecture-based builds for optimal performance
 
-.PHONY: help list-cores build-% build-all core-% package-% package-all clean-% clean docker-build shell release test update-recipes-% update-recipes-all
+.PHONY: help list-cores build-% build-all core-% package-% package-all clean-% clean docker-build shell release test update-recipes-% update-recipes-all update-core-%
 
 # Docker configuration
 DOCKER_IMAGE := minarch-cores-builder
@@ -63,8 +63,11 @@ help:
 	@echo "  make build-arm32 PLATFORM=amd64     Test ARM32 cross-compile"
 	@echo ""
 	@echo "Recipe Management:"
-	@echo "  make update-recipes-arm64 LIVE=1    Update arm64 core commits"
-	@echo "  make update-recipes-all LIVE=1      Update all architectures"
+	@echo "  make update-recipes-arm64               Update arm64 core commits"
+	@echo "  make update-recipes-arm64 DRY=1         Check for updates (dry-run)"
+	@echo "  make update-core-arm64-gambatte         Update specific core"
+	@echo "  make update-core-arm64-gambatte DRY=1   Check specific core (dry-run)"
+	@echo "  make update-recipes-all                 Update all architectures"
 
 # Build Docker image
 docker-build:
@@ -217,27 +220,35 @@ release:
 # Update recipe commit hashes to latest versions
 .PHONY: update-recipes-%
 update-recipes-%:
-	@echo "=== Checking for updates: $* ==="
-	@if [ "$(LIVE)" = "1" ]; then \
-		./scripts/update-recipes $*; \
-	else \
+	@echo "=== Updating recipes: $* ==="
+	@if [ "$(DRY)" = "1" ]; then \
 		./scripts/update-recipes $* --dry-run; \
+	else \
+		./scripts/update-recipes $*; \
 	fi
 
 # Update all recipe families
 .PHONY: update-recipes-all
 update-recipes-all:
-	@echo "=== Checking all CPU families for updates ==="
+	@echo "=== Updating all CPU families ==="
 	@for family in $(CPU_FAMILIES); do \
 		echo ""; \
 		echo "--- $$family ---"; \
-		if [ "$(LIVE)" = "1" ]; then \
-			./scripts/update-recipes $$family; \
-		else \
+		if [ "$(DRY)" = "1" ]; then \
 			./scripts/update-recipes $$family --dry-run; \
+		else \
+			./scripts/update-recipes $$family; \
 		fi; \
 	done
-	@if [ "$(LIVE)" != "1" ]; then \
-		echo ""; \
-		echo "To apply updates, run: make update-recipes-all LIVE=1"; \
+
+# Update specific core for specific architecture
+.PHONY: update-core-%
+update-core-%:
+	@arch=$$(echo $* | cut -d- -f1); \
+	core=$$(echo $* | cut -d- -f2-); \
+	echo "=== Updating: $$arch / $$core ==="; \
+	if [ "$(DRY)" = "1" ]; then \
+		./scripts/update-recipes $$arch --core=$$core --dry-run; \
+	else \
+		./scripts/update-recipes $$arch --core=$$core; \
 	fi

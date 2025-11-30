@@ -25,7 +25,7 @@ class RecipeUpdater
 
   def run
     puts "Updating recipes for #{@cpu_family}..."
-    puts "Mode: #{@dry_run ? 'DRY RUN' : 'LIVE UPDATE'}"
+    puts "Mode: #{@dry_run ? 'DRY RUN (no changes)' : 'LIVE (will update YAML)'}"
     puts
 
     # Read recipe file preserving formatting
@@ -34,16 +34,22 @@ class RecipeUpdater
 
     updates = []
 
-    recipes.each do |core_name, config|
+    recipes['cores'].each do |core_name, config|
       # Skip if targeting specific core and this isn't it
       next if @target_core && core_name != @target_core
+
+      # Skip if no target field (opt-in model - pinned cores)
+      target = config['target']
+      unless target
+        next
+      end
 
       repo = config['repo']
       current_commit = config['commit']
 
-      print "Checking #{core_name.ljust(20)} (#{repo})... "
+      print "Checking #{core_name.ljust(20)} (#{repo} @ #{target})... "
 
-      latest_commit = fetch_latest_commit(repo)
+      latest_commit = fetch_latest_commit(repo, target)
 
       if latest_commit.nil?
         puts "❌ Failed to fetch"
@@ -72,7 +78,6 @@ class RecipeUpdater
 
     if @dry_run
       puts "Dry run mode - no changes made"
-      puts "Run without --dry-run to apply updates"
       return
     end
 
@@ -98,31 +103,33 @@ class RecipeUpdater
 
   private
 
-  def fetch_latest_commit(repo)
+  def fetch_latest_commit(repo, target)
     url = "https://github.com/#{repo}.git"
 
-    # Try to get HEAD first (default branch)
-    cmd = "git ls-remote #{url} HEAD 2>/dev/null"
+    # Determine ref type based on target format
+    ref = if target =~ /^v[\d.]+$/
+      # Version tag (e.g., v1.18.1)
+      "refs/tags/#{target}"
+    elsif target =~ /^[\d.]+$/
+      # Plain version (e.g., 6.7.1) - try as tag
+      "refs/tags/#{target}"
+    else
+      # Branch name (e.g., master, main, develop)
+      "refs/heads/#{target}"
+    end
+
+    cmd = "git ls-remote #{url} #{ref} 2>/dev/null"
     stdout, stderr, status = Open3.capture3(cmd)
 
     if status.success? && !stdout.empty?
       return stdout.split("\t").first
     end
 
-    # Fallback to master
-    cmd = "git ls-remote #{url} refs/heads/master 2>/dev/null"
-    stdout, stderr, status = Open3.capture3(cmd)
-
-    if status.success? && !stdout.empty?
-      return stdout.split("\t").first
-    end
-
-    # Fallback to main
-    cmd = "git ls-remote #{url} refs/heads/main 2>/dev/null"
-    stdout, stderr, status = Open3.capture3(cmd)
-
-    if status.success? && !stdout.empty?
-      return stdout.split("\t").first
+    # Fallback: try as annotated tag (fetch ^{} dereference)
+    if target =~ /^v?[\d.]+$/
+      cmd = "git ls-remote #{url} #{ref}^{} 2>/dev/null"
+      stdout, stderr, status = Open3.capture3(cmd)
+      return stdout.split("\t").first if status.success? && !stdout.empty?
     end
 
     nil
